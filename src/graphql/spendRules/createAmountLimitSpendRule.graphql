@@ -1,0 +1,24 @@
+mutation CreateAmountLimitSpendRule($input: CreateAmountLimitSpendRuleInput!) {
+  createAmountLimitSpendRule(input: $input) {
+    ... on AmountLimitSpendRule {
+      __typename
+      id
+      name
+      createdAt
+      updatedAt
+      version
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

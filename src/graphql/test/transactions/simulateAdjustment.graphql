@@ -1,0 +1,25 @@
+mutation SimulateAdjustment($input: SimulateAdjustmentInput!) {
+  simulateAdjustment(input: $input) {
+    ... on AdjustmentEvent {
+      __typename
+      id
+      approvedAmount {
+        value
+        currencyCode
+      }
+      createdAt
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

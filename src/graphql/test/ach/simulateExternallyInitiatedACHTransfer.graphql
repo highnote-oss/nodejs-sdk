@@ -1,0 +1,52 @@
+mutation SimulateExternallyInitiatedACHTransfer($input: SimulateExternallyInitiatedACHTransferInput!) {
+  simulateExternallyInitiatedACHTransfer(input: $input) {
+    ... on CreditFunds {
+      __typename
+      id
+      amount {
+        value
+        currencyCode
+      }
+      createdAt
+    }
+    ... on DebitFunds {
+      __typename
+      id
+      amount {
+        value
+        currencyCode
+      }
+      createdAt
+    }
+    ... on PayrollTransfer {
+      __typename
+      id
+      amount {
+        value
+        currencyCode
+      }
+      createdAt
+    }
+    ... on SecureDeposit {
+      __typename
+      id
+      amount {
+        value
+        currencyCode
+      }
+      createdAt
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

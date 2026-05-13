@@ -1,0 +1,32 @@
+mutation CreateOneTimeAchTransfer($input: CreateOneTimeACHTransferInput!) {
+  createOneTimeACHTransfer(input: $input) {
+    ... on OneTimeACHTransfer {
+      __typename
+      id
+      createdAt
+      updatedAt
+      status
+      scheduledTransferDate
+      transferAmount {
+        ... on ManualTransferAmount {
+          amount {
+            value
+            currencyCode
+          }
+        }
+      }
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        description
+        errorPath
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

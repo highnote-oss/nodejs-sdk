@@ -1,0 +1,37 @@
+mutation ProvisionAccountHolder($input: ProvisionAccountHolderInput!) {
+  provisionAccountHolder(input: $input) {
+    ... on AccountHolderProvisioning {
+      __typename
+      id
+      outcome {
+        status
+      }
+      workflowActions {
+        action
+        outcome {
+          status
+        }
+      }
+      accountHolder {
+        ... on USPersonAccountHolder {
+          id
+        }
+        ... on USBusinessAccountHolder {
+          id
+        }
+      }
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

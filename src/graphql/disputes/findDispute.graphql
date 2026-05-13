@@ -1,0 +1,42 @@
+query FindDispute($id: ID!) {
+  node(id: $id) {
+    ... on PaymentCardTransactionDispute {
+      __typename
+      id
+      createdAt
+      updatedAt
+      status
+      category
+      customerClaimType
+      liability
+      amount {
+        value
+        currencyCode
+      }
+      subscriberNote
+      provisionalCreditHistory {
+        creditAmount {
+          value
+          currencyCode
+        }
+        creditStatus
+        createdAt
+      }
+      chargebacks {
+        id
+        status
+        requestedAmount {
+          value
+          currencyCode
+        }
+        receivedAmount {
+          value
+          currencyCode
+        }
+        creditStatus
+        createdAt
+        updatedAt
+      }
+    }
+  }
+}

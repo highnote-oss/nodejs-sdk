@@ -1,0 +1,14 @@
+query ListPersonAccountHolders($first: Int, $after: String) {
+  personAccountHolders(first: $first, after: $after) {
+    edges {
+      node {
+        ...PersonAccountHolderSummary
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}

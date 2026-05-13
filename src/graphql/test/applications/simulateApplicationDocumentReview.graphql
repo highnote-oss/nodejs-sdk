@@ -1,0 +1,22 @@
+mutation SimulateApplicationDocumentReview($input: SimulateApplicationDocumentReviewInput!) {
+  simulateApplicationDocumentReview(input: $input) {
+    ... on AccountHolderApplicationDocument {
+      __typename
+      id
+      status
+      createdAt
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

@@ -1,0 +1,25 @@
+mutation CancelPhysicalPaymentCardOrder($input: CancelPhysicalPaymentCardOrderInput!) {
+  cancelPhysicalPaymentCardOrder(input: $input) {
+    ... on PhysicalPaymentCardOrder {
+      __typename
+      id
+      createdAt
+      updatedAt
+      orderState {
+        status
+      }
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

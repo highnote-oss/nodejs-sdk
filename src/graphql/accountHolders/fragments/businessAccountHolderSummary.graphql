@@ -1,0 +1,7 @@
+fragment BusinessAccountHolderSummary on USBusinessAccountHolder {
+  __typename
+  id
+  externalId
+  createdAt
+  updatedAt
+}

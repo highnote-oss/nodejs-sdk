@@ -1,0 +1,6 @@
+query FindAccountHolder($id: ID!) {
+  node(id: $id) {
+    ...PersonAccountHolderFields
+    ...BusinessAccountHolderFields
+  }
+}

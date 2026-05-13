@@ -1,0 +1,78 @@
+mutation ValidateAddress($input: ValidateAddressInput!) {
+  validateAddress(input: $input) {
+    ... on AddressValidationResult {
+      __typename
+      outcome {
+        ... on AddressValidatedResult {
+          __typename
+          token {
+            id
+            provided {
+              streetAddress
+              extendedAddress
+              locality
+              region
+              postalCode
+              countryCodeAlpha3
+            }
+            standardized {
+              streetAddress
+              extendedAddress
+              locality
+              region
+              postalCode
+              countryCodeAlpha3
+            }
+            deliveryStatus
+            deliveryStatusMessage
+            expiresAt
+          }
+        }
+        ... on AddressValidatedWithChangesResult {
+          __typename
+          componentsChanged
+          token {
+            id
+            provided {
+              streetAddress
+              extendedAddress
+              locality
+              region
+              postalCode
+              countryCodeAlpha3
+            }
+            standardized {
+              streetAddress
+              extendedAddress
+              locality
+              region
+              postalCode
+              countryCodeAlpha3
+            }
+            deliveryStatus
+            deliveryStatusMessage
+            expiresAt
+          }
+        }
+        ... on AddressIncompleteResult {
+          __typename
+        }
+        ... on AddressInvalidResult {
+          __typename
+        }
+      }
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

@@ -1,0 +1,23 @@
+mutation SimulateCloseFinancialAccount($input: SimulateCloseFinancialAccountInput!) {
+  simulateCloseFinancialAccount(input: $input) {
+    ... on FinancialAccount {
+      __typename
+      id
+      accountStatus
+      name
+      createdAt
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

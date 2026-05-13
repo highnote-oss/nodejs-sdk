@@ -1,0 +1,23 @@
+mutation RemoveEmailFromNotificationTarget($input: RemoveEmailFromNotificationTargetInput!) {
+  removeEmailFromNotificationTarget(input: $input) {
+    ... on WebhookNotificationTarget {
+      __typename
+      id
+      name
+      email
+      status
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

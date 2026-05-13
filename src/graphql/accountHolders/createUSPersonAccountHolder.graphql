@@ -1,0 +1,38 @@
+mutation CreateUSPersonAccountHolder($input: CreateUSPersonAccountHolderInput!) {
+  createUSPersonAccountHolder(input: $input) {
+    ... on USPersonAccountHolder {
+      __typename
+      id
+      externalId
+      createdAt
+      email
+      name {
+        givenName
+        familyName
+        middleName
+        suffix
+      }
+      dateOfBirth
+      billingAddress {
+        streetAddress
+        extendedAddress
+        locality
+        region
+        postalCode
+        countryCodeAlpha3
+      }
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

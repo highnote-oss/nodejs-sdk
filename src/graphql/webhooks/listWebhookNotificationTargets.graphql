@@ -1,0 +1,24 @@
+query ListWebhookNotificationTargets($first: Int, $after: String) {
+  organizations {
+    webhookNotificationTargets(first: $first, after: $after) {
+      edges {
+        node {
+          __typename
+          id
+          name
+          uri
+          status
+          createdAt
+          updatedAt
+          deactivatedAt
+          subscriptions
+        }
+        cursor
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+}

@@ -1,0 +1,269 @@
+query FindFinancialAccountActivities($id: ID!, $first: Int, $after: String) {
+  node(id: $id) {
+    ... on FinancialAccount {
+      __typename
+      id
+      financialAccountActivities(first: $first, after: $after) {
+        edges {
+          node {
+            createdAt
+            updatedAt
+            isComplete
+            pendingAmount {
+              value
+              currencyCode
+            }
+            postedAmount {
+              value
+              currencyCode
+            }
+            sign
+            source {
+              ... on DebitTransaction {
+                __typename
+                id
+                transactionEvents {
+                  ... on AuthorizationEvent {
+                    __typename
+                    id
+                    responseCode
+                    transactionProcessingType
+                    approvedAmount { value currencyCode }
+                    merchantDetails {
+                      name
+                      categoryCode
+                      description
+                    }
+                    paymentCard { id last4 }
+                    createdAt
+                  }
+                  ... on ClearingEvent {
+                    __typename
+                    id
+                    approvedAmount { value currencyCode }
+                    merchantDetails {
+                      name
+                      categoryCode
+                      description
+                    }
+                    createdAt
+                  }
+                  ... on ReversalEvent {
+                    __typename
+                    id
+                    approvedAmount { value currencyCode }
+                    createdAt
+                  }
+                  ... on AuthorizationAndClearEvent {
+                    __typename
+                    id
+                    responseCode
+                    transactionProcessingType
+                    approvedAmount { value currencyCode }
+                    merchantDetails {
+                      name
+                      categoryCode
+                      description
+                    }
+                    paymentCard { id last4 }
+                    createdAt
+                  }
+                  ... on VerificationEvent {
+                    __typename
+                    id
+                    responseCode
+                    approvedAmount { value currencyCode }
+                    merchantDetails {
+                      name
+                      categoryCode
+                      description
+                    }
+                    paymentCard { id last4 }
+                    createdAt
+                  }
+                }
+              }
+              ... on CreditTransaction {
+                __typename
+                id
+                transactionEvents {
+                  ... on AuthorizationEvent {
+                    __typename
+                    id
+                    responseCode
+                    transactionProcessingType
+                    approvedAmount { value currencyCode }
+                    merchantDetails {
+                      name
+                      categoryCode
+                      description
+                    }
+                    paymentCard { id last4 }
+                    createdAt
+                  }
+                  ... on ClearingEvent {
+                    __typename
+                    id
+                    approvedAmount { value currencyCode }
+                    merchantDetails {
+                      name
+                      categoryCode
+                      description
+                    }
+                    createdAt
+                  }
+                  ... on ReversalEvent {
+                    __typename
+                    id
+                    approvedAmount { value currencyCode }
+                    createdAt
+                  }
+                  ... on AuthorizationAndClearEvent {
+                    __typename
+                    id
+                    responseCode
+                    transactionProcessingType
+                    approvedAmount { value currencyCode }
+                    merchantDetails {
+                      name
+                      categoryCode
+                      description
+                    }
+                    paymentCard { id last4 }
+                    createdAt
+                  }
+                  ... on VerificationEvent {
+                    __typename
+                    id
+                    responseCode
+                    approvedAmount { value currencyCode }
+                    merchantDetails {
+                      name
+                      categoryCode
+                      description
+                    }
+                    paymentCard { id last4 }
+                    createdAt
+                  }
+                }
+              }
+              ... on CreditFunds {
+                __typename
+                id
+                amount { value currencyCode }
+                companyName
+                createdAt
+                settlementDate
+                externalStatus: status {
+                  ... on NonFailureExternallyInitiatedACHStatus {
+                    status
+                  }
+                  ... on FailureExternallyInitiatedACHStatus {
+                    status
+                    statusReasonCode
+                  }
+                }
+              }
+              ... on DebitFunds {
+                __typename
+                id
+                amount { value currencyCode }
+                companyName
+                createdAt
+                settlementDate
+                externalStatus: status {
+                  ... on NonFailureExternallyInitiatedACHStatus {
+                    status
+                  }
+                  ... on FailureExternallyInitiatedACHStatus {
+                    status
+                    statusReasonCode
+                  }
+                }
+              }
+              ... on IntegratorInitiatedFundsDepositACHTransfer {
+                __typename
+                id
+                amount { value currencyCode }
+                createdAt
+                integratorStatus: status {
+                  ... on NonFailureIntegratorInitiatedACHStatus {
+                    status
+                  }
+                  ... on FailureIntegratorInitiatedACHStatus {
+                    status
+                    statusReasonCode
+                  }
+                }
+              }
+              ... on IntegratorInitiatedFundsWithdrawalACHTransfer {
+                __typename
+                id
+                amount { value currencyCode }
+                createdAt
+                integratorStatus: status {
+                  ... on NonFailureIntegratorInitiatedACHStatus {
+                    status
+                  }
+                  ... on FailureIntegratorInitiatedACHStatus {
+                    status
+                    statusReasonCode
+                  }
+                }
+              }
+              ... on InterFinancialAccountTransfer {
+                __typename
+                id
+                amount { value currencyCode }
+                createdAt
+              }
+              ... on FeeTransferEvent {
+                __typename
+                id
+              }
+              ... on PayrollTransfer {
+                __typename
+                id
+                amount { value currencyCode }
+                companyName
+                createdAt
+                settlementDate
+                externalStatus: status {
+                  ... on NonFailureExternallyInitiatedACHStatus {
+                    status
+                  }
+                  ... on FailureExternallyInitiatedACHStatus {
+                    status
+                    statusReasonCode
+                  }
+                }
+              }
+              ... on SecureDeposit {
+                __typename
+                id
+                amount { value currencyCode }
+                createdAt
+              }
+              ... on SecureDepositACHTransfer {
+                __typename
+                id
+                amount { value currencyCode }
+                createdAt
+              }
+              ... on SecureCardBalanceRepaymentACHTransfer {
+                __typename
+                id
+                amount { value currencyCode }
+                createdAt
+              }
+            }
+          }
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+      }
+    }
+  }
+}

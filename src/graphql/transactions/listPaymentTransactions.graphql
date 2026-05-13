@@ -1,0 +1,33 @@
+query ListPaymentTransactions($first: Int, $after: String, $filterBy: PaymentTransactionFilterInput) {
+  paymentTransactions(first: $first, after: $after, filterBy: $filterBy) {
+    edges {
+      node {
+        id
+        createdAt
+        accountingDirection
+        status
+        authorizedAmount {
+          value
+          currencyCode
+        }
+        capturedAmount {
+          value
+          currencyCode
+        }
+        settledAmount {
+          value
+          currencyCode
+        }
+        responseCode {
+          authorizationCode
+        }
+        __typename
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}

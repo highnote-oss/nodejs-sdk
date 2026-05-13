@@ -1,0 +1,20 @@
+mutation ReplayNotificationEvent($input: ReplayNotificationEventInput!) {
+  replayNotificationEvent(input: $input) {
+    ... on NotificationEvent {
+      __typename
+      id
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

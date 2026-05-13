@@ -1,0 +1,25 @@
+mutation ActivateCollaborativeAuthorizationEndpoint($input: ActivateCollaborativeAuthorizationEndpointInput!) {
+  activateCollaborativeAuthorizationEndpoint(input: $input) {
+    ... on CollaborativeAuthorizationEndpoint {
+      __typename
+      id
+      name
+      uri
+      status
+      createdAt
+      updatedAt
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

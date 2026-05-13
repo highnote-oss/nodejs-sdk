@@ -1,0 +1,82 @@
+query FindFinancialAccount($id: ID!) {
+  node(id: $id) {
+    ... on FinancialAccount {
+      __typename
+      id
+      externalId
+      createdAt
+      accountStatus
+      name
+      ledgers {
+        id
+        name
+        creditBalance {
+          value
+          currencyCode
+        }
+        debitBalance {
+          value
+          currencyCode
+        }
+      }
+      paymentCards(first: 20) {
+        edges {
+          node {
+            id
+            last4
+            status
+            formFactor
+            network
+            expirationDate
+          }
+        }
+      }
+      incomingScheduledTransfers(first: 20) {
+        edges {
+          node {
+            ... on OneTimeACHTransfer {
+              __typename
+              id
+              createdAt
+              updatedAt
+              status
+              scheduledTransferDate
+              descriptor {
+                companyEntryDescription
+                individualName
+              }
+              transferAmount {
+                ... on ManualTransferAmount {
+                  amount {
+                    value
+                    currencyCode
+                  }
+                }
+              }
+            }
+            ... on RecurringACHTransfer {
+              __typename
+              id
+              createdAt
+              updatedAt
+              status
+              frequency
+              descriptor {
+                companyEntryDescription
+                individualName
+              }
+              transferAmount {
+                ... on ManualTransferAmount {
+                  amount {
+                    value
+                    currencyCode
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

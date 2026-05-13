@@ -1,0 +1,19 @@
+query ListCardProducts($first: Int, $after: String) {
+  cardProducts(first: $first, after: $after) {
+    edges {
+      node {
+        id
+        name
+        usage
+        vertical
+        commercial
+        __typename
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}

@@ -1,0 +1,31 @@
+mutation SimulateRefund($input: SimulateRefundInput!) {
+  simulateRefund(input: $input) {
+    ... on ClearingEvent {
+      __typename
+      id
+      approvedAmount {
+        value
+        currencyCode
+      }
+      merchantDetails {
+        merchantId
+        name
+        categoryCode
+        countryCodeAlpha3
+      }
+      createdAt
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

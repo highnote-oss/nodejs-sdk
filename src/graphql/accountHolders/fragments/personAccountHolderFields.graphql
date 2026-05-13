@@ -1,0 +1,122 @@
+fragment PersonAccountHolderFields on USPersonAccountHolder {
+  __typename
+  id
+  externalId
+  createdAt
+  updatedAt
+  email
+  name {
+    givenName
+    familyName
+    middleName
+    suffix
+  }
+  dateOfBirth
+  billingAddress {
+    streetAddress
+    extendedAddress
+    locality
+    region
+    postalCode
+    countryCodeAlpha3
+  }
+  cardProductApplications(first: 20) {
+    edges {
+      node {
+        id
+        applicationState {
+          status
+        }
+        applicationWorkflows {
+          executionOrder
+          status
+          workflowType
+        }
+        accountHolderSnapshot {
+          ... on USPersonAccountHolderSnapshot {
+            currentVerification {
+              status
+              reason
+              results {
+                code
+                description
+              }
+            }
+          }
+        }
+        cardProduct {
+          id
+          name
+        }
+        createdAt
+        decisionedAt
+      }
+    }
+  }
+  financialAccounts(first: 20) {
+    edges {
+      node {
+        id
+        name
+        accountStatus
+        externalId
+        createdAt
+        ledgers {
+          id
+          name
+          creditBalance {
+            value
+            currencyCode
+          }
+          debitBalance {
+            value
+            currencyCode
+          }
+        }
+        paymentCards(first: 20) {
+          edges {
+            node {
+              id
+              last4
+              status
+              formFactor
+              network
+              expirationDate
+            }
+          }
+        }
+      }
+    }
+  }
+  externalFinancialAccounts(first: 20) {
+    edges {
+      node {
+        ... on ExternalFinancialBankAccount {
+          __typename
+          id
+          name
+          accountStatus
+          createdAt
+          externalBankAccountDetails {
+            id
+            last4
+            type
+          }
+        }
+        ... on NonVerifiedExternalUSFinancialBankAccount {
+          __typename
+          id
+          name
+          accountStatus
+          createdAt
+          externalBankAccountDetails {
+            id
+            last4
+            routingNumber
+            type
+          }
+        }
+      }
+    }
+  }
+}

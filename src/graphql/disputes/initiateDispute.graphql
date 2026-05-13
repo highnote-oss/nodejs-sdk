@@ -1,0 +1,38 @@
+mutation InitiateCustomerCardTransactionDispute($input: InitiateCustomerCardTransactionDisputeInput!) {
+  initiateCustomerCardTransactionDispute(input: $input) {
+    ... on PaymentCardTransactionDispute {
+      __typename
+      id
+      createdAt
+      updatedAt
+      status
+      category
+      customerClaimType
+      liability
+      amount {
+        value
+        currencyCode
+      }
+      provisionalCreditHistory {
+        creditAmount {
+          value
+          currencyCode
+        }
+        creditStatus
+        createdAt
+      }
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

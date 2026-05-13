@@ -1,0 +1,17 @@
+query FindPaymentCard($id: ID!) {
+  node(id: $id) {
+    ... on PaymentCard {
+      __typename
+      id
+      bin
+      last4
+      network
+      status
+      formFactor
+      expirationDate
+      expirationMonth
+      expirationYear
+      externalId
+    }
+  }
+}

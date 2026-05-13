@@ -1,0 +1,98 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "Release channel"
+        required: true
+        type: choice
+        options:
+          - alpha
+          - beta
+          - stable
+      dry_run:
+        description: "Dry run (skip publish)"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+          cache: npm
+
+      - name: Debug versions
+        run: |
+          node --version
+          npm --version
+          npm whoami --registry https://registry.npmjs.org 2>&1 || true
+          echo "Package name: $(npm pkg get name)"
+
+      - run: npm ci
+
+      - name: Generate types from Highnote schema
+        run: npm run codegen
+        env:
+          HIGHNOTE_API_KEY: ${{ secrets.HIGHNOTE_API_KEY }}
+
+      - run: npm run typecheck
+      - run: npm run test:unit
+
+      - name: Integration tests
+        run: npm run test:integration
+        env:
+          HIGHNOTE_API_KEY: ${{ secrets.HIGHNOTE_API_KEY }}
+
+      - run: npm run build
+
+      - name: Compute next version
+        id: version
+        run: |
+          CURRENT=$(node -p "require('./package.json').version")
+          CHANNEL="${{ inputs.channel }}"
+          BASE=$(echo "$CURRENT" | sed 's/-.*//')
+          if [ "$CHANNEL" = "stable" ]; then
+            NEXT="$BASE"
+            TAG="latest"
+          else
+            LATEST_PRE=$(git tag -l "v${BASE}-${CHANNEL}.*" | sed "s/v${BASE}-${CHANNEL}\.//" | sort -n | tail -1)
+            if [ -z "$LATEST_PRE" ]; then
+              NEXT_PRE=1
+            else
+              NEXT_PRE=$((LATEST_PRE + 1))
+            fi
+            NEXT="${BASE}-${CHANNEL}.${NEXT_PRE}"
+            TAG="next"
+          fi
+          echo "next=$NEXT" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "### Release: v${NEXT} (${TAG})" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Create tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "v${{ steps.version.outputs.next }}" -m "v${{ steps.version.outputs.next }}"
+          git push origin "v${{ steps.version.outputs.next }}"
+
+      - name: Publish to npm
+        if: ${{ !inputs.dry_run }}
+        run: |
+          npm version ${{ steps.version.outputs.next }} --no-git-tag-version
+          npm publish --access public --provenance --tag ${{ steps.version.outputs.tag }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

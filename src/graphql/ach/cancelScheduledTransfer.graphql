@@ -1,0 +1,26 @@
+mutation CancelScheduledTransfer($input: CancelScheduledTransferInput!) {
+  cancelScheduledTransfer(input: $input) {
+    ... on OneTimeACHTransfer {
+      __typename
+      id
+      status
+    }
+    ... on RecurringACHTransfer {
+      __typename
+      id
+      status
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        description
+        errorPath
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

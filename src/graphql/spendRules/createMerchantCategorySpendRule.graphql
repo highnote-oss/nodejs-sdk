@@ -1,0 +1,24 @@
+mutation CreateMerchantCategorySpendRule($input: CreateMerchantCategorySpendRuleInput!) {
+  createMerchantCategorySpendRule(input: $input) {
+    ... on MerchantCategorySpendRule {
+      __typename
+      id
+      name
+      createdAt
+      updatedAt
+      version
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

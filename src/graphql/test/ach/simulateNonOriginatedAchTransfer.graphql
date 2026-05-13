@@ -1,0 +1,22 @@
+mutation SimulateNonOriginatedAchTransfer($input: SimulateNonOriginatedAchTransferInput!) {
+  simulateNonOriginatedAchTransfer(input: $input) {
+    ... on NonOriginatedAchTransfer {
+      __typename
+      id
+      status
+      createdAt
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

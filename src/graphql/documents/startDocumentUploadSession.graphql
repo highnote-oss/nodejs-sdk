@@ -1,0 +1,30 @@
+mutation StartDocumentUploadSession($input: StartDocumentUploadSessionInput!) {
+  startDocumentUploadSession(input: $input) {
+    ... on IdentityVerificationDocumentUploadSession {
+      __typename
+      id
+      status
+      createdAt
+      updatedAt
+    }
+    ... on USAccountHolderApplicationDocumentUploadSession {
+      __typename
+      id
+      status
+      createdAt
+      updatedAt
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

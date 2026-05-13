@@ -1,0 +1,30 @@
+mutation InitiateTransferBetweenFinancialAccounts($input: InitiateTransferBetweenFinancialAccountsInput!) {
+  initiateTransferBetweenFinancialAccounts(input: $input) {
+    ... on InterFinancialAccountTransfer {
+      __typename
+      id
+      createdAt
+      updatedAt
+      status
+      statusReason
+      purpose
+      memo
+      amount {
+        value
+        currencyCode
+      }
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

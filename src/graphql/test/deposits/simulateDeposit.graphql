@@ -1,0 +1,34 @@
+mutation SimulateDeposit($input: SimulateDepositInput!) {
+  simulateDeposit(input: $input) {
+    ... on Transfer {
+      __typename
+      id
+      amount {
+        value
+        currencyCode
+      }
+      createdAt
+    }
+    ... on WireTransfer {
+      __typename
+      id
+      amount {
+        value
+        currencyCode
+      }
+      createdAt
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

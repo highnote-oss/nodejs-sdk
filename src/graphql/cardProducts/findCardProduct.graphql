@@ -1,0 +1,12 @@
+query FindCardProduct($id: ID!) {
+  node(id: $id) {
+    ... on CardProduct {
+      id
+      name
+      usage
+      vertical
+      commercial
+      __typename
+    }
+  }
+}

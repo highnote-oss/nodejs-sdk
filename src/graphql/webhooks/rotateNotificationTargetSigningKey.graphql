@@ -1,0 +1,28 @@
+mutation RotateNotificationTargetSigningKey($input: RotateNotificationTargetSigningKeyInput!) {
+  rotateNotificationTargetSigningKey(input: $input) {
+    ... on WebhookNotificationTarget {
+      __typename
+      id
+      name
+      status
+      signingKeys {
+        id
+        secret
+        createdAt
+        expiresAt
+      }
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

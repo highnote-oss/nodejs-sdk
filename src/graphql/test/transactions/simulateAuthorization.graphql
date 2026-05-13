@@ -1,0 +1,36 @@
+mutation SimulateAuthorization($input: SimulateAuthorizationInput!) {
+  simulateAuthorization(input: $input) {
+    ... on AuthorizationEvent {
+      __typename
+      id
+      approvedAmount {
+        value
+        currencyCode
+      }
+      requestedAmount {
+        value
+        currencyCode
+      }
+      responseCode
+      merchantDetails {
+        merchantId
+        name
+        categoryCode
+        countryCodeAlpha3
+      }
+      createdAt
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

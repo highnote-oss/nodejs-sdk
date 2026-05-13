@@ -1,0 +1,20 @@
+mutation AddPaymentCardToGooglePayByDevicePushProvisioning($input: AddPaymentCardToGooglePayByDevicePushProvisioningInput!) {
+  addPaymentCardToGooglePayByDevicePushProvisioning(input: $input) {
+    ... on PaymentCardDigitalWalletTokenGooglePayPushProvisioning {
+      __typename
+      opaquePaymentCard
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

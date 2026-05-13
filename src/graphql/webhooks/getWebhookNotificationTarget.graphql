@@ -1,0 +1,15 @@
+query GetWebhookNotificationTarget($id: ID!) {
+  node(id: $id) {
+    ... on WebhookNotificationTarget {
+      __typename
+      id
+      name
+      uri
+      status
+      createdAt
+      updatedAt
+      deactivatedAt
+      subscriptions
+    }
+  }
+}

@@ -1,0 +1,25 @@
+mutation CreateAccountHolderCardProductApplication($input: CreateAccountHolderCardProductApplicationInput!) {
+  createAccountHolderCardProductApplication(input: $input) {
+    ... on AccountHolderCardProductApplication {
+      __typename
+      id
+      createdAt
+      updatedAt
+      applicationState {
+        status
+      }
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

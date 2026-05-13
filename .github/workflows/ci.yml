@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    name: Unit tests (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20, 22]
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate types from Highnote schema
+        run: npm run codegen
+        env:
+          HIGHNOTE_API_KEY: ${{ secrets.HIGHNOTE_API_KEY }}
+
+      - run: npm run typecheck
+
+      - run: npm run test:unit
+
+      - name: Check docs drift
+        run: npm run docs:check
+
+      - run: npm run build
+
+  integration:
+    name: Integration tests
+    runs-on: ubuntu-latest
+    # Only run when HIGHNOTE_API_KEY secret is available (skipped on fork PRs)
+    if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository }}
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate types from Highnote schema
+        run: npm run codegen
+        env:
+          HIGHNOTE_API_KEY: ${{ secrets.HIGHNOTE_API_KEY }}
+
+      - run: npm run test:integration
+        env:
+          HIGHNOTE_API_KEY: ${{ secrets.HIGHNOTE_API_KEY }}

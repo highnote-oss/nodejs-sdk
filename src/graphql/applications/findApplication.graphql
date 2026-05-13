@@ -1,0 +1,49 @@
+query FindApplication($id: ID!) {
+  node(id: $id) {
+    ... on AccountHolderCardProductApplication {
+      __typename
+      id
+      createdAt
+      updatedAt
+      decisionedAt
+      applicationState {
+        status
+      }
+      applicationWorkflows {
+        executionOrder
+        status
+        workflowType
+      }
+      accountHolderSnapshot {
+        __typename
+        ... on USPersonAccountHolderSnapshot {
+          accountHolderCurrent {
+            id
+          }
+          currentVerification {
+            status
+            reason
+            results {
+              code
+              description
+            }
+            requiredDocuments {
+              status
+              documentUploadSession {
+                __typename
+                ... on USAccountHolderApplicationDocumentUploadSession {
+                  id
+                  status
+                }
+              }
+            }
+          }
+        }
+      }
+      cardProduct {
+        id
+        name
+      }
+    }
+  }
+}

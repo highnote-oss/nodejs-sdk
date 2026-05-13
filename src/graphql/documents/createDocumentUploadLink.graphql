@@ -1,0 +1,24 @@
+mutation CreateDocumentUploadLink($input: CreateDocumentUploadLinkInput!) {
+  createDocumentUploadLink(input: $input) {
+    ... on DocumentUploadLink {
+      __typename
+      id
+      documentType
+      status
+      createdAt
+      updatedAt
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

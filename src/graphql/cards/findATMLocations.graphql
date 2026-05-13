@@ -1,0 +1,48 @@
+query FindATMLocationsForPaymentCard($id: ID!, $radius: ATMLocationRadiusInput, $atmFilter: ATMLocationFilterInput, $limit: Int) {
+  node(id: $id) {
+    ... on PaymentCard {
+      __typename
+      id
+      atmLocations(radius: $radius, atmFilter: $atmFilter, limit: $limit) {
+        ... on ATMLocations {
+          __typename
+          atmLocations {
+            name
+            description
+            address {
+              streetAddress
+              extendedAddress
+              locality
+              region
+              postalCode
+              countryCodeAlpha3
+            }
+            coordinates {
+              latitude
+              longitude
+            }
+            distance {
+              length
+              unit
+            }
+            features
+            logo {
+              brand
+            }
+          }
+        }
+        ... on UserError {
+          __typename
+          errors {
+            code
+            description
+          }
+        }
+        ... on AccessDeniedError {
+          __typename
+          message
+        }
+      }
+    }
+  }
+}

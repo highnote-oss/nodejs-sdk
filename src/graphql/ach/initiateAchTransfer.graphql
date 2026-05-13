@@ -1,0 +1,28 @@
+mutation InitiateAchTransfer($input: InitiateAchTransferInput!) {
+  initiateAchTransfer(input: $input) {
+    ... on OriginatedAchTransfer {
+      __typename
+      id
+      amount {
+        value
+        currencyCode
+      }
+      companyEntryDescription
+      createdAt
+      purpose
+      status
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        description
+        errorPath
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

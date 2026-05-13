@@ -1,0 +1,21 @@
+mutation DetachSpendRuleFromPaymentCard($input: DetachSpendRuleFromPaymentCardInput!) {
+  detachSpendRuleFromPaymentCard(input: $input) {
+    ... on PaymentCard {
+      __typename
+      id
+      status
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

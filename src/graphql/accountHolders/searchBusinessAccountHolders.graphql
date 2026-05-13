@@ -1,0 +1,14 @@
+query SearchBusinessAccountHolders($first: Int, $after: String, $filterBy: BusinessAccountHolderFilterInput) {
+  businessAccountHolders(first: $first, after: $after, filterBy: $filterBy) {
+    edges {
+      node {
+        ...BusinessAccountHolderSummary
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}

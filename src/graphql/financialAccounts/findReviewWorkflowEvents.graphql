@@ -1,0 +1,54 @@
+query FindReviewWorkflowEvents($id: ID!, $first: Int, $after: String) {
+  node(id: $id) {
+    ... on FinancialAccount {
+      __typename
+      id
+      reviewWorkflowEvents(first: $first, after: $after) {
+        ... on ReviewWorkflowEventConnection {
+          __typename
+          edges {
+            cursor
+            node {
+              id
+              reviewState
+              createdAt
+              updatedAt
+              transfer {
+                ... on WireTransfer {
+                  __typename
+                  id
+                  amount {
+                    value
+                    currencyCode
+                  }
+                  memo
+                  status
+                  statusReason
+                  type
+                  createdAt
+                  updatedAt
+                }
+              }
+            }
+          }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+        }
+        ... on UserError {
+          __typename
+          errors {
+            code
+            errorPath
+            description
+          }
+        }
+        ... on AccessDeniedError {
+          __typename
+          message
+        }
+      }
+    }
+  }
+}

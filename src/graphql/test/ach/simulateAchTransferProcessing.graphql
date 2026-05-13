@@ -1,0 +1,26 @@
+mutation SimulateAchTransferProcessing($input: SimulateAchTransferProcessingInput!) {
+  simulateAchTransferProcessing(input: $input) {
+    ... on NonOriginatedAchTransfer {
+      __typename
+      id
+      createdAt
+    }
+    ... on OriginatedAchTransfer {
+      __typename
+      id
+      createdAt
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

@@ -1,0 +1,32 @@
+mutation CreateRecurringAchTransfer($input: CreateRecurringACHTransferInput!) {
+  createRecurringACHTransfer(input: $input) {
+    ... on RecurringACHTransfer {
+      __typename
+      id
+      createdAt
+      updatedAt
+      status
+      frequency
+      transferAmount {
+        ... on ManualTransferAmount {
+          amount {
+            value
+            currencyCode
+          }
+        }
+      }
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        description
+        errorPath
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

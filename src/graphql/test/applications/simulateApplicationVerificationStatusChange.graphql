@@ -1,0 +1,24 @@
+mutation SimulateApplicationVerificationStatusChange($input: SimulateApplicationVerificationStatusChangeInput!) {
+  simulateApplicationVerificationStatusChange(input: $input) {
+    ... on AccountHolderCardProductApplication {
+      __typename
+      id
+      applicationState {
+        status
+      }
+      createdAt
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

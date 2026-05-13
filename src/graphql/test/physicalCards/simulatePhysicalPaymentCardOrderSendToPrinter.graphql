@@ -1,0 +1,25 @@
+mutation SimulatePhysicalPaymentCardOrderSendToPrinter($input: SimulatePhysicalPaymentCardSendToPrinterInput!) {
+  simulatePhysicalPaymentCardOrderSendToPrinter(input: $input) {
+    ... on PhysicalPaymentCardOrder {
+      __typename
+      id
+      orderState {
+        status
+      }
+      createdAt
+      updatedAt
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

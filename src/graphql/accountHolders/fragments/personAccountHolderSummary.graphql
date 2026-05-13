@@ -1,0 +1,23 @@
+fragment PersonAccountHolderSummary on USPersonAccountHolder {
+  __typename
+  id
+  externalId
+  createdAt
+  updatedAt
+  email
+  name {
+    givenName
+    familyName
+    middleName
+    suffix
+  }
+  dateOfBirth
+  billingAddress {
+    streetAddress
+    extendedAddress
+    locality
+    region
+    postalCode
+    countryCodeAlpha3
+  }
+}

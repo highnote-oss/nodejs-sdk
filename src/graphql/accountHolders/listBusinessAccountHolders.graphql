@@ -1,0 +1,14 @@
+query ListBusinessAccountHolders($first: Int, $after: String) {
+  businessAccountHolders(first: $first, after: $after) {
+    edges {
+      node {
+        ...BusinessAccountHolderSummary
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}

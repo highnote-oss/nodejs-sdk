@@ -1,0 +1,21 @@
+mutation GeneratePaymentMethodTokenizationClientToken($input: GeneratePaymentMethodTokenizationClientTokenInput!) {
+  generatePaymentMethodTokenizationClientToken(input: $input) {
+    ... on ClientToken {
+      __typename
+      value
+      expirationDate
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

@@ -1,0 +1,22 @@
+mutation DeactivateNotificationTarget($input: DeactivateNotificationTargetInput!) {
+  deactivateNotificationTarget(input: $input) {
+    ... on WebhookNotificationTarget {
+      __typename
+      id
+      name
+      status
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

@@ -1,0 +1,28 @@
+mutation AddExternalBankAccountVerifiedThroughPlaid($input: AddExternalBankAccountVerifiedThroughPlaidInput!) {
+  addExternalBankAccountVerifiedThroughPlaid(input: $input) {
+    ... on ExternalFinancialBankAccount {
+      __typename
+      id
+      name
+      createdAt
+      updatedAt
+      externalBankAccountDetails {
+        id
+        last4
+        type
+      }
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        description
+        errorPath
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

@@ -1,0 +1,86 @@
+name: Schema Drift Detection
+
+on:
+  schedule:
+    - cron: "0 14 * * 1" # Every Monday at 2pm UTC
+  workflow_dispatch: # Allow manual runs
+
+jobs:
+  detect:
+    name: Check for schema changes
+    runs-on: ubuntu-latest
+    # Only run on the canonical repo (not on forks, which won't have the API key secret)
+    if: ${{ github.repository == 'highnote-oss/nodejs-sdk' }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate types from current schema
+        run: npm run codegen
+        env:
+          HIGHNOTE_API_KEY: ${{ secrets.HIGHNOTE_API_KEY }}
+
+      - name: Regenerate docs from refreshed types
+        # Schema drift cascades into doc drift (descriptions, enum members).
+        # Bundling docs:gen here keeps the auto-PR self-consistent so it
+        # passes its own docs-drift CI step.
+        run: npm run docs:gen
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if git diff --quiet src/generated/; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No schema changes detected."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+
+            # Classify changes
+            DIFF=$(git diff src/generated/graphql.ts)
+            ADDED=$(echo "$DIFF" | grep -c '^+' || true)
+            REMOVED=$(echo "$DIFF" | grep -c '^-' || true)
+
+            if [ "$REMOVED" -gt 5 ]; then
+              echo "label=breaking-change" >> "$GITHUB_OUTPUT"
+              echo "severity=major" >> "$GITHUB_OUTPUT"
+            else
+              echo "label=schema-update" >> "$GITHUB_OUTPUT"
+              echo "severity=minor" >> "$GITHUB_OUTPUT"
+            fi
+
+            echo "Schema changes detected (additions: $ADDED, removals: $REMOVED)"
+          fi
+
+      - name: Create pull request
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update generated types from Highnote schema"
+          branch: chore/schema-drift
+          delete-branch: true
+          title: "chore: Highnote schema update detected (${{ steps.diff.outputs.severity }})"
+          labels: ${{ steps.diff.outputs.label }},automated
+          body: |
+            ## Schema Drift Detected
+
+            The Highnote GraphQL API schema has changed. This PR updates the generated types.
+
+            **Severity:** `${{ steps.diff.outputs.severity }}`
+
+            ### Review checklist
+
+            - [ ] Check if any removed/changed types affect exported SDK types
+            - [ ] Check if any new types should be exposed as new resource methods
+            - [ ] Update affected resource files if return types changed
+            - [ ] Add `@deprecated` JSDoc to any deprecated fields
+            - [ ] Review the regenerated `docs/SDK_REFERENCE.md` and `docs/resources/*.md` (the generator ran automatically; commit reflects both `src/generated/` and `docs/` updates)
+            - [ ] Run `npm run test:unit` and `npm run test:integration`
+            - [ ] Determine version bump: patch (no public API change), minor (new fields/enums), major (removed/changed fields)

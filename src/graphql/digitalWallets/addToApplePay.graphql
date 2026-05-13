@@ -1,0 +1,22 @@
+mutation AddPaymentCardToApplePayByDevicePushProvisioning($input: AddPaymentCardToApplePayByDevicePushProvisioningInput!) {
+  addPaymentCardToApplePayByDevicePushProvisioning(input: $input) {
+    ... on PaymentCardDigitalWalletTokenApplePayDevicePushProvisioning {
+      __typename
+      activationData
+      encryptedPassData
+      ephemeralPublicKey
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

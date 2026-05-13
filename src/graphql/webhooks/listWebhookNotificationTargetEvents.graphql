@@ -1,0 +1,31 @@
+query ListWebhookNotificationTargetEvents(
+  $targetId: ID!
+  $first: Int
+  $after: String
+  $filterBy: WebhookNotificationTargetEventFilterInput
+) {
+  node(id: $targetId) {
+    ... on WebhookNotificationTarget {
+      __typename
+      webhookNotificationTargetEvents(first: $first, after: $after, filterBy: $filterBy) {
+        edges {
+          cursor
+          node {
+            __typename
+            event {
+              __typename
+              id
+              name
+              createdAt
+            }
+            hasSuccessfulDelivery
+          }
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+      }
+    }
+  }
+}

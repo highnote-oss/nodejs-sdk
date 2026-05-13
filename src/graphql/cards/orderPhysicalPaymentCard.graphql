@@ -1,0 +1,48 @@
+mutation OrderPhysicalPaymentCard($input: OrderPhysicalPaymentCardInput!) {
+  orderPhysicalPaymentCard(input: $input) {
+    ... on PhysicalPaymentCardOrder {
+      __typename
+      id
+      createdAt
+      updatedAt
+      orderState {
+        status
+      }
+      cardPersonalization {
+        textLines {
+          line1
+          line2
+        }
+      }
+      paymentCardShipment {
+        requestedShipDate
+        deliveryDetails {
+          name {
+            givenName
+            familyName
+          }
+          address {
+            streetAddress
+            extendedAddress
+            locality
+            region
+            postalCode
+            countryCodeAlpha3
+          }
+        }
+      }
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

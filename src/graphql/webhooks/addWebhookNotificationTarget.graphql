@@ -1,0 +1,31 @@
+mutation AddWebhookNotificationTarget($input: AddWebhookNotificationTargetInput!) {
+  addWebhookNotificationTarget(input: $input) {
+    ... on WebhookNotificationTarget {
+      __typename
+      id
+      name
+      uri
+      status
+      signingKeys {
+        id
+        secret
+        createdAt
+        expiresAt
+      }
+      createdAt
+      updatedAt
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

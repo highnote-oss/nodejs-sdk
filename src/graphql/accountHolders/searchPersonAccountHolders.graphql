@@ -1,0 +1,14 @@
+query SearchPersonAccountHolders($first: Int, $after: String, $filterBy: PersonAccountHolderFilterInput) {
+  personAccountHolders(first: $first, after: $after, filterBy: $filterBy) {
+    edges {
+      node {
+        ...PersonAccountHolderSummary
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}

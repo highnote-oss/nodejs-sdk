@@ -1,0 +1,24 @@
+mutation UnsuspendFinancialAccount($input: UnsuspendFinancialAccountInput!) {
+  unsuspendFinancialAccount(input: $input) {
+    ... on FinancialAccount {
+      __typename
+      id
+      externalId
+      createdAt
+      accountStatus
+      name
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

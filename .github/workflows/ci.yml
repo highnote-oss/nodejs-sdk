@@ -33,10 +33,28 @@ jobs:
 
       - run: npm run test:unit
 
-      - name: Check docs drift
-        run: npm run docs:check
-
       - run: npm run build
+
+  docs:
+    name: Docs drift
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate types from Highnote schema
+        run: npm run codegen
+        env:
+          HIGHNOTE_API_KEY: ${{ secrets.HIGHNOTE_API_KEY }}
+
+      - run: npm run docs:check
 
   integration:
     name: Integration tests

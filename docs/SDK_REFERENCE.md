@@ -2858,6 +2858,15 @@ The type of identifying information which has been modified in a `BusinessAccoun
 - `EMPLOYER_IDENTIFICATION_NUMBER`
 - `LEGAL_BUSINESS_NAME`
 
+### `BusinessAddressType`
+
+Roles a business address may fill. Exactly one address per `Business` is the
+LEGAL address; BILLING and SHIPPING are optional additional roles.
+
+- `BILLING`
+- `LEGAL`
+- `SHIPPING`
+
 ### `BusinessAssociatedPersonIdentityUpdateType`
 
 The type of identifying information which has been modified in a `BusinessAuthorizedPersonIdentityUpdatedEvent` or `BusinessUltimateBeneficialOwnerIdentityUpdatedEvent`.
@@ -2890,6 +2899,16 @@ Sort types of the metric returned in response.
 
 - `ASCENDING`
 - `DESCENDING`
+
+### `BusinessPersonRole`
+
+Roles a person associated with a `Business` may hold. A person may hold any
+combination of these roles. The primary applicant designation is a separate
+flag — see `BusinessPersonInput.isPrimaryApplicant`.
+
+- `CONTROL_PRONG`
+- `GUARANTOR`
+- `ULTIMATE_BENEFICIAL_OWNER`
 
 ### `BusinessPlanIndicatorAttributeType`
 
@@ -8504,6 +8523,12 @@ Code representing the result of AVS postal code verification
 - `ZIP5_MATCH`
 - `ZIP9_MATCH`
 
+### `PricingConfigurationAttachmentEntityType`
+
+The type of entity a `PricingConfiguration` can be attached to.
+
+- `MERCHANT`
+
 ### `PricingPlanStatus`
 
 The lifecycle states for a `PricingPlan`.
@@ -8805,6 +8830,7 @@ The status of an `RtpTransfer`.
 - `INITIATED`
 - `PENDING`
 - `PROCESSING`
+- `RECEIVED`
 
 ### `ScheduledTransferClientTokenPermission`
 
@@ -9493,6 +9519,16 @@ Visa Fleet purchase Identifier format
 
 - `INVOICE`
 - `ORDER`
+
+### `VisaFleetPurchaseRestrictionsType`
+
+The kind of purchase-restriction processing supported for a Visa Fleet
+authorization, as conveyed by the network.
+
+- `CHIP_BASED`
+- `CHIP_BASED_AND_HOST_BASED`
+- `HOST_BASED`
+- `NO_RESTRICTIONS_SUPPORTED`
 
 ### `VisaFuelPurchaseType`
 
@@ -11407,6 +11443,19 @@ Input to Provision a `PaymentCard` to a Google Pay Eligible Device via Push Prov
 
 ### `AddPaymentCardToGooglePayByDevicePushProvisioningMutationVariables`
 
+### `AddPricingConfigurationEntityInput`
+
+The entity to attach a `PricingConfiguration` to.
+
+### `AddPricingConfigurationInput`
+
+The input details for creating a `PricingConfiguration`.
+
+### `AddPricingConfigurationPayload`
+
+The result of creating a `PricingConfiguration`.
+Returns the newly created configuration or error details.
+
 ### `Address`
 
 Type representing the parts of an address.
@@ -12048,6 +12097,11 @@ Account holder risk fields for a `Business`.
 
 Inputs for filtering `USBusinessAccountHolder`s by `USBusinessUltimateBeneficialOwner`.
 
+### `BusinessAddress`
+
+An address associated with a `Business`. The role this address fills is
+identified by `addressType` (LEGAL, BILLING, or SHIPPING).
+
 ### `BusinessAuthorizedPerson`
 
 The details of a person authorized to act on behalf of a `Business`.
@@ -12070,7 +12124,7 @@ The connection type for `Business`.
 
 ### `BusinessConnectionPayload`
 
-The response type for the `businessesForSubscriber` query.
+The result of a `businesses` query, containing a list of `Business` entities or an error.
 
 ### `BusinessCreditRiskAttributes`
 
@@ -12096,9 +12150,9 @@ Filter input for querying `Business` account holders.
 
 `Business` identification document types.
 
-### `BusinessLocality`
+### `BusinessJurisdiction`
 
-The locality details for a `Business`.
+Jurisdiction details for a `Business`.
 
 ### `BusinessMerchantDetails`
 
@@ -13587,6 +13641,15 @@ The details of the `PostalCodeVerificationSpendRule` spend rule to create.
 ### `CreatePostalCodeVerificationSpendRulePayload`
 
 The return types when creating a postal code verification rule.
+
+### `CreatePricingPlanInput`
+
+The input details for creating a `PricingPlan`.
+
+### `CreatePricingPlanPayload`
+
+The result of creating a `PricingPlan`.
+Returns the newly created pricing plan or error details.
 
 ### `CreateRecurringAchTransferInput`
 
@@ -16648,6 +16711,10 @@ Root Mutation type extending the main GraphQL schema.
 
 Root Mutation type extending the main GraphQL schema.
 
+### `MutationAddPricingConfigurationArgs`
+
+Root Mutation type extending the main GraphQL schema.
+
 ### `MutationAddSubscriptionsToNotificationTargetArgs`
 
 Root Mutation type extending the main GraphQL schema.
@@ -16977,6 +17044,10 @@ Root Mutation type extending the main GraphQL schema.
 Root Mutation type extending the main GraphQL schema.
 
 ### `MutationCreatePostalCodeVerificationSpendRuleArgs`
+
+Root Mutation type extending the main GraphQL schema.
+
+### `MutationCreatePricingPlanArgs`
 
 Root Mutation type extending the main GraphQL schema.
 
@@ -17372,6 +17443,10 @@ Root Mutation type extending the main GraphQL schema.
 
 Root Mutation type extending the main GraphQL schema.
 
+### `MutationPublishPricingPlanArgs`
+
+Root Mutation type extending the main GraphQL schema.
+
 ### `MutationRedeemRewardsForStatementCreditArgs`
 
 Root Mutation type extending the main GraphQL schema.
@@ -17612,6 +17687,10 @@ Root Mutation type extending the main GraphQL schema.
 
 Root Mutation type extending the main GraphQL schema.
 
+### `MutationSimulatePricingPlanArgs`
+
+Root Mutation type extending the main GraphQL schema.
+
 ### `MutationSimulateProcessedIntegratorInitiatedStatusChangeArgs`
 
 Root Mutation type extending the main GraphQL schema.
@@ -17849,6 +17928,10 @@ Root Mutation type extending the main GraphQL schema.
 Root Mutation type extending the main GraphQL schema.
 
 ### `MutationUpdatePostalCodeVerificationSpendRuleArgs`
+
+Root Mutation type extending the main GraphQL schema.
+
+### `MutationUpdatePricingConfigurationArgs`
 
 Root Mutation type extending the main GraphQL schema.
 
@@ -18340,6 +18423,10 @@ Organization that controls a set of card programs.
 Organization that controls a set of card programs.
 
 ### `OrganizationPhysicalPaymentCardOrdersArgs`
+
+Organization that controls a set of card programs.
+
+### `OrganizationPricingPlansArgs`
 
 Organization that controls a set of card programs.
 
@@ -19128,9 +19215,9 @@ Input representing credit risk attributes for person underwriting.
 
 `Person` identification document types.
 
-### `PersonLocality`
+### `PersonJurisdiction`
 
-The locality details for a `Person`.
+Jurisdiction details for a `Person`.
 
 ### `PersonNameFilterInput`
 
@@ -19309,9 +19396,26 @@ Associates a `PricingPlan` with specific parties and a validity period.
 
 The pricing plan available for an organization.
 
+### `PricingPlanConnection`
+
+The connection type for `PricingPlan`.
+
+### `PricingPlanEdge`
+
+The edge type for a `PricingPlan`.
+
+### `PricingPlanFilterInput`
+
+Filter criteria for `PricingPlan` records.
+
 ### `PricingPlanRulesArgs`
 
 The pricing plan available for an organization.
+
+### `PricingPlanSimulationResult`
+
+The result of a pricing plan simulation.
+Contains the simulation output as a base64-encoded CSV.
 
 ### `PricingRule`
 
@@ -19325,13 +19429,26 @@ The connection type for `PricingRule`.
 
 The edge type for a `PricingRule`.
 
+### `PricingRuleInput`
+
+The input details for creating a `PricingRule`.
+
 ### `PricingRuleParameter`
 
 A key-value pair used to inject data into a `PricingRuleTemplate` script.
 
+### `PricingRuleParameterInput`
+
+The input details for a `PricingRuleParameter`.
+
 ### `PricingRuleParameterValue`
 
 The value of a `PricingRuleParameter`.
+
+### `PricingRuleParameterValueInput`
+
+The input details for a `PricingRuleParameter` value.
+Supports either a single value or a list of values.
 
 ### `PricingRuleParameterValueSingle`
 
@@ -19459,6 +19576,15 @@ This input type includes options for configuring the newly issued payment card.
 
 Details for linking verified external bank account.
 
+### `PublishPricingPlanInput`
+
+The input details for publishing a `PricingPlan`.
+
+### `PublishPricingPlanPayload`
+
+The result of publishing a `PricingPlan`.
+Returns the published pricing plan or error details.
+
 ### `Query`
 
 All Queries that can be performed.
@@ -19471,15 +19597,11 @@ All Queries that can be performed.
 
 All Queries that can be performed.
 
+### `QueryBusinessesArgs`
+
+All Queries that can be performed.
+
 ### `QueryBusinessesForSubscriberArgs`
-
-All Queries that can be performed.
-
-### `QueryBusinessesWithAccountHolderDetailsArgs`
-
-All Queries that can be performed.
-
-### `QueryBusinessesWithMerchantDetailsArgs`
 
 All Queries that can be performed.
 
@@ -20834,6 +20956,15 @@ Input fields for simulating shipment failed
 
 Input fields for simulating shipped
 
+### `SimulatePricingPlanInput`
+
+The input details for simulating a `PricingPlan`.
+
+### `SimulatePricingPlanPayload`
+
+The result of simulating a `PricingPlan`.
+Returns the simulation results or error details.
+
 ### `SimulateProcessedIntegratorInitiatedStatusChangeInput`
 
 Input for changing the status of an `IntegratorInitiatedACHTransfer` to `PROCESSED`.
@@ -21642,6 +21773,15 @@ The details of the `PostalCodeVerificationSpendRule` spend rule to update.
 ### `UpdatePostalCodeVerificationSpendRulePayload`
 
 The return types when updating an existing postal code verification rule.
+
+### `UpdatePricingConfigurationInput`
+
+The input details for updating the `effectiveThrough` timestamp of a `PricingConfiguration`.
+
+### `UpdatePricingConfigurationPayload`
+
+The result of updating the `effectiveThrough` timestamp of a `PricingConfiguration`.
+Returns the updated configuration or error details.
 
 ### `UpdatePseudoBalanceInput`
 

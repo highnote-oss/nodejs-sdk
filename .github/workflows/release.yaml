@@ -31,23 +31,16 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          # Node 24 (not 22) because npm trusted publishing requires npm
+          # 11.5.1+, and Node 24 ships with npm 11+ natively. Node 22
+          # bundles npm 10.x and the upgrade dance (both `npm install -g`
+          # and corepack) was failing on GitHub-hosted runners. The CI
+          # workflow stays on Node 22; the release workflow doesn't run
+          # user code, just builds and publishes, so this Node-version
+          # skew is fine.
+          node-version: 24
           registry-url: https://registry.npmjs.org
           cache: npm
-
-      - name: Install npm 11 via corepack
-        # npm trusted publishing (OIDC) requires npm 11.5.1+. Node 22 ships
-        # with npm 10.x, which silently skips the OIDC token request and
-        # causes 404 errors on protected publishes.
-        #
-        # Using `npm install -g npm@11` triggers a self-update bootstrap bug:
-        # npm 10.x partially uninstalls itself, then the new npm 11.x's
-        # @npmcli/arborist can't find `promise-retry`. Corepack manages
-        # package manager versions outside npm's self-update path and
-        # avoids this entirely.
-        run: |
-          corepack enable
-          corepack install --global npm@11
 
       - name: Debug versions
         run: |

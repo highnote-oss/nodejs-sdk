@@ -82,13 +82,6 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "### Release: v${NEXT} (${TAG})" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Create tag
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "v${{ steps.version.outputs.next }}" -m "v${{ steps.version.outputs.next }}"
-          git push origin "v${{ steps.version.outputs.next }}"
-
       - name: Publish to npm
         if: ${{ !inputs.dry_run }}
         run: |
@@ -103,3 +96,14 @@ jobs:
           npm publish --access public $PROVENANCE_FLAG --tag ${{ steps.version.outputs.tag }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create release tag
+        # Tag only after a successful publish so failed releases don't leave
+        # misleading tags behind. Skipped for dry runs (no published artifact
+        # to tag).
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "v${{ steps.version.outputs.next }}" -m "v${{ steps.version.outputs.next }}"
+          git push origin "v${{ steps.version.outputs.next }}"

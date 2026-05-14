@@ -35,16 +35,19 @@ jobs:
           registry-url: https://registry.npmjs.org
           cache: npm
 
-      - name: Update npm for OIDC support
+      - name: Install npm 11 via corepack
         # npm trusted publishing (OIDC) requires npm 11.5.1+. Node 22 ships
         # with npm 10.x, which silently skips the OIDC token request and
         # causes 404 errors on protected publishes.
         #
-        # Pinning to `npm@11` (the major) instead of `npm@latest` avoids a
-        # known bootstrap bug where `npm install -g npm@latest` partially
-        # uninstalls npm before completing, leaving the runner with a broken
-        # global install ("Cannot find module 'promise-retry'").
-        run: npm install -g npm@11
+        # Using `npm install -g npm@11` triggers a self-update bootstrap bug:
+        # npm 10.x partially uninstalls itself, then the new npm 11.x's
+        # @npmcli/arborist can't find `promise-retry`. Corepack manages
+        # package manager versions outside npm's self-update path and
+        # avoids this entirely.
+        run: |
+          corepack enable
+          corepack install --global npm@11
 
       - name: Debug versions
         run: |

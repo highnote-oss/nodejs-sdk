@@ -82,17 +82,28 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "### Release: v${NEXT} (${TAG})" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Create tag
+      - name: Publish to npm
+        if: ${{ !inputs.dry_run }}
+        run: |
+          npm version ${{ steps.version.outputs.next }} --no-git-tag-version
+          # npm provenance requires the source GitHub repo to be public.
+          # Enable it automatically once the repo flips public; until then,
+          # publish without provenance so internal/staged releases still work.
+          PROVENANCE_FLAG=""
+          if [ "${{ github.event.repository.visibility }}" = "public" ]; then
+            PROVENANCE_FLAG="--provenance"
+          fi
+          npm publish --access public $PROVENANCE_FLAG --tag ${{ steps.version.outputs.tag }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create release tag
+        # Tag only after a successful publish so failed releases don't leave
+        # misleading tags behind. Skipped for dry runs (no published artifact
+        # to tag).
+        if: ${{ !inputs.dry_run }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag -a "v${{ steps.version.outputs.next }}" -m "v${{ steps.version.outputs.next }}"
           git push origin "v${{ steps.version.outputs.next }}"
-
-      - name: Publish to npm
-        if: ${{ !inputs.dry_run }}
-        run: |
-          npm version ${{ steps.version.outputs.next }} --no-git-tag-version
-          npm publish --access public --provenance --tag ${{ steps.version.outputs.tag }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

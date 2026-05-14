@@ -94,8 +94,6 @@ jobs:
             PROVENANCE_FLAG="--provenance"
           fi
           npm publish --access public $PROVENANCE_FLAG --tag ${{ steps.version.outputs.tag }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create release tag
         # Tag only after a successful publish so failed releases don't leave

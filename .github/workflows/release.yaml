@@ -93,6 +93,13 @@ jobs:
         if: ${{ !inputs.dry_run }}
         run: |
           npm version ${{ steps.version.outputs.next }} --no-git-tag-version
-          npm publish --access public --provenance --tag ${{ steps.version.outputs.tag }}
+          # npm provenance requires the source GitHub repo to be public.
+          # Enable it automatically once the repo flips public; until then,
+          # publish without provenance so internal/staged releases still work.
+          PROVENANCE_FLAG=""
+          if [ "${{ github.event.repository.visibility }}" = "public" ]; then
+            PROVENANCE_FLAG="--provenance"
+          fi
+          npm publish --access public $PROVENANCE_FLAG --tag ${{ steps.version.outputs.tag }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

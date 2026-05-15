@@ -23,6 +23,10 @@ jobs:
   dependency-review:
     name: Dependency review
     runs-on: ubuntu-latest
+    # actions/dependency-review-action requires the repo to be public
+    # (free) or GitHub Advanced Security on the org (paid). Skip cleanly
+    # while INTERNAL — the job activates automatically after public flip.
+    if: ${{ github.event.repository.visibility == 'public' }}
     steps:
       - uses: actions/checkout@v6
 

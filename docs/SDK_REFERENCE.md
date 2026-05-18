@@ -2800,6 +2800,7 @@ The step type for a balance notification.
 The sub-event type for a balance notification.
 
 - `ACH_CREDIT`
+- `CRYPTO_PAYOUT`
 - `NON_ORIGINATING_ACH_LOAD`
 - `ORIGINATING_ACH_LOAD`
 - `RTP_INBOUND`
@@ -5602,6 +5603,7 @@ The possible values of a Ledger's name, based on the type of activity a ledger t
 - `ACCOUNT_HOLDER_PAYMENT_RECEIVABLE`
 - `ACCOUNT_HOLDER_PSEUDO_LIMIT`
 - `ACCOUNT_HOLDER_SECURED_DEPOSIT`
+- `ACCOUNT_RECEIVABLE_HOLD`
 - `ACH_DEBIT_PAYABLE`
 - `ACH_PENDING_SETTLEMENT`
 - `ACH_PENDING_SETTLEMENT_OUT`
@@ -5615,12 +5617,18 @@ The possible values of a Ledger's name, based on the type of activity a ledger t
 - `CARD_RECEIVABLE`
 - `CARD_TRANSACTION_CREDIT_HOLD`
 - `CASH`
+- `CASH_ADVANCE_OUTSTANDING`
+- `CASH_ADVANCE_PAYABLE`
+- `CASH_ADVANCE_PRINCIPAL`
+- `CASH_ADVANCE_RECEIVABLE`
+- `CASH_ADVANCE_REPAID`
 - `CASH_EXPENSE`
 - `CHARGE_OFF_EXPENSE`
 - `CHECK_PAYABLE`
 - `CHECK_PROCESSING`
 - `CHECK_SETTLEMENT_DEPOSIT`
 - `CLEARED`
+- `CONTRA_EXTERNAL_FUNDING`
 - `CREDIT_AUTHORIZATION`
 - `CREDIT_HOLD`
 - `CREDIT_OUTSTANDING`
@@ -5639,6 +5647,8 @@ The possible values of a Ledger's name, based on the type of activity a ledger t
 - `EXTERNAL_TRANSFER_PAYABLE`
 - `FEE_AUTHORIZATION`
 - `FEE_CLEARED`
+- `FEE_PAYABLE`
+- `FEE_RECEIVABLE`
 - `FUND_IN_HOLD`
 - `INTERCHANGE_FEE_PRECISION_ADJUSTMENT`
 - `INTERCHANGE_REVENUE`
@@ -14091,6 +14101,10 @@ Details about the source, model, and retrieval context for a specific credit sco
 
 Details about why a `CreditUnderwritingVerification` is in `IN_REVIEW` status.
 
+### `CryptoFundingFlowEvent`
+
+A lifecycle event emitted for a `CryptoFundingFlowTransfer`.
+
 ### `CryptoFundingFlowFailedEvent`
 
 An event that occurs when a `CryptoFundingFlowTransfer` has failed.
@@ -14108,10 +14122,6 @@ An event that occurs when a `CryptoFundingFlowTransfer` is being processed by Hi
 An event that occurs when a `CryptoFundingFlowTransfer` is first received from the provider.
 
 ### `CryptoFundingFlowTransfer`
-
-A crypto funding flow movement. This represents the overall state of the transfer.
-
-### `CryptoFundingFlowTransferLedgersArgs`
 
 A crypto funding flow movement. This represents the overall state of the transfer.
 

@@ -9004,6 +9004,22 @@ The response code provided on an advice message.
 - `DO_NOT_HONOR`
 - `SUSPECTED_FRAUD`
 
+### `TransactionBatchStatus`
+
+The status of a transaction batch.
+
+- `CLEAR_PENDING`
+- `CLEARED`
+- `CLOSE_REQUESTED`
+- `CLOSED`
+- `DISBURSED`
+- `DISBURSEMENT_PENDING`
+- `ON_HOLD`
+- `OPEN`
+- `PAYOUT_SENT`
+- `PROCESSING`
+- `REJECTED`
+
 ### `TransactionEventFilter`
 
 The filters used to scope the type of TransactionEvents returned.
@@ -11989,6 +12005,14 @@ A notification event triggered when a balance update occurs, such as when funds 
 
 The details about the backing bank.
 
+### `BatchAdjustment`
+
+A permanent adjustment on a `TransactionBatch`.
+
+### `BatchHold`
+
+A temporary hold on a `TransactionBatch`.
+
 ### `BillingCycle`
 
 A billing cycle for a credit product.
@@ -12940,6 +12964,10 @@ A rule that will allow or block `CardTransactionProcessingType`.
 ### `CardVerificationStep`
 
 Record of an acquiring `PaymentTransaction` verifying a `PaymentMethod`.
+
+### `CashAdvanceRepayment`
+
+A cash advance repayment adjustment on a `TransactionBatch`.
 
 ### `CatalogItem`
 
@@ -19959,6 +19987,10 @@ Identities that qualify for a requested update.
 
 Sources that can refer a requested identity update.
 
+### `ReserveHold`
+
+A reserve hold on a `TransactionBatch`.
+
 ### `ResetBalanceFinancialAccountFeature`
 
 Whether or not the `FinancialAccount` is enabled for reset balance.
@@ -20583,6 +20615,10 @@ Input for setting an absolute spending limit on a pseudo balance.
 Replaces the current limit with a new fixed amount.
 
 ### `SetPseudoLimitPayload`
+
+### `SignedAmount`
+
+Monetary amount where the currency is used to express the expectations for the number of decimal places. See [ISO Standard Currency Codes](https://en.wikipedia.org/wiki/ISO_4217#Active_codes) for more information. This type is identical to `Amount`, but can also represent negative values.
 
 ### `SignedMoneyFilterInput`
 
@@ -21268,6 +21304,18 @@ Response type for tokenizing a USPersonAuthorizedUser.
 ### `Transaction`
 
 The possible types of transactions.
+
+### `TransactionBatch`
+
+A `TransactionBatch` groups `PaymentTransaction`s for settlement and payout.
+
+### `TransactionBatchFee`
+
+Fee associated with a `PaymentTransaction`.
+
+### `TransactionBatchProcessingFee`
+
+A processing fee on a `TransactionBatch`.
 
 ### `TransactionBusinessMetricAttribute`
 

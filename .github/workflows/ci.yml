@@ -6,6 +6,12 @@ on:
   push:
     branches: [main]
 
+# Least-privilege default for all jobs in this workflow. None of these jobs
+# write to the repo, comment on PRs, or interact with releases — they only
+# need read access for `actions/checkout` and npm cache.
+permissions:
+  contents: read
+
 jobs:
   test:
     name: Unit tests

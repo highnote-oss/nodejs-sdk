@@ -49,7 +49,10 @@ function renderOptionRow(opt: ConfigOptionDoc): string {
 }
 
 function escapePipe(s: string): string {
-  return s.replace(/\|/g, "\\|");
+  // Escape backslashes first, then pipes, so a literal `\` in the input
+  // doesn't combine with the subsequent pipe-escape to form `\\|` (an
+  // escaped backslash followed by an unescaped pipe).
+  return s.replace(/\\/g, "\\\\").replace(/\|/g, "\\|");
 }
 
 function renderResourcesSection(spec: DocSpec): string {

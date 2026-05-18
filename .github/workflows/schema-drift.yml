@@ -44,32 +44,27 @@ jobs:
         # generated types. Instead we use the regenerated docs/ tree as the
         # drift signal — anything that affects the public surface (resource
         # method signatures, enum members, descriptions) shows up there.
-        # This misses schema changes to types no resource exposes; that's
-        # acceptable since they have no user impact until a code change
-        # adds resource coverage.
         run: |
           if git diff --quiet docs/; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "No user-visible schema changes detected in docs/."
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
-
-            # Classify by docs diff size — additions vs removals signals
-            # whether this is a feature add or a breaking change.
-            DIFF=$(git diff docs/SDK_REFERENCE.md)
-            ADDED=$(echo "$DIFF" | grep -c '^+' || true)
-            REMOVED=$(echo "$DIFF" | grep -c '^-' || true)
-
-            if [ "$REMOVED" -gt 20 ]; then
-              echo "label=breaking-change" >> "$GITHUB_OUTPUT"
-              echo "severity=major" >> "$GITHUB_OUTPUT"
-            else
-              echo "label=schema-update" >> "$GITHUB_OUTPUT"
-              echo "severity=minor" >> "$GITHUB_OUTPUT"
-            fi
-
-            echo "User-visible schema changes detected in docs/ (additions: $ADDED, removals: $REMOVED)"
+            echo "User-visible schema changes detected in docs/."
           fi
+
+      - name: Fetch schema changelog from Highnote API
+        # Queries Query.schemaChangelogs for entries within the lookback
+        # window. Emits authoritative severity (BREAKING/DANGEROUS/NON_BREAKING)
+        # plus a formatted markdown body listing each change by criticality —
+        # much richer signal than the previous doc-diff line-count heuristic.
+        if: steps.diff.outputs.changed == 'true'
+        id: changelog
+        run: npx tsx scripts/fetch-schema-changelog.ts --out drift-body.md
+        env:
+          HIGHNOTE_API_KEY: ${{ secrets.HIGHNOTE_API_KEY }}
+          HIGHNOTE_ENVIRONMENT: ${{ vars.HIGHNOTE_ENVIRONMENT || 'test' }}
+          SCHEMA_CHANGELOG_DAYS: "14"
 
       - name: Create pull request
         if: steps.diff.outputs.changed == 'true'
@@ -79,26 +74,6 @@ jobs:
           commit-message: "chore: refresh docs from updated Highnote schema"
           branch: chore/schema-drift
           delete-branch: true
-          title: "chore: Highnote schema update detected (${{ steps.diff.outputs.severity }})"
-          labels: ${{ steps.diff.outputs.label }},automated
-          body: |
-            ## Schema Drift Detected
-
-            The Highnote GraphQL API schema has changed in ways that affect the
-            SDK's public surface. This PR contains the regenerated documentation
-            so reviewers can see exactly what consumers will see.
-
-            `src/generated/graphql.ts` is gitignored and regenerates fresh on
-            every CI run from the live schema; the docs diff is the
-            authoritative artifact of user-visible change.
-
-            **Severity:** `${{ steps.diff.outputs.severity }}` (based on doc diff size)
-
-            ### Review checklist
-
-            - [ ] Review the doc diff (`docs/SDK_REFERENCE.md`, `docs/resources/*.md`) for new, removed, or renamed types and enum members
-            - [ ] Check if any new types should be exposed as new resource methods
-            - [ ] Update affected resource files if return types changed
-            - [ ] Add `@deprecated` JSDoc to any deprecated fields
-            - [ ] Run `npm run test:unit` and `npm run test:integration` against a local codegen to verify the SDK still compiles and the integration surface is intact
-            - [ ] Determine version bump: patch (no public API change beyond doc descriptions), minor (new fields/enums), major (removed/changed fields)
+          title: "chore: Highnote schema update detected (${{ steps.changelog.outputs.severity }})"
+          labels: ${{ steps.changelog.outputs.label }},automated
+          body-path: drift-body.md

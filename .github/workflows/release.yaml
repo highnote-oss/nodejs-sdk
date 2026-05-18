@@ -92,7 +92,11 @@ jobs:
       - name: Publish to npm
         if: ${{ !inputs.dry_run }}
         run: |
-          npm version ${{ steps.version.outputs.next }} --no-git-tag-version
+          # --allow-same-version because for stable releases the computed
+          # version (e.g. 0.1.0) often matches what's already in package.json;
+          # `npm version` errors with "Version not changed" otherwise. For
+          # prereleases the suffix bump makes it a real change.
+          npm version ${{ steps.version.outputs.next }} --no-git-tag-version --allow-same-version
           # npm provenance requires the source GitHub repo to be public.
           # Enable it automatically once the repo flips public; until then,
           # publish without provenance so internal/staged releases still work.

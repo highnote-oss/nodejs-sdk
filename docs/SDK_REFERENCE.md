@@ -701,6 +701,7 @@ Order a physical card for an existing payment card.
   Minimum length is 1 and maximum length is 23. Valid characters are all alphanumeric characters, `,`,
   `.`, `'`, `&`, `-`, `\`, `$`, and space. The regex used to validate is `^[0-9A-Za-z \&\-\,\./\'\$]*$`.
 - `input.courier` (PaymentCardShipmentCourierInput, optional) — Courier information.
+- `input.deliveryDetails.additionalInformation` (AdditionalRecipientInformationInput, optional) — Additional information about the recipient required for international card shipping.
 - `input.deliveryDetails.address.countryCodeAlpha3` (string, **required**) — The [three letter country code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) where the address resides.
 - `input.deliveryDetails.address.extendedAddress` (string, optional) — Additional data about the address, e.g. apartment, unit, floor, or place name.
 
@@ -7604,6 +7605,10 @@ The Notification Events that can be triggered in the Highnote platform.
 - `NON_ORIGINATED_ACH_TRANSFER_PROCESSED`
 - `NON_ORIGINATED_ACH_TRANSFER_RECEIVED`
 - `NON_ORIGINATED_ACH_TRANSFER_RETURNED`
+- `NON_ORIGINATED_RTP_TRANSFER_COMPLETED_EVENT`
+- `NON_ORIGINATED_RTP_TRANSFER_FAILED_EVENT`
+- `NON_ORIGINATED_RTP_TRANSFER_PROCESSING_EVENT`
+- `NON_ORIGINATED_RTP_TRANSFER_RECEIVED_EVENT`
 - `NOTIFICATION_ACTIVATION`
 - `ORIGINATED_ACH_TRANSFER_CANCELED`
 - `ORIGINATED_ACH_TRANSFER_FAILED`
@@ -7612,6 +7617,11 @@ The Notification Events that can be triggered in the Highnote platform.
 - `ORIGINATED_ACH_TRANSFER_PROCESSED`
 - `ORIGINATED_ACH_TRANSFER_PROCESSING`
 - `ORIGINATED_ACH_TRANSFER_RETURNED`
+- `ORIGINATED_RTP_TRANSFER_COMPLETED_EVENT`
+- `ORIGINATED_RTP_TRANSFER_FAILED_EVENT`
+- `ORIGINATED_RTP_TRANSFER_INITIATED_EVENT`
+- `ORIGINATED_RTP_TRANSFER_PENDING_EVENT`
+- `ORIGINATED_RTP_TRANSFER_PROCESSING_EVENT`
 - `PAYMENT_CARD_ACTIVATED`
 - `PAYMENT_CARD_ADJUSTMENT`
 - `PAYMENT_CARD_AUTHORIZATION_AND_CLEAR_APPROVED`
@@ -9069,6 +9079,8 @@ The Highnote provided response code.
 - `PRE_AUTHORIZATION_EXPIRED`
 - `RE_ENTER_TRANSACTION`
 - `REAL_TIME_RISK_DECISION_DECLINE`
+- `RESTRICTED_ACCOUNT_HOLDER`
+- `RESTRICTED_CARD_HOLDER`
 - `RESTRICTED_LOCATION`
 - `SPECIAL_CONDITION_NO_PICK_UP`
 - `SUSPENDED_CARD`
@@ -11434,6 +11446,14 @@ WARNING: Transfer is deprecated. ElectronicFundsTransfer should be used instead.
 
 Additional network transaction data.
 
+### `AdditionalRecipientInformation`
+
+Additional recipient information required for international card shipping destinations.
+
+### `AdditionalRecipientInformationInput`
+
+Additional recipient information required for international card shipping destinations.
+
 ### `AdditionalTransactionData`
 
 ### `AddNonVerifiedExternalUsFinancialBankAccountInput`
@@ -12178,7 +12198,7 @@ The edge type for a `Business`.
 
 ### `BusinessFilterInput`
 
-Filter input for querying `Business` account holders.
+Filter input for the `businesses` query.
 
 ### `BusinessIdentificationDocument`
 
@@ -12284,6 +12304,15 @@ Profile for a `Business`.
 ### `BusinessServices`
 
 The service-specific details for the `Business`, such as account holder and merchant details.
+
+### `BusinessUltimateBeneficialOwner`
+
+An ultimate beneficial owner of a business.
+
+Currently implemented only by `USBusinessUltimateBeneficialOwner`. The
+interface anticipates the international-Business migration (CRISP-13692
+follow-up) when non-US UBO types — backed by `Business` rather than
+`USBusinessAccountHolder` — are added as additional implementers.
 
 ### `BusinessUltimateBeneficialOwnerIdentityDocumentsRequestedEvent`
 
@@ -15497,6 +15526,12 @@ Whether or not the Financial Account supports a Fleet Card.
 
 Input for force capturing a payment transaction.
 
+### `ForceStandaloneCapturePaymentInput`
+
+Input for `forceStandaloneCapturePayment`. Force-captures an arbitrary amount
+with no prior authorization — clearing-only forced-post emission. Restricted
+to allowlisted organizations. Visa and Mastercard only.
+
 ### `ForwardCommittmentBreakdown`
 
 The percentage breakdown of forward comittments
@@ -16541,6 +16576,23 @@ A Spend Control rule that allows for spending up to a specified percentage over 
 
 ### `Maybe`
 
+### `MerchantAcceptor`
+
+A merchant acceptor — Identifies how transactions for a merchant are routed and reported
+across processors and card networks.
+
+### `MerchantAcceptorDetails`
+
+Descriptive details about the merchant accepting payments through a
+`MerchantAcceptor`. These values describe the merchant as it appears to
+cardholders and to card networks.
+
+### `MerchantAcceptorProcessorConfiguration`
+
+A single processor routing row for a `MerchantAcceptor`. Defines how
+transactions of a given network, card brand, and transaction type are
+processed and where they settle.
+
 ### `MerchantCategoryCodeSankeyDataPointsFilterInput`
 
 Input filter for querying data points for a Sankey diagram representing flows between account holders and merchant categories.
@@ -17266,6 +17318,10 @@ Root Mutation type extending the main GraphQL schema.
 Root Mutation type extending the main GraphQL schema.
 
 ### `MutationForceCapturePaymentTransactionArgs`
+
+Root Mutation type extending the main GraphQL schema.
+
+### `MutationForceStandaloneCapturePaymentArgs`
 
 Root Mutation type extending the main GraphQL schema.
 
@@ -19111,6 +19167,12 @@ A payment transaction event. This is a record of a payment transaction moving mo
 
 A payment transaction lifecycle step summary. This is a summary record of a payment transaction moving money returned
 from a mutation.
+
+### `PaymentTransactionPaymentMethodInput`
+
+Input for the polymorphic credential supplied to payment transaction mutations.
+**Exactly one** of `paymentCard`, `paymentMethodToken`, or `networkToken` must
+be set.
 
 ### `PaymentTransactionResponseCode`
 

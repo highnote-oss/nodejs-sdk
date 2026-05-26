@@ -70,7 +70,13 @@ jobs:
         if: steps.diff.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v8
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # Uses a fine-grained PAT (DRIFT_BOT_TOKEN) instead of GITHUB_TOKEN
+          # because the enterprise policy blocks Actions' built-in token from
+          # creating PRs. PAT scoped to contents:write + pull-requests:write
+          # on highnote-oss/nodejs-sdk only.
+          # Rotation: regenerate at https://github.com/settings/personal-access-tokens,
+          # then `gh secret set DRIFT_BOT_TOKEN --repo highnote-oss/nodejs-sdk`.
+          token: ${{ secrets.DRIFT_BOT_TOKEN }}
           commit-message: "chore: refresh docs from updated Highnote schema"
           branch: chore/schema-drift
           delete-branch: true

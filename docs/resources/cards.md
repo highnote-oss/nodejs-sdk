@@ -169,6 +169,7 @@ Order a physical card for an existing payment card.
   Minimum length is 1 and maximum length is 23. Valid characters are all alphanumeric characters, `,`,
   `.`, `'`, `&`, `-`, `\`, `$`, and space. The regex used to validate is `^[0-9A-Za-z \&\-\,\./\'\$]*$`.
 - `input.courier` (PaymentCardShipmentCourierInput, optional) — Courier information.
+- `input.deliveryDetails.additionalInformation` (AdditionalRecipientInformationInput, optional) — Additional information about the recipient required for international card shipping.
 - `input.deliveryDetails.address.countryCodeAlpha3` (string, **required**) — The [three letter country code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) where the address resides.
 - `input.deliveryDetails.address.extendedAddress` (string, optional) — Additional data about the address, e.g. apartment, unit, floor, or place name.
 

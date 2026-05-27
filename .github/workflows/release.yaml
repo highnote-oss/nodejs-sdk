@@ -51,10 +51,8 @@ jobs:
 
       - run: npm ci
 
-      - name: Generate types from Highnote schema
+      - name: Generate types from checked-in schema snapshot
         run: npm run codegen
-        env:
-          HIGHNOTE_API_KEY: ${{ secrets.HIGHNOTE_API_KEY }}
 
       - run: npm run typecheck
       - run: npm run test:unit

@@ -33,6 +33,8 @@
   ],
   "scripts": {
     "build": "tsup",
+    "schema:fetch": "tsx scripts/fetch-schema.ts",
+    "schema:check": "tsx scripts/fetch-schema.ts --check",
     "codegen": "graphql-codegen --config codegen.ts",
     "format": "prettier --write 'src/**/*.ts'",
     "typecheck": "tsc --noEmit",

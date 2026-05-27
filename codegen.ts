@@ -1,26 +1,12 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
-import "dotenv/config";
 
-const apiKey = process.env.HIGHNOTE_API_KEY;
-if (!apiKey) {
-  console.error(
-    "[ERROR] HIGHNOTE_API_KEY is required for schema introspection. Copy .env.template to .env and fill it in.",
-  );
-  process.exit(1);
-}
-
-const encoded = Buffer.from(`${apiKey}:`, "ascii").toString("base64");
-
+// Reads from the checked-in schema.graphql snapshot instead of introspecting
+// the live Highnote API. Refresh the snapshot via `npm run schema:fetch` —
+// drift between the snapshot and the live API is caught by the weekly
+// `schema-drift` workflow, which opens an auto-PR to update both the
+// snapshot and the regenerated docs in lockstep.
 const config: CodegenConfig = {
-  schema: [
-    {
-      "https://api.us.test.highnote.com/graphql": {
-        headers: {
-          Authorization: `Basic ${encoded}`,
-        },
-      },
-    },
-  ],
+  schema: "schema.graphql",
   documents: "src/graphql/**/*.graphql",
   generates: {
     "src/generated/graphql.ts": {

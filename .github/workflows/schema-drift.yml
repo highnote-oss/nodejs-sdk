@@ -27,10 +27,16 @@ jobs:
 
       - run: npm ci
 
-      - name: Generate types from current schema
-        run: npm run codegen
+      - name: Refresh checked-in schema snapshot
+        # This is the *only* place we hit the live Highnote API for schema
+        # purposes. Everything downstream (codegen, docs:gen) reads from the
+        # refreshed schema.graphql on disk.
+        run: npm run schema:fetch
         env:
           HIGHNOTE_API_KEY: ${{ secrets.HIGHNOTE_API_KEY }}
+
+      - name: Regenerate types from refreshed schema
+        run: npm run codegen
 
       - name: Regenerate docs from refreshed types
         # Schema drift cascades into doc drift (descriptions, enum members).
@@ -38,19 +44,18 @@ jobs:
         # passes its own docs-drift CI step.
         run: npm run docs:gen
 
-      - name: Check for user-visible schema changes
+      - name: Check for schema or docs changes
         id: diff
-        # src/generated/ is gitignored, so we can't diff against the previous
-        # generated types. Instead we use the regenerated docs/ tree as the
-        # drift signal — anything that affects the public surface (resource
-        # method signatures, enum members, descriptions) shows up there.
+        # We diff schema.graphql + docs/ together. The schema file catches
+        # everything (including changes that don't surface in docs, like
+        # internal types); docs/ catches the user-visible surface.
         run: |
-          if git diff --quiet docs/; then
+          if git diff --quiet schema.graphql docs/; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "No user-visible schema changes detected in docs/."
+            echo "No schema changes detected."
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
-            echo "User-visible schema changes detected in docs/."
+            echo "Schema changes detected."
           fi
 
       - name: Fetch schema changelog from Highnote API

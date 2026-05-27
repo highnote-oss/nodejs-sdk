@@ -20,19 +20,24 @@ The rest of this document is for Highnote maintainers working on the SDK.
 git clone https://github.com/highnote-oss/nodejs-sdk.git
 cd nodejs-sdk
 npm install
-cp .env.template .env   # Fill in HIGHNOTE_API_KEY
-npm run codegen          # Generate types from Highnote schema
+npm run codegen          # Generate types from schema.graphql (no API key needed)
 ```
+
+You only need `HIGHNOTE_API_KEY` in `.env` if you plan to run integration
+tests (`npm run test:integration`) or refresh the schema snapshot
+(`npm run schema:fetch`). Day-to-day SDK development — codegen, typecheck,
+build, unit tests, docs — does not require an API key.
 
 ## Development
 
 ```bash
-npm run codegen            # Regenerate types from Highnote schema (requires API key in .env)
+npm run codegen            # Regenerate types from the checked-in schema.graphql
+npm run schema:fetch       # Refresh schema.graphql from live API (needs API key)
+npm run schema:check       # Fail if schema.graphql is stale vs. live API
 npm run typecheck          # Type-check without emitting
 npm run build              # Build CJS + ESM + .d.ts via tsup
 npm run test:unit          # Run unit tests (no network, no credentials)
 npm run test:integration   # Run integration tests (requires API key in .env)
-npm run lint               # Lint with eslint
 npm run format             # Format with prettier
 npm run docs:gen           # Regenerate docs/SDK_REFERENCE.md, docs/resources/*, README table
 npm run docs:check         # Fail if any committed doc would change (used by CI)
@@ -40,6 +45,19 @@ npm run docs:check         # Fail if any committed doc would change (used by CI)
 
 **Note:** `src/generated/graphql.ts` is gitignored. You must run `npm run
 codegen` after cloning before typecheck or build will work.
+
+## Schema snapshot
+
+`schema.graphql` is a checked-in SDL dump of the Highnote GraphQL schema
+we target. Codegen reads from this file, so PR CI is fully deterministic
+— it never goes stale because the upstream API shipped a change.
+
+Schema refresh happens via the `schema-drift` workflow (`.github/workflows/schema-drift.yml`),
+which runs weekly (and on manual dispatch). It introspects the live API,
+diffs against the snapshot, and opens an auto-PR refreshing
+`schema.graphql` + the regenerated docs in lockstep. Review and merge
+that PR as you would any other code change — that's how schema moves
+land in the SDK.
 
 ## Documentation generation
 
@@ -52,12 +70,11 @@ When you add or change a public method, run `npm run docs:gen` and commit
 the regenerated docs alongside your code change. CI (`docs-drift`) runs
 `docs:check` and fails the PR if you forget.
 
-**If you ran `npm run codegen` (or pulled main after a schema update), run
-`npm run docs:gen` afterwards and commit both.** Schema drift cascades into
-doc drift — the descriptions and enum members in the generated docs come
-from `src/generated/graphql.ts`, so a stale local copy of that file will
-produce stale docs that fail `docs:check` on CI even though the doc
-*generator* itself didn't change.
+**If you change `schema.graphql` (almost always via the auto-PR from the
+schema-drift workflow), run `npm run codegen && npm run docs:gen` and
+commit the regenerated docs in the same PR.** The docs are derived from
+`src/generated/graphql.ts`, which is derived from `schema.graphql` —
+the three need to move together or CI will fail.
 
 The generator (`scripts/gen-docs.ts`) requires:
 
@@ -109,7 +126,9 @@ GitHub Actions runs on every PR and push to main:
 - **Integration tests** (requires `HIGHNOTE_API_KEY` repo secret — skipped on fork PRs)
 - **Docs drift check** (`docs:check`)
 
-Both jobs run codegen before typecheck since `src/generated/graphql.ts` is gitignored.
+All jobs run codegen against the checked-in `schema.graphql` first
+(`src/generated/graphql.ts` is gitignored). Only `Integration tests`
+needs `HIGHNOTE_API_KEY` (for hitting the live API at test runtime).
 
 ## Releasing
 

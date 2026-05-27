@@ -27,10 +27,9 @@ jobs:
 
       - run: npm ci
 
-      - name: Generate types from Highnote schema
-        run: npm run codegen
-        env:
-          HIGHNOTE_API_KEY: ${{ secrets.HIGHNOTE_API_KEY }}
+      # Codegen reads schema.graphql (checked in) — no API key needed.
+      # Live-schema refresh happens via the schema-drift workflow.
+      - run: npm run codegen
 
       - run: npm run typecheck
 
@@ -52,10 +51,7 @@ jobs:
 
       - run: npm ci
 
-      - name: Generate types from Highnote schema
-        run: npm run codegen
-        env:
-          HIGHNOTE_API_KEY: ${{ secrets.HIGHNOTE_API_KEY }}
+      - run: npm run codegen
 
       - run: npm run docs:check
 
@@ -76,11 +72,10 @@ jobs:
 
       - run: npm ci
 
-      - name: Generate types from Highnote schema
-        run: npm run codegen
-        env:
-          HIGHNOTE_API_KEY: ${{ secrets.HIGHNOTE_API_KEY }}
+      - run: npm run codegen
 
+      # Integration tests still need the API key because they make real
+      # requests against the Highnote API at runtime.
       - run: npm run test:integration
         env:
           HIGHNOTE_API_KEY: ${{ secrets.HIGHNOTE_API_KEY }}

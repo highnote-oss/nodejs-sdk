@@ -2558,6 +2558,14 @@ The Card Processing Network that will process a payment
 - `PULSE`
 - `VISA`
 
+### `AcquiringMerchantType`
+
+The classification of a `Merchant`.
+
+- `CONNECTED_SUB`
+- `DIRECT`
+- `MANAGED_SUB`
+
 ### `AcquiringPaymentCardBrand`
 
 The brand which the payment card belongs to.
@@ -5585,6 +5593,13 @@ The supported currencies on the Highnote platform.
 
 - `USD`
 
+### `IsoStatus`
+
+The lifecycle status of an `Iso`.
+
+- `ACTIVE`
+- `INACTIVE`
+
 ### `IssuePaymentCardForFinancialAccountResponseStatus`
 
 The status of the `issuePaymentCardForFinancialAccountResponse` request.
@@ -7412,6 +7427,15 @@ The list of human friendly merchant category codes (MCC) according to [ISO-18245
 - `YUTORELO`
 - `ZAMBIA_AIRWAYS`
 
+### `MerchantStatus`
+
+The lifecycle status of a `Merchant`.
+
+- `ACTIVE`
+- `PENDING`
+- `SUSPENDED`
+- `TERMINATED`
+
 ### `Month`
 
 A month in the calendar year.
@@ -7912,6 +7936,14 @@ The possible bank names.
 - `SVB_BANK`
 - `TRANSPECOS_BANK`
 - `VERITEX_BANK`
+
+### `PayfacStatus`
+
+The lifecycle status of a `Payfac`.
+
+- `ACTIVE`
+- `INACTIVE`
+- `SUSPENDED`
 
 ### `PaymentAdvanceStatus`
 
@@ -12301,6 +12333,10 @@ Information about the business.
 
 Profile for a `Business`.
 
+### `BusinessService`
+
+A service a `Business` is set up for in the payments ecosystem.
+
 ### `BusinessServices`
 
 The service-specific details for the `Business`, such as account holder and merchant details.
@@ -16278,6 +16314,16 @@ IP address details.
 
 Input fields for IP address details.
 
+### `Iso`
+
+A `Business` operating as an `Iso`, brokering
+merchant onboarding to Payment Facilitators.
+
+### `IsoPayfacPartnershipsArgs`
+
+A `Business` operating as an `Iso`, brokering
+merchant onboarding to Payment Facilitators.
+
 ### `IssueEmployerFinancialAccountForCardProductInput`
 
 Details for issuing an Employer Financial Account against a Card Product.
@@ -16576,6 +16622,11 @@ A Spend Control rule that allows for spending up to a specified percentage over 
 
 ### `Maybe`
 
+### `Merchant`
+
+A `Business` enrolled as an acquiring merchant, either directly or as a
+submerchant of a `Payfac`.
+
 ### `MerchantAcceptor`
 
 A merchant acceptor — Identifies how transactions for a merchant are routed and reported
@@ -16625,6 +16676,10 @@ The result of applying a merchant category spend rule to an event.
 
 A Spend Control rule that allows or blocks certain merchant categories codes (MCC) during authorizations.
 
+### `MerchantConnection`
+
+The connection type for `Merchant`.
+
 ### `MerchantCountrySpendRule`
 
 A Spend Control rule that allows or blocks certain merchant countries during authorizations.
@@ -16667,6 +16722,10 @@ Input filter for querying detailed Sankey diagram data points, including flows b
 
 Union type for the detailed Sankey data points query response, which can include data points, user errors, or access denial messages.
 
+### `MerchantEdge`
+
+The edge type for `Merchant`.
+
 ### `MerchantFeePaymentTransactionFee`
 
 A fee associated for the merchant to process the `PaymentTransaction`.
@@ -16694,6 +16753,29 @@ Information about a merchant-managed installment payment plan.
 ### `MerchantManagedInstallmentPaymentInput`
 
 Information about a merchant-managed installment payment plan.
+
+### `MerchantPayfacRelationship`
+
+A relationship between a `Merchant` and a `Payfac`, optionally brokered by
+an `Iso`.
+
+### `MerchantPayfacRelationshipConnection`
+
+The connection type for `MerchantPayfacRelationship`.
+
+### `MerchantPayfacRelationshipEdge`
+
+The edge type for `MerchantPayfacRelationship`.
+
+### `MerchantPayfacRelationshipsArgs`
+
+A `Business` enrolled as an acquiring merchant, either directly or as a
+submerchant of a `Payfac`.
+
+### `MerchantProductApplicationsArgs`
+
+A `Business` enrolled as an acquiring merchant, either directly or as a
+submerchant of a `Payfac`.
 
 ### `MerchantSettlementFinancialAccountFeature`
 
@@ -18695,6 +18777,33 @@ Whether or not the `FinancialAccount` supports partial funding.
 ### `PassportIdentificationDocument`
 
 A representation of a passport identification document.
+
+### `Payfac`
+
+A `Business` operating as a Payment Facilitator, onboarding and managing
+submerchants on behalf of the acquirer.
+
+### `PayfacIsoPartnership`
+
+A partnership between a `Payfac` and an `Iso`.
+
+### `PayfacIsoPartnershipConnection`
+
+The connection type for `PayfacIsoPartnership`.
+
+### `PayfacIsoPartnershipEdge`
+
+The edge type for `PayfacIsoPartnership`.
+
+### `PayfacIsoPartnershipsArgs`
+
+A `Business` operating as a Payment Facilitator, onboarding and managing
+submerchants on behalf of the acquirer.
+
+### `PayfacSubmerchantsArgs`
+
+A `Business` operating as a Payment Facilitator, onboarding and managing
+submerchants on behalf of the acquirer.
 
 ### `PaymentAdvance`
 

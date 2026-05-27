@@ -16,8 +16,10 @@ When reporting, include where possible:
 - The SDK version(s) affected
 - Any suggested mitigations
 
-We will acknowledge receipt within 3 business days and work with you on a
-disclosure timeline.
+We aim to acknowledge reports as quickly as we can, but cannot commit to a
+specific response time — this SDK is maintained on a best-effort basis. We
+will work with you on a disclosure timeline once we've acknowledged the
+report.
 
 ## Supported Versions
 

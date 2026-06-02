@@ -2000,18 +2000,6 @@ type Mutation {
     input: AddPricingConfigurationInput!
   ): AddPricingConfigurationPayload
 
-  """
-  Updates the `effectiveThrough` timestamp of a `PricingConfiguration`.
-  The new `effectiveThrough` can be null (removing the expiration), but cannot be in the past.
-  Only configurations with an unset `effectiveThrough` or an `effectiveThrough` in the future can be updated.
-  """
-  updatePricingConfiguration(
-    """
-    The input details for updating the configuration's effective through timestamp.
-    """
-    input: UpdatePricingConfigurationInput!
-  ): UpdatePricingConfigurationPayload
-
   """Updates `CustomFields` for an object."""
   updateCustomFields(input: UpdateCustomFieldsInput!): CustomFieldsPayload
 
@@ -9304,61 +9292,85 @@ type PaymentCardTransactionDisputeCredit {
   updatedAt: String
 }
 
-"""The payment card transaction chargeback credit."""
+"""
+A provisional credit issued on a payment card transaction dispute. Posted to the Account Holder's `FinancialAccount` while a related chargeback is in flight with the network, and finalized — retained, partially adjusted, or reversed — based on the chargeback's outcome.
+"""
 type PaymentCardTransactionDisputeProvisionalCredit {
-  """The credit status of the dispute credit."""
+  """The credit status of the provisional credit."""
   creditStatus: PaymentCardProvisionalCreditStatus
 
-  """The amount for the chargeback credit."""
+  """The amount of the provisional credit."""
   creditAmount: Amount
 
   """
-  The date and time, in ISO 8601 format, from which this chargeback credit is created.
+  The date and time, in ISO 8601 format, at which this provisional credit was created.
   """
   createdAt: String
 
   """
-  The date and time, in ISO 8601 format, from which this chargeback credit is updated.
+  The date and time, in ISO 8601 format, at which this provisional credit was last updated.
   """
   updatedAt: String
 }
 
 """The provisional credit status of the dispute."""
 enum PaymentCardProvisionalCreditStatus {
-  """A chargeback credit has not been issued."""
+  """
+  No provisional credit has been issued for this dispute. No chargeback-driven issuance has been initiated, or a prior issuance attempt did not execute.
+  """
   NOT_ISSUED
 
-  """The chargeback provisional credit is pending issued."""
+  """
+  Issuance of the provisional credit is in progress. A chargeback has been submitted to or received by the network, and the credit has not yet posted to the Account Holder's `FinancialAccount`.
+  """
   PENDING_ISSUE
 
-  """The Provisional Credit for the chargeback has been issued."""
+  """
+  The provisional credit has posted to the Account Holder's `FinancialAccount`, providing temporary relief while the related chargeback is investigated by the network.
+  """
   ISSUED
 
-  """The chargeback provisional credit is pending finalized."""
+  """
+  Finalization of the provisional credit is in progress. The chargeback outcome has been determined and the credit is being retained, partially adjusted, or reversed accordingly.
+  """
   PENDING_FINALIZATION
 
-  """The Provisional Credit for is not finalized"""
+  """
+  Finalization of the provisional credit failed and requires manual intervention. The provisional credit remains posted but has not been resolved against the chargeback outcome.
+  """
   FINALIZATION_FAILED
 
-  """The Provisional Credit for is finalized"""
+  """
+  The provisional credit has been finalized following the chargeback outcome — retained as a permanent credit on a win, partially adjusted on a partial win, or reversed on a loss.
+  """
   FINALIZED
 }
 
 """The credit status of the dispute credit."""
 enum PaymentCardDisputeCreditStatus {
-  """A dispute credit has not been issued."""
+  """
+  No dispute credit has been issued. Either no issue-credit request has been made for this dispute, or a prior issuance attempt did not execute.
+  """
   NOT_ISSUED
 
-  """The dispute credit is pending issuing."""
+  """
+  Issuance of the dispute credit is in progress. An issue-credit request has been made while the dispute is being investigated, and the credit has not yet posted to the Account Holder's `FinancialAccount`.
+  """
   PENDING_ISSUE
 
-  """The dispute credit is issued."""
+  """
+  The dispute credit has posted to the Account Holder's `FinancialAccount`. Issued during the dispute investigation, before the dispute has resolved.
+  """
   ISSUED
 
-  """The dispute credit is pending reversal."""
+  """
+  Reversal of a previously-issued dispute credit is in progress. Initiated after the dispute resolved, the credit has not yet been withdrawn from the Account Holder's `FinancialAccount`.
+  """
   PENDING_REVERSAL
 
-  """The dispute credit is reversed."""
+  """
+  The previously-issued dispute credit has been withdrawn from the Account Holder's `FinancialAccount` and is no longer posted.
+  """
   REVERSED
 }
 
@@ -10882,7 +10894,9 @@ enum PaymentCardChargebackStatus {
 
 """The credit status of the chargeback."""
 enum PaymentCardChargebackCreditStatus {
-  """A chargeback credit has not been issued."""
+  """
+  No chargeback credit has been issued. The chargeback has not progressed to a credit-eligible stage.
+  """
   CREDIT_NOT_ISSUED
 
   """
@@ -10905,7 +10919,9 @@ enum PaymentCardChargebackCreditStatus {
   """
   CREDIT_PARTIALLY_WON
 
-  """The chargeback provisional credit is pending issued."""
+  """
+  Issuance of the chargeback provisional credit is in progress. The chargeback has met the criteria for early credit but the credit has not yet posted.
+  """
   PROVISIONAL_CREDIT_PENDING_ISSUE
 
   """The Provisional Credit for the chargeback has been issued."""
@@ -70070,12 +70086,6 @@ interface BusinessService implements Node {
 }
 
 """
-The result of updating the `effectiveThrough` timestamp of a `PricingConfiguration`.
-Returns the updated configuration or error details.
-"""
-union UpdatePricingConfigurationPayload = AccessDeniedError | UserError | PricingConfiguration
-
-"""
 The result of creating a `PricingConfiguration`.
 Returns the newly created configuration or error details.
 """
@@ -70267,23 +70277,6 @@ type PricingRuleParameterValueSingle {
   value: String
 }
 
-"""
-The input details for updating the `effectiveThrough` timestamp of a `PricingConfiguration`.
-"""
-input UpdatePricingConfigurationInput {
-  """
-  The ID of the `PricingConfiguration` to update.
-  Only configurations with an unset `effectiveThrough` or an `effectiveThrough` in the future can be updated.
-  """
-  pricingConfigurationId: ID!
-
-  """
-  The new effective end timestamp, in ISO 8601 format.
-  Can be null to remove the expiration, but cannot be set to a date in the past.
-  """
-  effectiveThrough: String
-}
-
 """The input details for creating a `PricingConfiguration`."""
 input AddPricingConfigurationInput {
   """The ID of the `PricingPlan` to associate with this configuration."""
@@ -70408,12 +70401,18 @@ enum PricingRuleTrigger {
 
   """Rule is triggered for batch processing."""
   BATCH
+
+  """Rule is triggered on a recurring schedule."""
+  RECURRING
 }
 
 """The frequency at which a `PricingRule` is evaluated and billed."""
 enum PricingRuleFrequency {
   """Rule is evaluated per transaction."""
   TRANSACTIONAL
+
+  """Rule is evaluated monthly."""
+  MONTHLY
 }
 
 """The type of entity a `PricingConfiguration` can be attached to."""
@@ -70444,6 +70443,90 @@ type PricingPlanEdge {
 input PricingPlanFilterInput {
   """Filter by the lifecycle status of the plan."""
   status: PricingPlanStatus
+}
+
+"""A successfully created on-demand pricing charge."""
+type OnDemandPricingCharge implements Node {
+  """The unique identifier of the on-demand pricing charge."""
+  id: ID!
+
+  """The amount charged."""
+  amount: Amount
+
+  """The display name of the charge."""
+  name: String
+
+  """The free-form code identifying the charge type."""
+  externalChargeCode: String
+
+  """The human-readable description of the charge."""
+  description: String
+
+  """
+  Indicates whether this charge resulted in a debit or credit to the payer,
+  derived from the sign of the charge amount.
+  """
+  chargeImpact: OnDemandPricingChargeImpact
+
+  """Caller-supplied idempotency key used when this charge was initiated."""
+  idempotencyKey: IdempotencyKey
+
+  """The timestamp, in ISO 8601 format, when this charge was created."""
+  createdAt: String
+
+  """The timestamp, in ISO 8601 format, when this charge was last updated."""
+  updatedAt: String
+
+  """
+  Metadata describing how the charge amount was derived (echoed from the request).
+  """
+  metadata: OnDemandPricingChargeCalculationMetadata
+}
+
+"""
+Indicates whether an on-demand fee charge resulted in a debit or credit to the payer.
+"""
+enum OnDemandPricingChargeImpact {
+  """Positive amount — funds debited from the payer."""
+  DEBIT
+
+  """Negative amount — funds credited to the payer."""
+  CREDIT
+}
+
+"""
+Metadata describing how the charge amount was derived. Echoed from the request.
+"""
+type OnDemandPricingChargeCalculationMetadata {
+  """Per-item calculation, if supplied on the request."""
+  perItem: OnDemandPricingPerItemCalculation
+
+  """Percentage calculation, if supplied on the request."""
+  percentage: OnDemandPricingPercentageCalculation
+}
+
+"""Rate-per-item calculation echoed from the request."""
+type OnDemandPricingPerItemCalculation {
+  """Money charged per item."""
+  ratePerItem: Amount
+
+  """Number of items the rate was applied to."""
+  itemCount: UnsignedInt
+
+  """Free-form description of this metadata entry."""
+  description: String
+}
+
+"""Percentage-of-amount calculation echoed from the request."""
+type OnDemandPricingPercentageCalculation {
+  """Rate in basis points (1 bp = 0.01%)."""
+  rateBasisPoints: UnsignedInt
+
+  """Financial amount the rate was applied to."""
+  financialAmount: Amount
+
+  """Free-form description of this metadata entry."""
+  description: String
 }
 
 """Describes start and end timestamp of returned response."""
@@ -75739,16 +75822,19 @@ type InstantSettlementTransactionEvent implements Node {
 }
 
 """
+The entity that owns a `TransactionBatch` — either a `Merchant` or a `Payfac`.
+"""
+union TransactionBatchOwner = Merchant | Payfac
+
+"""
 A `TransactionBatch` groups `PaymentTransaction`s for settlement and payout.
 """
 type TransactionBatch implements Node {
   """Global ID used to reference this object."""
   id: ID!
 
-  """
-  This is used to identify the specific merchant location or terminal accepting the payment.
-  """
-  merchantAcceptorId: ID
+  """The entity that owns this batch."""
+  owner: TransactionBatchOwner
 
   """transaction batch status"""
   status: TransactionBatchStatus
@@ -75839,6 +75925,9 @@ enum TransactionBatchStatus {
   """Indicates the transaction batch is on hold."""
   ON_HOLD
 
+  """Indicates the transaction batch is closed."""
+  CLOSED
+
   """Indicates the transaction batch is pending clearing."""
   CLEAR_PENDING
 
@@ -75848,17 +75937,18 @@ enum TransactionBatchStatus {
   """Indicates the transaction batch is pending disbursement."""
   DISBURSEMENT_PENDING
 
-  """Indicates the transaction batch payout has been sent."""
-  PAYOUT_SENT
-
-  """Indicates the transaction batch is closed."""
-  CLOSED
+  """Indicates the transaction batch payout is complete."""
+  PAYOUT_COMPLETE
 
   """Indicates the transaction batch was rejected."""
   REJECTED
 
-  """Indicates the transaction batch has been fully disbursed."""
+  """Indicates the transaction batch was disbursed."""
   DISBURSED
-}
 
-# drift-verify probe force-diff — remove after test
+  """Indicates the transaction batch payout is pending."""
+  PAYOUT_PENDING
+
+  """Indicates the transaction batch payout failed."""
+  PAYOUT_FAILED
+}

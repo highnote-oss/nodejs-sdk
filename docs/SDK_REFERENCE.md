@@ -7853,6 +7853,13 @@ Status of the preliminary decision on the merchant onboarding application
 - `NOT_DECISIONED`
 - `REDIRECT_TO_ISSUING`
 
+### `OnDemandPricingChargeImpact`
+
+Indicates whether an on-demand fee charge resulted in a debit or credit to the payer.
+
+- `CREDIT`
+- `DEBIT`
+
 ### `OrganizationBusinessRelationshipStatus`
 
 The status of an organization business relationship.
@@ -8593,6 +8600,7 @@ The lifecycle states for a `PricingPlan`.
 
 The frequency at which a `PricingRule` is evaluated and billed.
 
+- `MONTHLY`
 - `TRANSACTIONAL`
 
 ### `PricingRuleParameterType`
@@ -8609,6 +8617,7 @@ The type of a `PricingRuleParameter` value.
 The event that triggers a `PricingRule`.
 
 - `BATCH`
+- `RECURRING`
 - `TRANSACTION`
 
 ### `ProcessingCapabilityStatus`
@@ -9058,7 +9067,9 @@ The status of a transaction batch.
 - `DISBURSEMENT_PENDING`
 - `ON_HOLD`
 - `OPEN`
-- `PAYOUT_SENT`
+- `PAYOUT_COMPLETE`
+- `PAYOUT_FAILED`
+- `PAYOUT_PENDING`
 - `PROCESSING`
 - `REJECTED`
 
@@ -18107,10 +18118,6 @@ Root Mutation type extending the main GraphQL schema.
 
 Root Mutation type extending the main GraphQL schema.
 
-### `MutationUpdatePricingConfigurationArgs`
-
-Root Mutation type extending the main GraphQL schema.
-
 ### `MutationUpdatePseudoBalanceArgs`
 
 Root Mutation type extending the main GraphQL schema.
@@ -18497,6 +18504,22 @@ Whether or not the `CardProduct` supports on demand funding.
 ### `OnDemandFundingFinancialAccountFeature`
 
 Whether or not the Financial Account supports On-Demand Funding.
+
+### `OnDemandPricingCharge`
+
+A successfully created on-demand pricing charge.
+
+### `OnDemandPricingChargeCalculationMetadata`
+
+Metadata describing how the charge amount was derived. Echoed from the request.
+
+### `OnDemandPricingPercentageCalculation`
+
+Percentage-of-amount calculation echoed from the request.
+
+### `OnDemandPricingPerItemCalculation`
+
+Rate-per-item calculation echoed from the request.
 
 ### `OneTimeAchTransfer`
 
@@ -19109,7 +19132,7 @@ The possible return types of `PaymentCardTransactionDisputePayload`.
 
 ### `PaymentCardTransactionDisputeProvisionalCredit`
 
-The payment card transaction chargeback credit.
+A provisional credit issued on a payment card transaction dispute. Posted to the Account Holder's `FinancialAccount` while a related chargeback is in flight with the network, and finalized — retained, partially adjusted, or reversed — based on the chargeback's outcome.
 
 ### `PaymentCardTransactionDisputesFilterInput`
 
@@ -21484,6 +21507,10 @@ A `TransactionBatch` groups `PaymentTransaction`s for settlement and payout.
 
 Fee associated with a `PaymentTransaction`.
 
+### `TransactionBatchOwner`
+
+The entity that owns a `TransactionBatch` — either a `Merchant` or a `Payfac`.
+
 ### `TransactionBatchProcessingFee`
 
 A processing fee on a `TransactionBatch`.
@@ -22002,15 +22029,6 @@ The details of the `PostalCodeVerificationSpendRule` spend rule to update.
 ### `UpdatePostalCodeVerificationSpendRulePayload`
 
 The return types when updating an existing postal code verification rule.
-
-### `UpdatePricingConfigurationInput`
-
-The input details for updating the `effectiveThrough` timestamp of a `PricingConfiguration`.
-
-### `UpdatePricingConfigurationPayload`
-
-The result of updating the `effectiveThrough` timestamp of a `PricingConfiguration`.
-Returns the updated configuration or error details.
 
 ### `UpdatePseudoBalanceInput`
 

@@ -75860,3 +75860,5 @@ enum TransactionBatchStatus {
   """Indicates the transaction batch has been fully disbursed."""
   DISBURSED
 }
+
+# drift-verify probe force-diff — remove after test

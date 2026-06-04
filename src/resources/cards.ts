@@ -3,6 +3,8 @@ import { print } from "graphql";
 import type { Highnote } from "../client.js";
 import { throwIfError, HighnoteUnexpectedResponseError } from "../errors.js";
 import type {
+  IssuePaymentCardForApplicationWithOnDemandFundingSourceMutation,
+  IssuePaymentCardForApplicationWithOnDemandFundingSourceMutationVariables,
   IssuePaymentCardForFinancialAccountMutation,
   IssuePaymentCardForFinancialAccountMutationVariables,
   ActivatePaymentCardMutation,
@@ -23,6 +25,7 @@ import type {
   FindAtmLocationsForPaymentCardQuery,
 } from "../generated/graphql.js";
 import {
+  IssuePaymentCardForApplicationWithOnDemandFundingSourceDocument,
   IssuePaymentCardForFinancialAccountDocument,
   ActivatePaymentCardDocument,
   SuspendPaymentCardDocument,
@@ -39,6 +42,13 @@ import {
 
 type IssuedPaymentCard = Extract<
   NonNullable<IssuePaymentCardForFinancialAccountMutation["issuePaymentCardForFinancialAccount"]>,
+  { __typename: "PaymentCard" }
+>;
+
+type IssuedPaymentCardWithOdfFa = Extract<
+  NonNullable<
+    IssuePaymentCardForApplicationWithOnDemandFundingSourceMutation["issuePaymentCardForApplicationWithOnDemandFundingSource"]
+  >,
   { __typename: "PaymentCard" }
 >;
 
@@ -62,7 +72,7 @@ type CanceledPhysicalPaymentCardOrderResponse = Extract<
   { __typename: "PhysicalPaymentCardOrder" }
 >;
 
-export type PaymentCard = IssuedPaymentCard | FindPaymentCardNode;
+export type PaymentCard = IssuedPaymentCard | IssuedPaymentCardWithOdfFa | FindPaymentCardNode;
 export type PhysicalPaymentCardOrder = PhysicalPaymentCardOrderResponse | CanceledPhysicalPaymentCardOrderResponse;
 
 // ── Resource ──
@@ -100,6 +110,46 @@ export class CardsResource {
     }
 
     return result as IssuedPaymentCard;
+  }
+
+  /**
+   * Issue a payment card AND open a new on-demand-funded FinancialAccount
+   * under the given approved application, in a single mutation. The new FA
+   * pulls from `sourceFinancialAccountId` at authorization time.
+   *
+   * Use this when each card needs its own backing FA (e.g. AP invoice
+   * automation: one card == one invoice == one FA).
+   * For issuing an additional card on an EXISTING FA, use `cards.issue()`.
+   *
+   * ```ts
+   * const card = await client.cards.issueForApplicationWithOnDemandFunding({
+   *   applicationId: "app_...",
+   *   sourceFinancialAccountId: "fa_program_funding",
+   *   options: { activateOnCreate: true, expirationDate: "2028-12-31T00:00:00Z" },
+   *   idempotencyKey: invoice.id,
+   * });
+   * ```
+   */
+  async issueForApplicationWithOnDemandFunding(
+    input: IssuePaymentCardForApplicationWithOnDemandFundingSourceMutationVariables["input"],
+  ): Promise<IssuedPaymentCardWithOdfFa> {
+    const { data } =
+      await this.client.graphql.rawRequest<IssuePaymentCardForApplicationWithOnDemandFundingSourceMutation>(
+        print(IssuePaymentCardForApplicationWithOnDemandFundingSourceDocument),
+        { input },
+      );
+
+    const result = data?.issuePaymentCardForApplicationWithOnDemandFundingSource;
+    throwIfError(result);
+
+    if (!result || result.__typename !== "PaymentCard") {
+      throw new HighnoteUnexpectedResponseError(
+        result?.__typename ?? "null",
+        "Unexpected response from issuePaymentCardForApplicationWithOnDemandFundingSource",
+      );
+    }
+
+    return result as IssuedPaymentCardWithOdfFa;
   }
 
   /**

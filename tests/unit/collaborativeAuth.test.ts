@@ -176,4 +176,48 @@ describe("CollaborativeAuthResource", () => {
       ).rejects.toThrow(/Unexpected response/);
     });
   });
+
+  describe("removeEndpoint()", () => {
+    it("returns the removed endpoint", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          removeCollaborativeAuthorizationEndpoint: {
+            __typename: "CollaborativeAuthorizationEndpoint",
+            id: "cae_1",
+            name: "Gone",
+            uri: "https://example.com/x",
+            status: "DEACTIVATED",
+            createdAt: "2026-01-01T00:00:00Z",
+            updatedAt: "2026-06-04T00:00:00Z",
+          },
+        },
+      });
+      const ep = await client.collaborativeAuth.removeEndpoint({ endpointId: "cae_1" });
+      expect(ep.id).toBe("cae_1");
+      expect(ep.__typename).toBe("CollaborativeAuthorizationEndpoint");
+    });
+
+    it("throws HighnoteUserError on validation failure", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          removeCollaborativeAuthorizationEndpoint: {
+            __typename: "UserError",
+            errors: [{ code: "INVALID" }],
+          },
+        },
+      });
+      await expect(
+        client.collaborativeAuth.removeEndpoint({ endpointId: "cae_bad" }),
+      ).rejects.toThrow(HighnoteUserError);
+    });
+
+    it("throws HighnoteUnexpectedResponseError on unknown __typename", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: { removeCollaborativeAuthorizationEndpoint: { __typename: "Other" } },
+      });
+      await expect(
+        client.collaborativeAuth.removeEndpoint({ endpointId: "cae_1" }),
+      ).rejects.toThrow(/Unexpected response/);
+    });
+  });
 });

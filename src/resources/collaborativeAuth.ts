@@ -9,6 +9,8 @@ import type {
   ActivateCollaborativeAuthorizationEndpointMutationVariables,
   DeactivateCollaborativeAuthorizationEndpointMutation,
   DeactivateCollaborativeAuthorizationEndpointMutationVariables,
+  RemoveCollaborativeAuthorizationEndpointMutation,
+  RemoveCollaborativeAuthorizationEndpointMutationVariables,
   RenameCollaborativeAuthorizationEndpointMutation,
   RenameCollaborativeAuthorizationEndpointMutationVariables,
 } from "../generated/graphql.js";
@@ -16,6 +18,7 @@ import {
   AddCollaborativeAuthorizationEndpointDocument,
   ActivateCollaborativeAuthorizationEndpointDocument,
   DeactivateCollaborativeAuthorizationEndpointDocument,
+  RemoveCollaborativeAuthorizationEndpointDocument,
   RenameCollaborativeAuthorizationEndpointDocument,
 } from "../generated/graphql.js";
 
@@ -49,11 +52,19 @@ type RenamedCollaborativeAuthEndpointResponse = Extract<
   { __typename: "CollaborativeAuthorizationEndpoint" }
 >;
 
+type RemovedCollaborativeAuthEndpointResponse = Extract<
+  NonNullable<
+    RemoveCollaborativeAuthorizationEndpointMutation["removeCollaborativeAuthorizationEndpoint"]
+  >,
+  { __typename: "CollaborativeAuthorizationEndpoint" }
+>;
+
 export type CollaborativeAuthorizationEndpoint =
   | CollaborativeAuthEndpointResponse
   | ActivatedCollaborativeAuthEndpointResponse
   | DeactivatedCollaborativeAuthEndpointResponse
-  | RenamedCollaborativeAuthEndpointResponse;
+  | RenamedCollaborativeAuthEndpointResponse
+  | RemovedCollaborativeAuthEndpointResponse;
 
 // ── Resource ──
 
@@ -180,5 +191,34 @@ export class CollaborativeAuthResource {
     }
 
     return result as RenamedCollaborativeAuthEndpointResponse;
+  }
+
+  /**
+   * Remove a collaborative authorization endpoint permanently.
+   *
+   * ```ts
+   * await client.collaborativeAuth.removeEndpoint({ endpointId: "cae_..." });
+   * ```
+   */
+  async removeEndpoint(
+    input: RemoveCollaborativeAuthorizationEndpointMutationVariables["input"],
+  ): Promise<RemovedCollaborativeAuthEndpointResponse> {
+    const { data } =
+      await this.client.graphql.rawRequest<RemoveCollaborativeAuthorizationEndpointMutation>(
+        print(RemoveCollaborativeAuthorizationEndpointDocument),
+        { input },
+      );
+
+    const result = data?.removeCollaborativeAuthorizationEndpoint;
+    throwIfError(result);
+
+    if (!result || result.__typename !== "CollaborativeAuthorizationEndpoint") {
+      throw new HighnoteUnexpectedResponseError(
+        result?.__typename ?? "null",
+        "Unexpected response from removeCollaborativeAuthorizationEndpoint",
+      );
+    }
+
+    return result as RemovedCollaborativeAuthEndpointResponse;
   }
 }

@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Highnote } from "../../src/client.js";
 import { HighnoteUserError, HighnoteUnexpectedResponseError } from "../../src/errors.js";
 import type { AccountHolderFinancialAccountSummary } from "../../src/resources/accountHolders.js";
+import { FinancialAccountFeatureType } from "../../src/generated/graphql.js";
 
 const { mockRawRequest, MockGraphQLClient } = vi.hoisted(() => {
   const mockRawRequest = vi.fn();
@@ -492,14 +493,16 @@ describe("AccountHoldersResource", () => {
       });
 
       const iter = client.accountHolders.listFinancialAccounts("og_1", {
-        filterBy: { features: { includes: ["CARD_FUNDING_ACCOUNT"] } },
+        filterBy: { features: { includes: [FinancialAccountFeatureType.CARD_FUNDING_ACCOUNT] } },
       });
       for await (const _ of iter) {
         // exhaust
       }
 
       const variables = mockRawRequest.mock.calls[0][1];
-      expect(variables.filterBy).toEqual({ features: { includes: ["CARD_FUNDING_ACCOUNT"] } });
+      expect(variables.filterBy).toEqual({
+        features: { includes: [FinancialAccountFeatureType.CARD_FUNDING_ACCOUNT] },
+      });
     });
 
     it("throws HighnoteUnexpectedResponseError when the node isn't an account-holder type", async () => {

@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Exported types `CollaborativeAuthRequest`, `CollaborativeAuthResponse`, `VerifyCollaborativeAuthSignatureInput`, `VerifyCollaborativeAuthSignatureResult`.
 - Re-exported `CollaborativeAuthorizationResponseCode` enum.
 
+### Changed
+- The exported `PaymentCard` type now includes the `IssuedPaymentCardWithOnDemandFundingAccount` variant returned by `cards.issueForApplicationWithOnDemandFunding`. Consumers that narrow on `__typename` are unaffected; consumers depending on the prior shape should ensure exhaustive handling of the new variant.
+- The exported `CollaborativeAuthorizationEndpoint` type now includes the variants returned by `renameEndpoint` and `removeEndpoint`. Same narrowing guidance.
+
 ## [0.1.0]
 
 Initial release.

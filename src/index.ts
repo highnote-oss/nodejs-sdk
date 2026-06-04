@@ -55,6 +55,7 @@ export {
   DocumentType,
   DocumentUploadClientTokenPermission,
   DocumentUploadSessionStatusCode,
+  FinancialAccountFeatureType,
   FinancialAccountStatus,
   FinancialAccountSuspensionReasonInput,
   GeneratePaymentMethodTokenizationClientTokenPermission,

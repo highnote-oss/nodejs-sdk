@@ -314,11 +314,13 @@ Dispatches across the `AccountHolder` union internally — works for
 **Example**
 
 ```ts
+import { FinancialAccountFeatureType } from "@highnote-oss/nodejs-sdk";
+
 for await (const fa of client.accountHolders.listFinancialAccounts(
   accountHolderId,
   {
     filterBy: {
-      features: { includes: ["CARD_FUNDING_ACCOUNT"] },
+      features: { includes: [FinancialAccountFeatureType.CARD_FUNDING_ACCOUNT] },
       cardProductId: { equals: cardProductId },
     },
   },

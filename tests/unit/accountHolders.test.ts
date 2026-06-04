@@ -307,4 +307,54 @@ describe("AccountHoldersResource", () => {
       );
     });
   });
+
+  describe("createMinimalUSBusiness()", () => {
+    it("returns a USBusinessAccountHolder on success", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          createMinimalUSBusinessAccountHolder: {
+            __typename: "USBusinessAccountHolder",
+            id: "ah_biz_123",
+            externalId: "ext_abc",
+            createdAt: "2026-01-01T00:00:00Z",
+          },
+        },
+      });
+
+      const holder = await client.accountHolders.createMinimalUSBusiness({
+        businessProfile: {
+          businessName: "Acme Co",
+          businessType: "CORPORATION",
+        } as any,
+      });
+
+      expect(holder.id).toBe("ah_biz_123");
+      expect(holder.__typename).toBe("USBusinessAccountHolder");
+    });
+
+    it("throws HighnoteUserError on validation failure", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          createMinimalUSBusinessAccountHolder: {
+            __typename: "UserError",
+            errors: [{ code: "INVALID", description: "Missing field" }],
+          },
+        },
+      });
+
+      await expect(
+        client.accountHolders.createMinimalUSBusiness({ businessProfile: {} as any }),
+      ).rejects.toThrow(HighnoteUserError);
+    });
+
+    it("throws HighnoteUnexpectedResponseError on unknown __typename", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: { createMinimalUSBusinessAccountHolder: { __typename: "Other" } },
+      });
+
+      await expect(
+        client.accountHolders.createMinimalUSBusiness({ businessProfile: {} as any }),
+      ).rejects.toThrow(/Unexpected response/);
+    });
+  });
 });

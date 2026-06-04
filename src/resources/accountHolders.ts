@@ -4,6 +4,8 @@ import type { Highnote } from "../client.js";
 import { throwIfError, HighnoteUnexpectedResponseError } from "../errors.js";
 import { paginate, type RelayConnection } from "../pagination.js";
 import type {
+  CreateMinimalUsBusinessAccountHolderMutation,
+  CreateMinimalUsBusinessAccountHolderMutationVariables,
   CreateUsPersonAccountHolderMutation,
   CreateUsPersonAccountHolderMutationVariables,
   FindAccountHolderQuery,
@@ -15,6 +17,7 @@ import type {
   SearchBusinessAccountHoldersQueryVariables,
 } from "../generated/graphql.js";
 import {
+  CreateMinimalUsBusinessAccountHolderDocument,
   CreateUsPersonAccountHolderDocument,
   FindAccountHolderDocument,
   ListPersonAccountHoldersDocument,
@@ -34,6 +37,11 @@ export type PersonAccountHolder = NonNullable<PersonAccountHolderNode>;
 type CreatedPersonAccountHolder = Extract<
   NonNullable<CreateUsPersonAccountHolderMutation["createUSPersonAccountHolder"]>,
   { __typename: "USPersonAccountHolder" }
+>;
+
+type CreatedMinimalBusinessAccountHolder = Extract<
+  NonNullable<CreateMinimalUsBusinessAccountHolderMutation["createMinimalUSBusinessAccountHolder"]>,
+  { __typename: "USBusinessAccountHolder" }
 >;
 
 type FindAccountHolderNode = Extract<
@@ -99,6 +107,39 @@ export class AccountHoldersResource {
     }
 
     return result as CreatedPersonAccountHolder;
+  }
+
+  /**
+   * Create a US business account holder with the minimal required profile.
+   * Use this when you intend to fill in additional fields via subsequent
+   * update mutations.
+   *
+   * ```ts
+   * const holder = await client.accountHolders.createMinimalUSBusiness({
+   *   businessProfile: { ... },
+   * });
+   * ```
+   */
+  async createMinimalUSBusiness(
+    input: CreateMinimalUsBusinessAccountHolderMutationVariables["input"],
+  ): Promise<CreatedMinimalBusinessAccountHolder> {
+    const { data } =
+      await this.client.graphql.rawRequest<CreateMinimalUsBusinessAccountHolderMutation>(
+        print(CreateMinimalUsBusinessAccountHolderDocument),
+        { input },
+      );
+
+    const result = data?.createMinimalUSBusinessAccountHolder;
+    throwIfError(result);
+
+    if (!result || result.__typename !== "USBusinessAccountHolder") {
+      throw new HighnoteUnexpectedResponseError(
+        result?.__typename ?? "null",
+        "Unexpected response from createMinimalUSBusinessAccountHolder",
+      );
+    }
+
+    return result as CreatedMinimalBusinessAccountHolder;
   }
 
   /**

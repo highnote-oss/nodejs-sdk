@@ -61,3 +61,68 @@ Deactivate a collaborative authorization endpoint.
 ```ts
 await client.collaborativeAuth.deactivateEndpoint({ endpointId: "cae_..." });
 ```
+
+#### `list(options)`
+
+Async-iterate every registered collaborative-authorization endpoint on the
+caller's organization.
+
+Pages are fetched lazily — break out of the loop to stop fetching.
+
+**Parameters**
+
+- `options.pageSize` (number, optional) — Number of items per page. Defaults to the client's `defaultPageSize`.
+
+**Returns** `AsyncIterable<object>`.
+
+**Throws** `HighnoteUserError`, `HighnoteAccessDeniedError`, `HighnoteUnexpectedResponseError`.
+
+**Example**
+
+```ts
+for await (const ep of client.collaborativeAuth.list()) {
+  console.log(ep.name, ep.status);
+}
+```
+
+#### `removeEndpoint(input)`
+
+Remove a collaborative authorization endpoint permanently.
+
+**Parameters**
+
+- `input.endpointId` (string, **required**) — The Global ID of the `CollaborativeAuthorizationEndpoint` to remove.
+
+**Returns** `CollaborativeAuthorizationEndpoint` — fields: `createdAt`, `id`, `name`, `status`, `updatedAt`, `uri`.
+
+**Throws** `HighnoteUserError`, `HighnoteAccessDeniedError`, `HighnoteUnexpectedResponseError`.
+
+**Example**
+
+```ts
+await client.collaborativeAuth.removeEndpoint({ endpointId: "cae_..." });
+```
+
+#### `renameEndpoint(input)`
+
+Rename a collaborative authorization endpoint.
+
+**Parameters**
+
+- `input.endpointId` (string, **required**) — The Global ID of the `CollaborativeAuthorizationEndpoint` to rename.
+- `input.name` (string, **required**) — The new, human-friendly name for your `CollaborativeAuthorizationEndpoint`.
+
+  This value can contain any characters but cannot exceed a length of 255.
+
+**Returns** `CollaborativeAuthorizationEndpoint` — fields: `createdAt`, `id`, `name`, `status`, `updatedAt`, `uri`.
+
+**Throws** `HighnoteUserError`, `HighnoteAccessDeniedError`, `HighnoteUnexpectedResponseError`.
+
+**Example**
+
+```ts
+await client.collaborativeAuth.renameEndpoint({
+  endpointId: "cae_...",
+  name: "Production AP automation endpoint",
+});
+```

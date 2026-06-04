@@ -70,14 +70,14 @@ for await (const product of client.cardProducts.list()) {
 <!-- resources:start -->
 | Resource | Methods | Status |
 |----------|---------|--------|
-| `accountHolders` | `createUSPerson()`, `get()`, `listBusinesses()`, `listPersons()`, `searchBusinesses()`, `searchPersons()` | Available |
+| `accountHolders` | `createMinimalUSBusiness()`, `createUSBusiness()`, `createUSPerson()`, `get()`, `listBusinesses()`, `listFinancialAccounts()`, `listPersons()`, `searchBusinesses()`, `searchPersons()` | Available |
 | `ach` | `cancelTransfer()`, `createOneTimeTransfer()`, `createRecurringTransfer()`, `initiateTransfer()` | Available |
 | `addresses` | `validate()` | Available |
 | `applications` | `create()`, `get()` | Available |
 | `cardProducts` | `get()`, `list()` | Available |
-| `cards` | `activate()`, `cancelPhysicalOrder()`, `close()`, `findATMLocations()`, `get()`, `issue()`, `orderPhysical()`, `orderPhysicalWithValidatedAddress()`, `reissue()`, `suspend()` | Available |
+| `cards` | `activate()`, `cancelPhysicalOrder()`, `close()`, `findATMLocations()`, `get()`, `issue()`, `issueForApplicationWithOnDemandFunding()`, `orderPhysical()`, `orderPhysicalWithValidatedAddress()`, `reissue()`, `suspend()` | Available |
 | `clientTokens` | `createForDocumentUpload()`, `createForPaymentCard()`, `createForTokenization()` | Available |
-| `collaborativeAuth` | `activateEndpoint()`, `addEndpoint()`, `deactivateEndpoint()` | Available |
+| `collaborativeAuth` | `activateEndpoint()`, `addEndpoint()`, `deactivateEndpoint()`, `list()`, `removeEndpoint()`, `renameEndpoint()` | Available |
 | `digitalWallets` | `addToApplePay()`, `addToGooglePay()` | Available |
 | `disputes` | `get()`, `initiate()` | Available |
 | `documents` | `createUploadLink()`, `endSession()`, `startSession()` | Available |

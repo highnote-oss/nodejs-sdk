@@ -378,6 +378,7 @@ describe("AccountHoldersResource", () => {
       } as any);
 
       expect(holder.id).toBe("ah_biz_456");
+      expect(holder.__typename).toBe("USBusinessAccountHolder");
     });
 
     it("throws HighnoteUserError on validation failure", async () => {
@@ -393,6 +394,16 @@ describe("AccountHoldersResource", () => {
       await expect(
         client.accountHolders.createUSBusiness({} as any),
       ).rejects.toThrow(HighnoteUserError);
+    });
+
+    it("throws HighnoteUnexpectedResponseError on unknown __typename", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: { createUSBusinessAccountHolder: { __typename: "Other" } },
+      });
+
+      await expect(
+        client.accountHolders.createUSBusiness({} as any),
+      ).rejects.toThrow(/Unexpected response/);
     });
   });
 });

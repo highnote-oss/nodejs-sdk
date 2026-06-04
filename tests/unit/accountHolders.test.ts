@@ -406,4 +406,112 @@ describe("AccountHoldersResource", () => {
       ).rejects.toThrow(/Unexpected response/);
     });
   });
+
+  describe("listFinancialAccounts()", () => {
+    const summary = (id: string) => ({
+      id,
+      name: `FA ${id}`,
+      createdAt: "2026-01-01T00:00:00Z",
+      updatedAt: "2026-01-01T00:00:00Z",
+      features: [],
+      ledgers: [],
+    });
+
+    it("dispatches on USPersonAccountHolder.financialAccounts", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          node: {
+            __typename: "USPersonAccountHolder",
+            financialAccounts: {
+              pageInfo: { hasNextPage: false, endCursor: "" },
+              edges: [{ node: summary("fa_1") }],
+            },
+          },
+        },
+      });
+
+      const accounts: any[] = [];
+      for await (const fa of client.accountHolders.listFinancialAccounts("ah_person_1")) {
+        accounts.push(fa);
+      }
+      expect(accounts).toHaveLength(1);
+      expect(accounts[0].id).toBe("fa_1");
+    });
+
+    it("dispatches on USBusinessAccountHolder.financialAccounts", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          node: {
+            __typename: "USBusinessAccountHolder",
+            financialAccounts: {
+              pageInfo: { hasNextPage: false, endCursor: "" },
+              edges: [{ node: summary("fa_2") }],
+            },
+          },
+        },
+      });
+
+      const accounts: any[] = [];
+      for await (const fa of client.accountHolders.listFinancialAccounts("ah_biz_1")) {
+        accounts.push(fa);
+      }
+      expect(accounts).toHaveLength(1);
+      expect(accounts[0].id).toBe("fa_2");
+    });
+
+    it("dispatches on Organization.accounts", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          node: {
+            __typename: "Organization",
+            accounts: {
+              pageInfo: { hasNextPage: false, endCursor: "" },
+              edges: [{ node: summary("fa_3") }],
+            },
+          },
+        },
+      });
+
+      const accounts: any[] = [];
+      for await (const fa of client.accountHolders.listFinancialAccounts("og_1")) {
+        accounts.push(fa);
+      }
+      expect(accounts).toHaveLength(1);
+      expect(accounts[0].id).toBe("fa_3");
+    });
+
+    it("forwards filterBy to the query variables", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          node: {
+            __typename: "Organization",
+            accounts: { pageInfo: { hasNextPage: false, endCursor: "" }, edges: [] },
+          },
+        },
+      });
+
+      const iter = client.accountHolders.listFinancialAccounts("og_1", {
+        filterBy: { features: { includes: ["CARD_FUNDING_ACCOUNT"] } } as any,
+      });
+      for await (const _ of iter) {
+        // exhaust
+      }
+
+      const variables = mockRawRequest.mock.calls[0][1];
+      expect(variables.filterBy).toEqual({ features: { includes: ["CARD_FUNDING_ACCOUNT"] } });
+    });
+
+    it("throws HighnoteUnexpectedResponseError when the node isn't an account-holder type", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: { node: { __typename: "PaymentCard" } },
+      });
+
+      const iter = client.accountHolders.listFinancialAccounts("pc_1");
+      await expect(async () => {
+        for await (const _ of iter) {
+          // should throw on first iteration
+        }
+      }).rejects.toThrow(/Unexpected response/);
+    });
+  });
 });

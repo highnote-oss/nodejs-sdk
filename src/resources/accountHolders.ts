@@ -11,6 +11,8 @@ import type {
   CreateUsPersonAccountHolderMutation,
   CreateUsPersonAccountHolderMutationVariables,
   FindAccountHolderQuery,
+  ListAccountHolderFinancialAccountsQuery,
+  ListAccountHolderFinancialAccountsQueryVariables,
   ListPersonAccountHoldersQuery,
   ListBusinessAccountHoldersQuery,
   SearchPersonAccountHoldersQuery,
@@ -23,6 +25,7 @@ import {
   CreateUsBusinessAccountHolderDocument,
   CreateUsPersonAccountHolderDocument,
   FindAccountHolderDocument,
+  ListAccountHolderFinancialAccountsDocument,
   ListPersonAccountHoldersDocument,
   ListBusinessAccountHoldersDocument,
   SearchPersonAccountHoldersDocument,
@@ -64,6 +67,24 @@ type BusinessAccountHolderNode = NonNullable<
 >["node"];
 
 export type BusinessAccountHolder = NonNullable<BusinessAccountHolderNode>;
+
+type FinancialAccountSummaryNode = NonNullable<
+  NonNullable<
+    NonNullable<
+      Extract<
+        NonNullable<ListAccountHolderFinancialAccountsQuery["node"]>,
+        { __typename: "Organization" }
+      >["accounts"]
+    >["edges"]
+  >[number]
+>["node"];
+
+export type AccountHolderFinancialAccountSummary = NonNullable<FinancialAccountSummaryNode>;
+
+export interface ListAccountHolderFinancialAccountsOptions {
+  pageSize?: number;
+  filterBy?: ListAccountHolderFinancialAccountsQueryVariables["filterBy"];
+}
 
 export interface ListPersonAccountHoldersOptions {
   pageSize?: number;
@@ -319,6 +340,70 @@ export class AccountHoldersResource {
         edges: [],
         pageInfo: { hasNextPage: false, endCursor: "" },
       }) as RelayConnection<BusinessAccountHolder>;
+    });
+  }
+
+  /**
+   * List the financial accounts owned by an account holder, auto-paginated.
+   * Dispatches across the `AccountHolder` union internally — works for
+   * `USPersonAccountHolder`, `USBusinessAccountHolder`, and `Organization` IDs.
+   *
+   * ```ts
+   * for await (const fa of client.accountHolders.listFinancialAccounts(
+   *   accountHolderId,
+   *   {
+   *     filterBy: {
+   *       features: { includes: ["CARD_FUNDING_ACCOUNT"] },
+   *       cardProductId: { equals: cardProductId },
+   *     },
+   *   },
+   * )) {
+   *   console.log(fa.name);
+   * }
+   * ```
+   */
+  listFinancialAccounts(
+    accountHolderId: string,
+    options?: ListAccountHolderFinancialAccountsOptions,
+  ): AsyncIterable<AccountHolderFinancialAccountSummary> {
+    const pageSize = options?.pageSize ?? this.client.defaultPageSize;
+    const filterBy = options?.filterBy;
+
+    return paginate<AccountHolderFinancialAccountSummary>(async (after) => {
+      const { data } =
+        await this.client.graphql.rawRequest<ListAccountHolderFinancialAccountsQuery>(
+          print(ListAccountHolderFinancialAccountsDocument),
+          { id: accountHolderId, first: pageSize, after, filterBy },
+        );
+
+      const node = data?.node;
+      if (!node) {
+        throw new HighnoteUnexpectedResponseError(
+          "null",
+          `Account holder not found: ${accountHolderId}`,
+        );
+      }
+
+      let connection;
+      switch (node.__typename) {
+        case "USPersonAccountHolder":
+        case "USBusinessAccountHolder":
+          connection = node.financialAccounts;
+          break;
+        case "Organization":
+          connection = node.accounts;
+          break;
+        default:
+          throw new HighnoteUnexpectedResponseError(
+            node.__typename,
+            `Unexpected response: expected an account holder type for ${accountHolderId}, got ${node.__typename}`,
+          );
+      }
+
+      return (connection ?? {
+        edges: [],
+        pageInfo: { hasNextPage: false, endCursor: "" },
+      }) as RelayConnection<AccountHolderFinancialAccountSummary>;
     });
   }
 }

@@ -1,0 +1,20 @@
+fragment FinancialAccountSummary on FinancialAccount {
+  id
+  name
+  createdAt
+  updatedAt
+  features {
+    __typename
+    enabled
+    createdAt
+    updatedAt
+  }
+  ledgers {
+    id
+    name
+    normalBalance
+    asOf
+    creditBalance { value currencyCode decimalPlaces }
+    debitBalance { value currencyCode decimalPlaces }
+  }
+}

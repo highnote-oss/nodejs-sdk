@@ -53,6 +53,7 @@ describe("verifyCollaborativeAuthSignature", () => {
       signingKey: SECRET,
     });
     expect(result.valid).toBe(false);
+    expect(result.request).toBeUndefined();
   });
 
   it("rejects when timestamp is outside tolerance", () => {
@@ -65,6 +66,7 @@ describe("verifyCollaborativeAuthSignature", () => {
       toleranceInMs: 5 * 60 * 1000, // 5 min
     });
     expect(result.valid).toBe(false);
+    expect(result.request).toBeUndefined();
   });
 
   it("rejects when payload is not valid JSON", () => {
@@ -75,6 +77,7 @@ describe("verifyCollaborativeAuthSignature", () => {
       signingKey: SECRET,
     });
     expect(result.valid).toBe(false);
+    expect(result.request).toBeUndefined();
   });
 
   it("supports comma-separated rotated keys", () => {

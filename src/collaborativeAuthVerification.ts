@@ -31,12 +31,10 @@ export interface CollaborativeAuthRequest {
       avsResponseCode?: string;
       postalCodeResponseCode?: string;
       cvvResponseCode?: string;
-      [key: string]: unknown;
     };
   };
   extensions: {
     signatureTimestamp: number;
-    [key: string]: unknown;
   };
   [key: string]: unknown;
 }

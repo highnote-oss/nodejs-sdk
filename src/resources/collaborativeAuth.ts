@@ -9,11 +9,14 @@ import type {
   ActivateCollaborativeAuthorizationEndpointMutationVariables,
   DeactivateCollaborativeAuthorizationEndpointMutation,
   DeactivateCollaborativeAuthorizationEndpointMutationVariables,
+  RenameCollaborativeAuthorizationEndpointMutation,
+  RenameCollaborativeAuthorizationEndpointMutationVariables,
 } from "../generated/graphql.js";
 import {
   AddCollaborativeAuthorizationEndpointDocument,
   ActivateCollaborativeAuthorizationEndpointDocument,
   DeactivateCollaborativeAuthorizationEndpointDocument,
+  RenameCollaborativeAuthorizationEndpointDocument,
 } from "../generated/graphql.js";
 
 // ── Types ──
@@ -39,10 +42,18 @@ type DeactivatedCollaborativeAuthEndpointResponse = Extract<
   { __typename: "CollaborativeAuthorizationEndpoint" }
 >;
 
+type RenamedCollaborativeAuthEndpointResponse = Extract<
+  NonNullable<
+    RenameCollaborativeAuthorizationEndpointMutation["renameCollaborativeAuthorizationEndpoint"]
+  >,
+  { __typename: "CollaborativeAuthorizationEndpoint" }
+>;
+
 export type CollaborativeAuthorizationEndpoint =
   | CollaborativeAuthEndpointResponse
   | ActivatedCollaborativeAuthEndpointResponse
-  | DeactivatedCollaborativeAuthEndpointResponse;
+  | DeactivatedCollaborativeAuthEndpointResponse
+  | RenamedCollaborativeAuthEndpointResponse;
 
 // ── Resource ──
 
@@ -137,5 +148,37 @@ export class CollaborativeAuthResource {
     }
 
     return result as DeactivatedCollaborativeAuthEndpointResponse;
+  }
+
+  /**
+   * Rename a collaborative authorization endpoint.
+   *
+   * ```ts
+   * await client.collaborativeAuth.renameEndpoint({
+   *   endpointId: "cae_...",
+   *   name: "Production AP automation endpoint",
+   * });
+   * ```
+   */
+  async renameEndpoint(
+    input: RenameCollaborativeAuthorizationEndpointMutationVariables["input"],
+  ): Promise<RenamedCollaborativeAuthEndpointResponse> {
+    const { data } =
+      await this.client.graphql.rawRequest<RenameCollaborativeAuthorizationEndpointMutation>(
+        print(RenameCollaborativeAuthorizationEndpointDocument),
+        { input },
+      );
+
+    const result = data?.renameCollaborativeAuthorizationEndpoint;
+    throwIfError(result);
+
+    if (!result || result.__typename !== "CollaborativeAuthorizationEndpoint") {
+      throw new HighnoteUnexpectedResponseError(
+        result?.__typename ?? "null",
+        "Unexpected response from renameCollaborativeAuthorizationEndpoint",
+      );
+    }
+
+    return result as RenamedCollaborativeAuthEndpointResponse;
   }
 }

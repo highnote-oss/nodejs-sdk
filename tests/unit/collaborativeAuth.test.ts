@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Highnote } from "../../src/client.js";
-import { HighnoteUserError } from "../../src/errors.js";
+import {
+  HighnoteUnexpectedResponseError,
+  HighnoteUserError,
+} from "../../src/errors.js";
 
 const { mockRawRequest, MockGraphQLClient } = vi.hoisted(() => {
   const mockRawRequest = vi.fn();
@@ -121,6 +124,56 @@ describe("CollaborativeAuthResource", () => {
         endpointId: "cae_123",
       });
       expect(endpoint.status).toBe("DEACTIVATED");
+    });
+  });
+
+  describe("renameEndpoint()", () => {
+    it("returns the renamed endpoint", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          renameCollaborativeAuthorizationEndpoint: {
+            __typename: "CollaborativeAuthorizationEndpoint",
+            id: "cae_1",
+            name: "New Name",
+            uri: "https://example.com/auth",
+            status: "ACTIVE",
+            createdAt: "2026-01-01T00:00:00Z",
+            updatedAt: "2026-06-04T00:00:00Z",
+          },
+        },
+      });
+
+      const ep = await client.collaborativeAuth.renameEndpoint({
+        endpointId: "cae_1",
+        name: "New Name",
+      });
+      expect(ep.name).toBe("New Name");
+      expect(ep.__typename).toBe("CollaborativeAuthorizationEndpoint");
+    });
+
+    it("throws HighnoteUserError on invalid name", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          renameCollaborativeAuthorizationEndpoint: {
+            __typename: "UserError",
+            errors: [{ code: "INVALID_NAME" }],
+          },
+        },
+      });
+      await expect(
+        client.collaborativeAuth.renameEndpoint({ endpointId: "cae_1", name: "" }),
+      ).rejects.toThrow(HighnoteUserError);
+    });
+
+    it("throws HighnoteUnexpectedResponseError on unknown __typename", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          renameCollaborativeAuthorizationEndpoint: { __typename: "Other" },
+        },
+      });
+      await expect(
+        client.collaborativeAuth.renameEndpoint({ endpointId: "cae_1", name: "X" }),
+      ).rejects.toThrow(/Unexpected response/);
     });
   });
 });

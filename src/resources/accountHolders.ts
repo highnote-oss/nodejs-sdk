@@ -10,6 +10,7 @@ import type {
   CreateUsBusinessAccountHolderMutationVariables,
   CreateUsPersonAccountHolderMutation,
   CreateUsPersonAccountHolderMutationVariables,
+  FinancialAccountSummaryFragment,
   FindAccountHolderQuery,
   ListAccountHolderFinancialAccountsQuery,
   ListAccountHolderFinancialAccountsQueryVariables,
@@ -68,18 +69,7 @@ type BusinessAccountHolderNode = NonNullable<
 
 export type BusinessAccountHolder = NonNullable<BusinessAccountHolderNode>;
 
-type FinancialAccountSummaryNode = NonNullable<
-  NonNullable<
-    NonNullable<
-      Extract<
-        NonNullable<ListAccountHolderFinancialAccountsQuery["node"]>,
-        { __typename: "Organization" }
-      >["accounts"]
-    >["edges"]
-  >[number]
->["node"];
-
-export type AccountHolderFinancialAccountSummary = NonNullable<FinancialAccountSummaryNode>;
+export type AccountHolderFinancialAccountSummary = FinancialAccountSummaryFragment;
 
 export interface ListAccountHolderFinancialAccountsOptions {
   pageSize?: number;
@@ -380,7 +370,7 @@ export class AccountHoldersResource {
       if (!node) {
         throw new HighnoteUnexpectedResponseError(
           "null",
-          `Account holder not found: ${accountHolderId}`,
+          `Unexpected response from listFinancialAccounts: account holder not found for ${accountHolderId}`,
         );
       }
 
@@ -396,7 +386,7 @@ export class AccountHoldersResource {
         default:
           throw new HighnoteUnexpectedResponseError(
             node.__typename,
-            `Unexpected response: expected an account holder type for ${accountHolderId}, got ${node.__typename}`,
+            `Unexpected response from listFinancialAccounts: expected account holder type for ${accountHolderId}, got ${node.__typename}`,
           );
       }
 

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Highnote } from "../../src/client.js";
 import { HighnoteUserError, HighnoteUnexpectedResponseError } from "../../src/errors.js";
+import type { AccountHolderFinancialAccountSummary } from "../../src/resources/accountHolders.js";
 
 const { mockRawRequest, MockGraphQLClient } = vi.hoisted(() => {
   const mockRawRequest = vi.fn();
@@ -430,7 +431,7 @@ describe("AccountHoldersResource", () => {
         },
       });
 
-      const accounts: any[] = [];
+      const accounts: AccountHolderFinancialAccountSummary[] = [];
       for await (const fa of client.accountHolders.listFinancialAccounts("ah_person_1")) {
         accounts.push(fa);
       }
@@ -451,7 +452,7 @@ describe("AccountHoldersResource", () => {
         },
       });
 
-      const accounts: any[] = [];
+      const accounts: AccountHolderFinancialAccountSummary[] = [];
       for await (const fa of client.accountHolders.listFinancialAccounts("ah_biz_1")) {
         accounts.push(fa);
       }
@@ -472,7 +473,7 @@ describe("AccountHoldersResource", () => {
         },
       });
 
-      const accounts: any[] = [];
+      const accounts: AccountHolderFinancialAccountSummary[] = [];
       for await (const fa of client.accountHolders.listFinancialAccounts("og_1")) {
         accounts.push(fa);
       }
@@ -491,7 +492,7 @@ describe("AccountHoldersResource", () => {
       });
 
       const iter = client.accountHolders.listFinancialAccounts("og_1", {
-        filterBy: { features: { includes: ["CARD_FUNDING_ACCOUNT"] } } as any,
+        filterBy: { features: { includes: ["CARD_FUNDING_ACCOUNT"] } },
       });
       for await (const _ of iter) {
         // exhaust

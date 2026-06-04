@@ -558,9 +558,13 @@ describe("CardsResource", () => {
             id: "pc_1",
             bin: "411111",
             last4: "1234",
+            network: "VISA",
             status: "ACTIVE",
             formFactor: "VIRTUAL",
             expirationDate: "2028-12-31T00:00:00Z",
+            expirationMonth: "12",
+            expirationYear: "2028",
+            externalId: null,
             financialAccounts: [
               {
                 __typename: "FinancialAccount",
@@ -575,8 +579,8 @@ describe("CardsResource", () => {
       const card = await client.cards.issueForApplicationWithOnDemandFunding({
         applicationId: "app_1",
         sourceFinancialAccountId: "fa_funding",
-        options: { activateOnCreate: true, expirationDate: "2028-12-31T00:00:00Z" } as any,
-      } as any);
+        options: { activateOnCreate: true, expirationDate: "2028-12-31T00:00:00Z" },
+      });
 
       expect(card.id).toBe("pc_1");
       expect(card.__typename).toBe("PaymentCard");
@@ -597,8 +601,8 @@ describe("CardsResource", () => {
         client.cards.issueForApplicationWithOnDemandFunding({
           applicationId: "app_1",
           sourceFinancialAccountId: "fa_funding",
-          options: {} as any,
-        } as any),
+          options: { activateOnCreate: true, expirationDate: "2028-12-31T00:00:00Z" },
+        }),
       ).rejects.toThrow(HighnoteUserError);
     });
 
@@ -611,8 +615,8 @@ describe("CardsResource", () => {
         client.cards.issueForApplicationWithOnDemandFunding({
           applicationId: "app_1",
           sourceFinancialAccountId: "fa_funding",
-          options: {} as any,
-        } as any),
+          options: { activateOnCreate: true, expirationDate: "2028-12-31T00:00:00Z" },
+        }),
       ).rejects.toThrow(/Unexpected response/);
     });
   });

@@ -45,7 +45,7 @@ type IssuedPaymentCard = Extract<
   { __typename: "PaymentCard" }
 >;
 
-type IssuedPaymentCardWithOdfFa = Extract<
+type IssuedPaymentCardWithOnDemandFundingAccount = Extract<
   NonNullable<
     IssuePaymentCardForApplicationWithOnDemandFundingSourceMutation["issuePaymentCardForApplicationWithOnDemandFundingSource"]
   >,
@@ -72,7 +72,7 @@ type CanceledPhysicalPaymentCardOrderResponse = Extract<
   { __typename: "PhysicalPaymentCardOrder" }
 >;
 
-export type PaymentCard = IssuedPaymentCard | IssuedPaymentCardWithOdfFa | FindPaymentCardNode;
+export type PaymentCard = IssuedPaymentCard | IssuedPaymentCardWithOnDemandFundingAccount | FindPaymentCardNode;
 export type PhysicalPaymentCardOrder = PhysicalPaymentCardOrderResponse | CanceledPhysicalPaymentCardOrderResponse;
 
 // ── Resource ──
@@ -128,11 +128,12 @@ export class CardsResource {
    *   options: { activateOnCreate: true, expirationDate: "2028-12-31T00:00:00Z" },
    *   idempotencyKey: invoice.id,
    * });
+   * const newFinancialAccountId = card.financialAccounts?.[0]?.id;
    * ```
    */
   async issueForApplicationWithOnDemandFunding(
     input: IssuePaymentCardForApplicationWithOnDemandFundingSourceMutationVariables["input"],
-  ): Promise<IssuedPaymentCardWithOdfFa> {
+  ): Promise<IssuedPaymentCardWithOnDemandFundingAccount> {
     const { data } =
       await this.client.graphql.rawRequest<IssuePaymentCardForApplicationWithOnDemandFundingSourceMutation>(
         print(IssuePaymentCardForApplicationWithOnDemandFundingSourceDocument),
@@ -149,7 +150,7 @@ export class CardsResource {
       );
     }
 
-    return result as IssuedPaymentCardWithOdfFa;
+    return result as IssuedPaymentCardWithOnDemandFundingAccount;
   }
 
   /**

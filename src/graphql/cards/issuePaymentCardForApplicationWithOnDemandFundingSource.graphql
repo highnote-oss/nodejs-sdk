@@ -7,9 +7,13 @@ mutation IssuePaymentCardForApplicationWithOnDemandFundingSource(
       id
       bin
       last4
+      network
       status
       formFactor
       expirationDate
+      expirationMonth
+      expirationYear
+      externalId
       financialAccounts {
         __typename
         id

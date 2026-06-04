@@ -1,0 +1,18 @@
+query ListCollaborativeAuthorizationEndpoints($first: Int = 20, $after: String) {
+  organizations {
+    collaborativeAuthorizationEndpoints(first: $first, after: $after) {
+      pageInfo { hasNextPage endCursor }
+      edges {
+        node {
+          __typename
+          id
+          name
+          uri
+          status
+          createdAt
+          updatedAt
+        }
+      }
+    }
+  }
+}

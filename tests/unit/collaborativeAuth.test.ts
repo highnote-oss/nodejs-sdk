@@ -220,4 +220,72 @@ describe("CollaborativeAuthResource", () => {
       ).rejects.toThrow(/Unexpected response/);
     });
   });
+
+  describe("list()", () => {
+    it("yields endpoints across pages", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          organizations: [
+            {
+              collaborativeAuthorizationEndpoints: {
+                pageInfo: { hasNextPage: false, endCursor: "" },
+                edges: [
+                  {
+                    node: {
+                      __typename: "CollaborativeAuthorizationEndpoint",
+                      id: "cae_1",
+                      name: "A",
+                      uri: "https://a",
+                      status: "ACTIVE",
+                      createdAt: "2026-01-01T00:00:00Z",
+                      updatedAt: "2026-01-01T00:00:00Z",
+                    },
+                  },
+                  {
+                    node: {
+                      __typename: "CollaborativeAuthorizationEndpoint",
+                      id: "cae_2",
+                      name: "B",
+                      uri: "https://b",
+                      status: "DEACTIVATED",
+                      createdAt: "2026-01-01T00:00:00Z",
+                      updatedAt: "2026-01-01T00:00:00Z",
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      });
+
+      const ids: string[] = [];
+      for await (const ep of client.collaborativeAuth.list()) {
+        ids.push(ep.id);
+      }
+      expect(ids).toEqual(["cae_1", "cae_2"]);
+    });
+
+    it("honors options.pageSize", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          organizations: [
+            {
+              collaborativeAuthorizationEndpoints: {
+                pageInfo: { hasNextPage: false, endCursor: "" },
+                edges: [],
+              },
+            },
+          ],
+        },
+      });
+
+      const iter = client.collaborativeAuth.list({ pageSize: 5 });
+      for await (const _ of iter) {
+        // exhaust
+      }
+      const variables = mockRawRequest.mock.calls[0][1];
+      expect(variables.first).toBe(5);
+    });
+  });
 });

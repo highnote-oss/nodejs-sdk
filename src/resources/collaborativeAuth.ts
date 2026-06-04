@@ -9,6 +9,7 @@ import type {
   ActivateCollaborativeAuthorizationEndpointMutationVariables,
   DeactivateCollaborativeAuthorizationEndpointMutation,
   DeactivateCollaborativeAuthorizationEndpointMutationVariables,
+  ListCollaborativeAuthorizationEndpointsQuery,
   RemoveCollaborativeAuthorizationEndpointMutation,
   RemoveCollaborativeAuthorizationEndpointMutationVariables,
   RenameCollaborativeAuthorizationEndpointMutation,
@@ -18,9 +19,11 @@ import {
   AddCollaborativeAuthorizationEndpointDocument,
   ActivateCollaborativeAuthorizationEndpointDocument,
   DeactivateCollaborativeAuthorizationEndpointDocument,
+  ListCollaborativeAuthorizationEndpointsDocument,
   RemoveCollaborativeAuthorizationEndpointDocument,
   RenameCollaborativeAuthorizationEndpointDocument,
 } from "../generated/graphql.js";
+import { paginate, type RelayConnection } from "../pagination.js";
 
 // ── Types ──
 
@@ -65,6 +68,27 @@ export type CollaborativeAuthorizationEndpoint =
   | DeactivatedCollaborativeAuthEndpointResponse
   | RenamedCollaborativeAuthEndpointResponse
   | RemovedCollaborativeAuthEndpointResponse;
+
+type CollaborativeAuthEndpointListNode = NonNullable<
+  NonNullable<
+    NonNullable<
+      NonNullable<ListCollaborativeAuthorizationEndpointsQuery["organizations"]>[number]
+    >["collaborativeAuthorizationEndpoints"]
+  >["edges"]
+>[number]["node"];
+
+/**
+ * The canonical shape of a `CollaborativeAuthorizationEndpoint` yielded by
+ * `list()`. Useful as a parameter type when writing helpers that operate on
+ * endpoints.
+ */
+export type CollaborativeAuthorizationEndpointNode =
+  NonNullable<CollaborativeAuthEndpointListNode>;
+
+export interface ListCollaborativeAuthorizationEndpointsOptions {
+  /** Number of items per page. Defaults to the client's `defaultPageSize`. */
+  pageSize?: number;
+}
 
 // ── Resource ──
 
@@ -220,5 +244,40 @@ export class CollaborativeAuthResource {
     }
 
     return result as RemovedCollaborativeAuthEndpointResponse;
+  }
+
+  /**
+   * Async-iterate every registered collaborative-authorization endpoint on the
+   * caller's organization.
+   *
+   * Pages are fetched lazily — break out of the loop to stop fetching.
+   *
+   * ```ts
+   * for await (const ep of client.collaborativeAuth.list()) {
+   *   console.log(ep.name, ep.status);
+   * }
+   * ```
+   */
+  list(
+    options?: ListCollaborativeAuthorizationEndpointsOptions,
+  ): AsyncIterable<CollaborativeAuthorizationEndpointNode> {
+    const pageSize = options?.pageSize ?? this.client.defaultPageSize;
+
+    return paginate<CollaborativeAuthorizationEndpointNode>(async (after) => {
+      const { data } =
+        await this.client.graphql.rawRequest<ListCollaborativeAuthorizationEndpointsQuery>(
+          print(ListCollaborativeAuthorizationEndpointsDocument),
+          { first: pageSize, after },
+        );
+
+      // The API key is org-scoped; organizations[0] is always the caller's org.
+      const connection =
+        data?.organizations?.[0]?.collaborativeAuthorizationEndpoints ?? {
+          edges: [],
+          pageInfo: { hasNextPage: false, endCursor: "" },
+        };
+
+      return connection as RelayConnection<CollaborativeAuthorizationEndpointNode>;
+    });
   }
 }

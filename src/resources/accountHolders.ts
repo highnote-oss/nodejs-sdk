@@ -6,6 +6,8 @@ import { paginate, type RelayConnection } from "../pagination.js";
 import type {
   CreateMinimalUsBusinessAccountHolderMutation,
   CreateMinimalUsBusinessAccountHolderMutationVariables,
+  CreateUsBusinessAccountHolderMutation,
+  CreateUsBusinessAccountHolderMutationVariables,
   CreateUsPersonAccountHolderMutation,
   CreateUsPersonAccountHolderMutationVariables,
   FindAccountHolderQuery,
@@ -18,6 +20,7 @@ import type {
 } from "../generated/graphql.js";
 import {
   CreateMinimalUsBusinessAccountHolderDocument,
+  CreateUsBusinessAccountHolderDocument,
   CreateUsPersonAccountHolderDocument,
   FindAccountHolderDocument,
   ListPersonAccountHoldersDocument,
@@ -41,6 +44,11 @@ type CreatedPersonAccountHolder = Extract<
 
 type CreatedMinimalBusinessAccountHolder = Extract<
   NonNullable<CreateMinimalUsBusinessAccountHolderMutation["createMinimalUSBusinessAccountHolder"]>,
+  { __typename: "USBusinessAccountHolder" }
+>;
+
+type CreatedBusinessAccountHolder = Extract<
+  NonNullable<CreateUsBusinessAccountHolderMutation["createUSBusinessAccountHolder"]>,
   { __typename: "USBusinessAccountHolder" }
 >;
 
@@ -140,6 +148,40 @@ export class AccountHoldersResource {
     }
 
     return result as CreatedMinimalBusinessAccountHolder;
+  }
+
+  /**
+   * Create a US business account holder with the full profile and onboarding details
+   * (authorized persons, ultimate beneficial owners, credit risk attributes).
+   *
+   * ```ts
+   * const holder = await client.accountHolders.createUSBusiness({
+   *   businessProfile: { ... },
+   *   authorizedPersons: [...],
+   *   ultimateBeneficialOwners: [...],
+   * });
+   * ```
+   */
+  async createUSBusiness(
+    input: CreateUsBusinessAccountHolderMutationVariables["input"],
+  ): Promise<CreatedBusinessAccountHolder> {
+    const { data } =
+      await this.client.graphql.rawRequest<CreateUsBusinessAccountHolderMutation>(
+        print(CreateUsBusinessAccountHolderDocument),
+        { input },
+      );
+
+    const result = data?.createUSBusinessAccountHolder;
+    throwIfError(result);
+
+    if (!result || result.__typename !== "USBusinessAccountHolder") {
+      throw new HighnoteUnexpectedResponseError(
+        result?.__typename ?? "null",
+        "Unexpected response from createUSBusinessAccountHolder",
+      );
+    }
+
+    return result as CreatedBusinessAccountHolder;
   }
 
   /**

@@ -357,4 +357,42 @@ describe("AccountHoldersResource", () => {
       ).rejects.toThrow(/Unexpected response/);
     });
   });
+
+  describe("createUSBusiness()", () => {
+    it("returns a USBusinessAccountHolder on success", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          createUSBusinessAccountHolder: {
+            __typename: "USBusinessAccountHolder",
+            id: "ah_biz_456",
+            externalId: null,
+            createdAt: "2026-01-01T00:00:00Z",
+          },
+        },
+      });
+
+      const holder = await client.accountHolders.createUSBusiness({
+        businessProfile: {} as any,
+        authorizedPersons: [],
+        ultimateBeneficialOwners: [],
+      } as any);
+
+      expect(holder.id).toBe("ah_biz_456");
+    });
+
+    it("throws HighnoteUserError on validation failure", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          createUSBusinessAccountHolder: {
+            __typename: "UserError",
+            errors: [{ code: "INVALID" }],
+          },
+        },
+      });
+
+      await expect(
+        client.accountHolders.createUSBusiness({} as any),
+      ).rejects.toThrow(HighnoteUserError);
+    });
+  });
 });

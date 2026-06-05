@@ -60,6 +60,7 @@ export {
   FinancialAccountSuspensionReasonInput,
   GeneratePaymentMethodTokenizationClientTokenPermission,
   InterFinancialAccountTransferStatus,
+  Iso4217Alpha3SupportedCurrency,
   NotificationEventName,
   NotificationTargetStatus,
   PaymentCardChargebackStatus,

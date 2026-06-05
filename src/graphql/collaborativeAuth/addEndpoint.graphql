@@ -6,6 +6,12 @@ mutation AddCollaborativeAuthorizationEndpoint($input: AddCollaborativeAuthoriza
       name
       uri
       status
+      signingKeys {
+        id
+        secret
+        createdAt
+        expiresAt
+      }
       createdAt
       updatedAt
     }

@@ -35,6 +35,14 @@ describe("CollaborativeAuthResource", () => {
             name: "My Endpoint",
             uri: "https://example.com/auth",
             status: "PENDING_VERIFICATION",
+            signingKeys: [
+              {
+                id: "sk_1",
+                secret: "shh",
+                createdAt: "2026-01-01T00:00:00Z",
+                expiresAt: null,
+              },
+            ],
             createdAt: "2026-01-01T00:00:00Z",
             updatedAt: "2026-01-01T00:00:00Z",
           },
@@ -48,6 +56,7 @@ describe("CollaborativeAuthResource", () => {
 
       expect(endpoint.id).toBe("cae_123");
       expect(endpoint.status).toBe("PENDING_VERIFICATION");
+      expect(endpoint.signingKeys?.[0]?.secret).toBe("shh");
     });
 
     it("throws HighnoteUserError on invalid input", async () => {

@@ -272,6 +272,9 @@ type Query {
 
   """Finds transaction metrics that match the given filter."""
   paymentCardTransactionBusinessMetric(filterBy: PaymentCardTransactionBusinessMetricFilterInput): PaymentCardTransactionBusinessMetricResult
+
+  """A paginated list of `TransactionBatch`s."""
+  transactionBatches(first: Int = 20, after: String, filterBy: TransactionBatchFilterInput): TransactionBatchConnectionPayload
 }
 
 """Root Mutation type extending the main GraphQL schema."""
@@ -1669,6 +1672,11 @@ type Mutation {
   """Redeem reward points accrued."""
   redeemRewardsForStatementCredit(input: RedeemRewardsForStatementCreditInput!): RewardPointsTransferPayload
 
+  """
+  Redeem reward points accrued and credit the cash value to a separate destination `FinancialAccount`. The `RewardRedemptionConfiguration` used must be of type `REDEEM_TO_FINANCIAL_ACCOUNT`.
+  """
+  redeemRewardsToFinancialAccount(input: RedeemRewardsToFinancialAccountInput!): RewardPointsTransferPayload
+
   """Manually Deduct reward points from reward point balance."""
   createRewardPointsAdjustment(input: CreateRewardPointsAdjustmentInput!): RewardPointsTransferPayload
 
@@ -2000,18 +2008,6 @@ type Mutation {
     input: AddPricingConfigurationInput!
   ): AddPricingConfigurationPayload
 
-  """
-  Updates the `effectiveThrough` timestamp of a `PricingConfiguration`.
-  The new `effectiveThrough` can be null (removing the expiration), but cannot be in the past.
-  Only configurations with an unset `effectiveThrough` or an `effectiveThrough` in the future can be updated.
-  """
-  updatePricingConfiguration(
-    """
-    The input details for updating the configuration's effective through timestamp.
-    """
-    input: UpdatePricingConfigurationInput!
-  ): UpdatePricingConfigurationPayload
-
   """Updates `CustomFields` for an object."""
   updateCustomFields(input: UpdateCustomFieldsInput!): CustomFieldsPayload
 
@@ -2096,6 +2092,11 @@ type Mutation {
 
   """Sets the pseudo balance limit amount for a `FinancialAccount`."""
   setPseudoLimit(input: SetPseudoLimitInput!): SetPseudoLimitPayload
+
+  """
+  Closes the current `TransactionBatch` for payout, and opens a new `TransactionBatch`.
+  """
+  closeTransactionBatch(input: CloseTransactionBatchInput!): CloseTransactionBatchPayload
 }
 
 """The schema changes for a specific deploy timestamp."""
@@ -7989,6 +7990,21 @@ type Business implements Node {
   The date and time, in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format, the `Business` was last updated.
   """
   updatedAt: String
+
+  """
+  The `BusinessService`s this `Business` is set up for.
+  
+  A single `Business` may simultaneously be set up for multiple services.
+  Each service is a navigation entry point; ownership of any underlying
+  assets remains on the `Business` itself (the Party).
+  """
+  services(
+    """The number of services to return."""
+    first: Int = 20
+
+    """The cursor to start the page."""
+    after: String
+  ): BusinessServiceConnection
 }
 
 """The connection type for `Business`."""
@@ -9304,61 +9320,85 @@ type PaymentCardTransactionDisputeCredit {
   updatedAt: String
 }
 
-"""The payment card transaction chargeback credit."""
+"""
+A provisional credit issued on a payment card transaction dispute. Posted to the Account Holder's `FinancialAccount` while a related chargeback is in flight with the network, and finalized — retained, partially adjusted, or reversed — based on the chargeback's outcome.
+"""
 type PaymentCardTransactionDisputeProvisionalCredit {
-  """The credit status of the dispute credit."""
+  """The credit status of the provisional credit."""
   creditStatus: PaymentCardProvisionalCreditStatus
 
-  """The amount for the chargeback credit."""
+  """The amount of the provisional credit."""
   creditAmount: Amount
 
   """
-  The date and time, in ISO 8601 format, from which this chargeback credit is created.
+  The date and time, in ISO 8601 format, at which this provisional credit was created.
   """
   createdAt: String
 
   """
-  The date and time, in ISO 8601 format, from which this chargeback credit is updated.
+  The date and time, in ISO 8601 format, at which this provisional credit was last updated.
   """
   updatedAt: String
 }
 
 """The provisional credit status of the dispute."""
 enum PaymentCardProvisionalCreditStatus {
-  """A chargeback credit has not been issued."""
+  """
+  No provisional credit has been issued for this dispute. No chargeback-driven issuance has been initiated, or a prior issuance attempt did not execute.
+  """
   NOT_ISSUED
 
-  """The chargeback provisional credit is pending issued."""
+  """
+  Issuance of the provisional credit is in progress. A chargeback has been submitted to or received by the network, and the credit has not yet posted to the Account Holder's `FinancialAccount`.
+  """
   PENDING_ISSUE
 
-  """The Provisional Credit for the chargeback has been issued."""
+  """
+  The provisional credit has posted to the Account Holder's `FinancialAccount`, providing temporary relief while the related chargeback is investigated by the network.
+  """
   ISSUED
 
-  """The chargeback provisional credit is pending finalized."""
+  """
+  Finalization of the provisional credit is in progress. The chargeback outcome has been determined and the credit is being retained, partially adjusted, or reversed accordingly.
+  """
   PENDING_FINALIZATION
 
-  """The Provisional Credit for is not finalized"""
+  """
+  Finalization of the provisional credit failed and requires manual intervention. The provisional credit remains posted but has not been resolved against the chargeback outcome.
+  """
   FINALIZATION_FAILED
 
-  """The Provisional Credit for is finalized"""
+  """
+  The provisional credit has been finalized following the chargeback outcome — retained as a permanent credit on a win, partially adjusted on a partial win, or reversed on a loss.
+  """
   FINALIZED
 }
 
 """The credit status of the dispute credit."""
 enum PaymentCardDisputeCreditStatus {
-  """A dispute credit has not been issued."""
+  """
+  No dispute credit has been issued. Either no issue-credit request has been made for this dispute, or a prior issuance attempt did not execute.
+  """
   NOT_ISSUED
 
-  """The dispute credit is pending issuing."""
+  """
+  Issuance of the dispute credit is in progress. An issue-credit request has been made while the dispute is being investigated, and the credit has not yet posted to the Account Holder's `FinancialAccount`.
+  """
   PENDING_ISSUE
 
-  """The dispute credit is issued."""
+  """
+  The dispute credit has posted to the Account Holder's `FinancialAccount`. Issued during the dispute investigation, before the dispute has resolved.
+  """
   ISSUED
 
-  """The dispute credit is pending reversal."""
+  """
+  Reversal of a previously-issued dispute credit is in progress. Initiated after the dispute resolved, the credit has not yet been withdrawn from the Account Holder's `FinancialAccount`.
+  """
   PENDING_REVERSAL
 
-  """The dispute credit is reversed."""
+  """
+  The previously-issued dispute credit has been withdrawn from the Account Holder's `FinancialAccount` and is no longer posted.
+  """
   REVERSED
 }
 
@@ -10882,7 +10922,9 @@ enum PaymentCardChargebackStatus {
 
 """The credit status of the chargeback."""
 enum PaymentCardChargebackCreditStatus {
-  """A chargeback credit has not been issued."""
+  """
+  No chargeback credit has been issued. The chargeback has not progressed to a credit-eligible stage.
+  """
   CREDIT_NOT_ISSUED
 
   """
@@ -10905,7 +10947,9 @@ enum PaymentCardChargebackCreditStatus {
   """
   CREDIT_PARTIALLY_WON
 
-  """The chargeback provisional credit is pending issued."""
+  """
+  Issuance of the chargeback provisional credit is in progress. The chargeback has met the criteria for early credit but the credit has not yet posted.
+  """
   PROVISIONAL_CREDIT_PENDING_ISSUE
 
   """The Provisional Credit for the chargeback has been issued."""
@@ -13605,6 +13649,13 @@ Depending on the `CardProduct` and `FinancialAccountFeature` of this account the
 For more information on `FinancialAccountStatuses` please check the developer documentation.
 """
 enum FinancialAccountStatus {
+  """
+  The `FinancialAccount` has been created but has not yet been activated. It is restricted until activation completes.
+  
+  Subscribe to the `AccountStatusActiveEvent` notification event to be notified when this `FinancialAccount` is active.
+  """
+  UNACTIVATED
+
   """The `FinancialAccount` is active and in good standing."""
   ACTIVE
 
@@ -21861,6 +21912,30 @@ enum LedgerName {
   NormalBalanceType = DEBIT
   """
   FEE_RECEIVABLE
+
+  """
+  The name of a ledger that tracks the outstanding balance payable on a `FinancialAccount` using pseudo balance accounting.
+  
+  NormalBalanceType = CREDIT
+  """
+  PSEUDO_OUTSTANDING_BALANCE_PAYABLE
+
+  """
+  The name of a ledger that tracks the outstanding balance receivable on a `FinancialAccount` using pseudo balance accounting.
+  
+  NormalBalanceType = DEBIT
+  """
+  PSEUDO_OUTSTANDING_BALANCE_RECEIVABLE
+
+  """
+  The name of a ledger that tracks disbursement cash on a `FinancialAccount`.
+  """
+  DISBURSEMENT_CASH
+
+  """
+  The name of a ledger that tracks available disbursement cash on a `FinancialAccount`.
+  """
+  DISBURSEMENT_AVAILABLE_CASH
 }
 
 """The expected balance of a Ledger."""
@@ -53601,6 +53676,19 @@ enum RewardPointsTransferFailureReasonCode {
 
   """The receiving account does not have the reward point feature enabled."""
   REWARD_POINT_FEATURE_NOT_ENABLED
+
+  """
+  The redemption requires a `RewardRedemptionConfiguration` identifier but none was provided.
+  """
+  REDEMPTION_CONFIGURATION_ID_NOT_PROVIDED
+
+  """
+  The destination account cannot accept a cash credit because it does not carry a debit or prepaid card feature.
+  """
+  PREPAID_CARD_FEATURE_NOT_ENABLED
+
+  """The accounts on the transfer do not belong to the same card product."""
+  ACCOUNTS_DO_NOT_BELONG_TO_SAME_PRODUCT
 }
 
 """Status of the reward points transfer."""
@@ -54064,6 +54152,11 @@ input CreateRewardRedemptionConfigurationInput {
   Redemption Rate. This rate describes the value of money that can be redeemed for earned points. See `RewardRedemptionRateInput`.
   """
   rewardPointRedemption: RewardRedemptionRateInput!
+
+  """
+  The `RedemptionConfigurationType` for this configuration. Defaults to `STATEMENT_CREDIT` when not provided.
+  """
+  type: RedemptionConfigurationType
 }
 
 """Attach `RewardRedemptionConfiguration` to `CardProduct`."""
@@ -54162,6 +54255,11 @@ union UpdateRewardRedemptionConfigurationAttachmentPayload = RewardRedemptionCon
 enum RedemptionConfigurationType {
   """Redeem points for statement credit."""
   STATEMENT_CREDIT
+
+  """
+  Redeem points as cash credited to a separate destination `FinancialAccount`.
+  """
+  REDEEM_TO_FINANCIAL_ACCOUNT
 }
 
 """
@@ -54285,6 +54383,34 @@ type RewardRedemptionConfigurationAttachmentEdge {
 
   """The `RewardRedemptionConfigurationAttachment`."""
   node: RewardRedemptionConfigurationAttachment
+}
+
+"""
+Input type for redeeming reward points to a destination `FinancialAccount`.
+"""
+input RedeemRewardsToFinancialAccountInput {
+  """
+  Identifier for the `FinancialAccount` whose reward points are redeemed.
+  """
+  financialAccountId: ID!
+
+  """
+  Identifier for the `FinancialAccount` that receives the redeemed cash. The account must be able to accept a cash credit (carry a debit or prepaid card feature).
+  """
+  destinationFinancialAccountId: ID!
+
+  """
+  Redemption Criteria that will dictate how reward points will be redeemed. The referenced `RewardRedemptionConfiguration` must be of type `REDEEM_TO_FINANCIAL_ACCOUNT`.
+  """
+  redemption: RedemptionCriteriaInput!
+
+  """Note to be attached to the redemption. Max character length is 1024."""
+  memo: String
+
+  """
+  An optional tracker for external transaction identifier. Max character length is 255.
+  """
+  externalTransactionIdentifier: String
 }
 
 """Input type for redeeming reward points."""
@@ -69327,6 +69453,9 @@ type MerchantAcceptor implements Node {
   """
   processorConfigurations: [MerchantAcceptorProcessorConfiguration!]
 
+  """The `Merchant` that owns this `MerchantAcceptor`."""
+  merchant: Merchant
+
   """The `PricingPlan` applied to transactions on this `MerchantAcceptor`."""
   pricingPlan: PricingPlan
 
@@ -69363,6 +69492,9 @@ type MerchantAcceptorDetails {
 
   """The merchant category enum."""
   merchantCategory: MerchantCategory
+
+  """The merchant category enum number representation."""
+  merchantCategoryCode: String
 }
 
 """
@@ -69388,6 +69520,9 @@ type MerchantAcceptorProcessorConfiguration {
 
   """The merchant category enum."""
   merchantCategory: MerchantCategory
+
+  """The merchant category enum number representation."""
+  merchantCategoryCode: String
 
   """
   The `FinancialAccount` where funds for transactions on this
@@ -69885,6 +70020,9 @@ type MerchantPayfacRelationship implements Node {
   """The `Merchant` in this relationship."""
   merchant: Merchant
 
+  """The `Payfac` in this relationship."""
+  payfac: Payfac
+
   """The `Iso` that brokered this relationship."""
   iso: Iso
 }
@@ -70069,11 +70207,23 @@ interface BusinessService implements Node {
   displayName: String
 }
 
-"""
-The result of updating the `effectiveThrough` timestamp of a `PricingConfiguration`.
-Returns the updated configuration or error details.
-"""
-union UpdatePricingConfigurationPayload = AccessDeniedError | UserError | PricingConfiguration
+"""The connection type for `BusinessService`."""
+type BusinessServiceConnection {
+  """Information about the current page."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [BusinessServiceEdge!]
+}
+
+"""The edge type for `BusinessService`."""
+type BusinessServiceEdge {
+  """The cursor for this edge for use in pagination."""
+  cursor: String!
+
+  """The `BusinessService`."""
+  node: BusinessService
+}
 
 """
 The result of creating a `PricingConfiguration`.
@@ -70267,23 +70417,6 @@ type PricingRuleParameterValueSingle {
   value: String
 }
 
-"""
-The input details for updating the `effectiveThrough` timestamp of a `PricingConfiguration`.
-"""
-input UpdatePricingConfigurationInput {
-  """
-  The ID of the `PricingConfiguration` to update.
-  Only configurations with an unset `effectiveThrough` or an `effectiveThrough` in the future can be updated.
-  """
-  pricingConfigurationId: ID!
-
-  """
-  The new effective end timestamp, in ISO 8601 format.
-  Can be null to remove the expiration, but cannot be set to a date in the past.
-  """
-  effectiveThrough: String
-}
-
 """The input details for creating a `PricingConfiguration`."""
 input AddPricingConfigurationInput {
   """The ID of the `PricingPlan` to associate with this configuration."""
@@ -70408,12 +70541,18 @@ enum PricingRuleTrigger {
 
   """Rule is triggered for batch processing."""
   BATCH
+
+  """Rule is triggered on a recurring schedule."""
+  RECURRING
 }
 
 """The frequency at which a `PricingRule` is evaluated and billed."""
 enum PricingRuleFrequency {
   """Rule is evaluated per transaction."""
   TRANSACTIONAL
+
+  """Rule is evaluated monthly."""
+  MONTHLY
 }
 
 """The type of entity a `PricingConfiguration` can be attached to."""
@@ -70444,6 +70583,90 @@ type PricingPlanEdge {
 input PricingPlanFilterInput {
   """Filter by the lifecycle status of the plan."""
   status: PricingPlanStatus
+}
+
+"""A successfully created on-demand pricing charge."""
+type OnDemandPricingCharge implements Node {
+  """The unique identifier of the on-demand pricing charge."""
+  id: ID!
+
+  """The amount charged."""
+  amount: Amount
+
+  """The display name of the charge."""
+  name: String
+
+  """The free-form code identifying the charge type."""
+  externalChargeCode: String
+
+  """The human-readable description of the charge."""
+  description: String
+
+  """
+  Indicates whether this charge resulted in a debit or credit to the payer,
+  derived from the sign of the charge amount.
+  """
+  chargeImpact: OnDemandPricingChargeImpact
+
+  """Caller-supplied idempotency key used when this charge was initiated."""
+  idempotencyKey: IdempotencyKey
+
+  """The timestamp, in ISO 8601 format, when this charge was created."""
+  createdAt: String
+
+  """The timestamp, in ISO 8601 format, when this charge was last updated."""
+  updatedAt: String
+
+  """
+  Metadata describing how the charge amount was derived (echoed from the request).
+  """
+  metadata: OnDemandPricingChargeCalculationMetadata
+}
+
+"""
+Indicates whether an on-demand fee charge resulted in a debit or credit to the payer.
+"""
+enum OnDemandPricingChargeImpact {
+  """Positive amount — funds debited from the payer."""
+  DEBIT
+
+  """Negative amount — funds credited to the payer."""
+  CREDIT
+}
+
+"""
+Metadata describing how the charge amount was derived. Echoed from the request.
+"""
+type OnDemandPricingChargeCalculationMetadata {
+  """Per-item calculation, if supplied on the request."""
+  perItem: OnDemandPricingPerItemCalculation
+
+  """Percentage calculation, if supplied on the request."""
+  percentage: OnDemandPricingPercentageCalculation
+}
+
+"""Rate-per-item calculation echoed from the request."""
+type OnDemandPricingPerItemCalculation {
+  """Money charged per item."""
+  ratePerItem: Amount
+
+  """Number of items the rate was applied to."""
+  itemCount: UnsignedInt
+
+  """Free-form description of this metadata entry."""
+  description: String
+}
+
+"""Percentage-of-amount calculation echoed from the request."""
+type OnDemandPricingPercentageCalculation {
+  """Rate in basis points (1 bp = 0.01%)."""
+  rateBasisPoints: UnsignedInt
+
+  """Financial amount the rate was applied to."""
+  financialAmount: Amount
+
+  """Free-form description of this metadata entry."""
+  description: String
 }
 
 """Describes start and end timestamp of returned response."""
@@ -75738,6 +75961,114 @@ type InstantSettlementTransactionEvent implements Node {
   instantSettlementTransaction: InstantSettlementTransaction
 }
 
+"""Filters for querying `TransactionBatch`s."""
+input TransactionBatchFilterInput {
+  """
+  Used to search using the Highnote `SearchQueryLanguage`. Cannot be used in conjunction with other filters.
+  
+  Supported HQL fields:
+  
+  | Field | Type | Operators | Example |
+  |---|---|---|---|
+  | `status` | `TransactionBatchStatus` | `==`, `!=` | `status == OPEN` |
+  | `createdAt` | ISO 8601 timestamp | `==`, `!=`, `>=`, `<=`, `>`, `<` | `createdAt >= '2025-12-09T00:00:00Z'` |
+  """
+  searchQueryLanguage: SearchQueryLanguageInput
+}
+
+union TransactionBatchConnectionPayload = AccessDeniedError | UserError | TransactionBatchConnection
+
+"""
+The entity that owns a `TransactionBatch` — either a `Merchant` or a `Payfac`.
+"""
+union TransactionBatchOwner = Merchant | Payfac
+
+union PaymentTransactionsConnectionPayload = AccessDeniedError | UserError | PaymentTransactionsConnection
+
+"""The connection type for a `TransactionBatch`."""
+type TransactionBatchConnection {
+  """Information about the current page."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [TransactionBatchEdge!]
+}
+
+"""The edge type for a `TransactionBatch`."""
+type TransactionBatchEdge {
+  """The cursor for this edge for use in pagination."""
+  cursor: String!
+
+  """The `TransactionBatch` at the end of the edge."""
+  node: TransactionBatch
+}
+
+"""Input for closing a `TransactionBatch`."""
+input CloseTransactionBatchInput {
+  """The ID of the `TransactionBatch` to close."""
+  transactionBatchId: ID!
+
+  """
+  The idempotency key for this request.
+  
+  This is a UUIDv4 string used to uniquely identify requests.
+  
+  If a request with the same `IdempotencyKey` is received multiple times, only the first request will be processed. Subsequent requests will return the same response as the first request.
+  
+  [See this link for more](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))
+  """
+  idempotencyKey: IdempotencyKey
+
+  """
+  An optional external reference ID for this batch settlement.
+  
+  Supports up to 255 alphanumeric characters.
+  """
+  externalIdentifier: String
+}
+
+"""Result of closing a `TransactionBatch`."""
+union CloseTransactionBatchPayload = AccessDeniedError | UserError | CloseTransactionBatch
+
+type CloseTransactionBatch {
+  """
+  The reference to the `TransactionBatch` whose close was requested. At the time
+  this response is returned the batch is in `CLOSE_REQUESTED` status — the close
+  is processed asynchronously and the batch will not reach `CLOSED` until later.
+  """
+  closingTransactionBatch: TransactionBatch
+
+  """The reference to the newly opened `TransactionBatch`."""
+  openedTransactionBatch: TransactionBatch
+}
+
+"""Filters for querying `TransactionBatch` entries."""
+input TransactionBatchEntryFilterInput {
+  """
+  Used to search using the Highnote `SearchQueryLanguage`. Cannot be used in conjunction with other filters.
+  
+  Supported HQL fields:
+  
+  | Field | Type | Operators | Example |
+  |---|---|---|---|
+  | `accountingDirection` | `DEBIT`, `CREDIT` | `==` | `accountingDirection == DEBIT` |
+  | `amount` | Currency amount | `==`, `!=`, `>=`, `<=`, `>`, `<` | `amount >= USD 300` |
+  | `allocationStatus` | Allocation status | `==`, `!=` | `allocationStatus == ACTIVE` |
+  """
+  searchQueryLanguage: SearchQueryLanguageInput
+}
+
+"""
+A summary of `PaymentTransaction`s within a `TransactionBatch` for a specific transaction type.
+"""
+type TransactionBatchTotal {
+  """The number of `PaymentTransaction`s."""
+  count: UnsignedInt
+
+  """The total amount."""
+  totalAmount: Amount
+}
+
 """
 A `TransactionBatch` groups `PaymentTransaction`s for settlement and payout.
 """
@@ -75745,16 +76076,54 @@ type TransactionBatch implements Node {
   """Global ID used to reference this object."""
   id: ID!
 
-  """
-  This is used to identify the specific merchant location or terminal accepting the payment.
-  """
-  merchantAcceptorId: ID
+  """The entity that owns this batch."""
+  owner: TransactionBatchOwner
+
+  """The total debit (purchase) transactions in this `TransactionBatch`."""
+  debitTotal: TransactionBatchTotal
+
+  """The total credit (refund) transactions in this `TransactionBatch`."""
+  creditTotal: TransactionBatchTotal
+
+  """The total chargeback transactions in this `TransactionBatch`."""
+  chargebackTotal: TransactionBatchTotal
+
+  """The total holds amount for this `TransactionBatch`."""
+  holdsTotalAmount: SignedAmount
+
+  """The total adjustments amount for this `TransactionBatch`."""
+  adjustmentsTotalAmount: SignedAmount
+
+  """The total disbursed amount for this `TransactionBatch`."""
+  disbursedAmount: SignedAmount
+
+  """The `PaymentTransaction`s in this `TransactionBatch`."""
+  transactions(first: Int, after: String, filterBy: TransactionBatchEntryFilterInput): PaymentTransactionsConnectionPayload
+
+  """Temporary holds on this `TransactionBatch`."""
+  holds(first: Int, after: String): BatchHoldConnection
+
+  """Permanent adjustments on this `TransactionBatch`."""
+  adjustments(first: Int, after: String): BatchAdjustmentConnection
 
   """transaction batch status"""
   status: TransactionBatchStatus
 
   """transaction batch fee"""
   fees: [TransactionBatchFee!]
+
+  """
+  The current running total across all transaction types in this `TransactionBatch`.
+  """
+  currentTotal: TransactionBatchTotal
+
+  """The date and time this `TransactionBatch` was created."""
+  createdAt: String
+
+  """
+  The date and time a close was requested for this `TransactionBatch`. Will be `null` if no close has been requested.
+  """
+  closeRequestedAt: String
 }
 
 """Fee associated with a `PaymentTransaction`."""
@@ -75791,6 +76160,24 @@ type ReserveHold implements BatchHold & Node {
   amount: SignedAmount
 }
 
+"""The connection type for a `BatchHold`."""
+type BatchHoldConnection {
+  """Information about the current page."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [BatchHoldEdge!]
+}
+
+"""The edge type for a `BatchHold`."""
+type BatchHoldEdge {
+  """The cursor for this edge for use in pagination."""
+  cursor: String!
+
+  """The `BatchHold` at the end of the edge."""
+  node: BatchHold
+}
+
 """A permanent adjustment on a `TransactionBatch`."""
 interface BatchAdjustment implements Node {
   """Global ID used to reference this object."""
@@ -75807,6 +76194,24 @@ type CashAdvanceRepayment implements BatchAdjustment & Node {
 
   """The adjustment amount."""
   amount: SignedAmount
+}
+
+"""The connection type for a `BatchAdjustment`."""
+type BatchAdjustmentConnection {
+  """Information about the current page."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [BatchAdjustmentEdge!]
+}
+
+"""The edge type for a `BatchAdjustment`."""
+type BatchAdjustmentEdge {
+  """The cursor for this edge for use in pagination."""
+  cursor: String!
+
+  """The `BatchAdjustment` at the end of the edge."""
+  node: BatchAdjustment
 }
 
 """A processing fee on a `TransactionBatch`."""
@@ -75839,6 +76244,9 @@ enum TransactionBatchStatus {
   """Indicates the transaction batch is on hold."""
   ON_HOLD
 
+  """Indicates the transaction batch is closed."""
+  CLOSED
+
   """Indicates the transaction batch is pending clearing."""
   CLEAR_PENDING
 
@@ -75848,15 +76256,18 @@ enum TransactionBatchStatus {
   """Indicates the transaction batch is pending disbursement."""
   DISBURSEMENT_PENDING
 
-  """Indicates the transaction batch payout has been sent."""
-  PAYOUT_SENT
-
-  """Indicates the transaction batch is closed."""
-  CLOSED
+  """Indicates the transaction batch payout is complete."""
+  PAYOUT_COMPLETE
 
   """Indicates the transaction batch was rejected."""
   REJECTED
 
-  """Indicates the transaction batch has been fully disbursed."""
+  """Indicates the transaction batch was disbursed."""
   DISBURSED
+
+  """Indicates the transaction batch payout is pending."""
+  PAYOUT_PENDING
+
+  """Indicates the transaction batch payout failed."""
+  PAYOUT_FAILED
 }

@@ -39,6 +39,19 @@ query FindApplication($id: ID!) {
             }
           }
         }
+        ... on USBusinessAccountHolderSnapshot {
+          accountHolderCurrent {
+            id
+          }
+        }
+        ... on BusinessProductApplicantSnapshot {
+          accountHolderCurrent {
+            __typename
+            ... on Node {
+              id
+            }
+          }
+        }
       }
       cardProduct {
         id

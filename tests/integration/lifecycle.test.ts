@@ -23,7 +23,7 @@ describe("full lifecycle (integration)", () => {
       environment: "test",
     });
 
-    // Resolve a consumer (USPerson-applicant) card card product. The test
+    // Resolve a consumer card product (one that accepts USPerson applicants). The test
     // environment may have commercial-only products listed first which
     // would reject our USPerson applicant with PARTY_ROLE_TYPE_NOT_SUPPORTED.
     cardProductId = await resolveConsumerCardProductId(client);

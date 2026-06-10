@@ -4,7 +4,7 @@ import {
   PhoneLabel,
   FinancialAccountSuspensionReasonInput,
 } from "../../src/index.js";
-import { resolvePersonalCardProductId } from "./cardProductHelpers.js";
+import { resolveConsumerCardProductId } from "./cardProductHelpers.js";
 
 /**
  * Card and financial account lifecycle integration tests.
@@ -22,10 +22,10 @@ describe("card & financial account lifecycle (integration)", () => {
       environment: "test",
     });
 
-    // Resolve a personal-applicant-compatible card product. The test
+    // Resolve a consumer (USPerson-applicant) card card product. The test
     // environment may have commercial-only products listed first which
     // would reject our USPerson applicant with PARTY_ROLE_TYPE_NOT_SUPPORTED.
-    const cardProductId = await resolvePersonalCardProductId(client);
+    const cardProductId = await resolveConsumerCardProductId(client);
     expect(cardProductId).toBeDefined();
 
     // Create account holder
@@ -236,7 +236,7 @@ describe("card & financial account lifecycle (integration)", () => {
   it("suspends and unsuspends a financial account", async () => {
     // Issue a separate financial account for this test so we don't break the shared one
     // We'll use the same pattern — get a fresh application
-    const cardProductId = await resolvePersonalCardProductId(client);
+    const cardProductId = await resolveConsumerCardProductId(client);
 
     const holder = await client.accountHolders.createUSPerson({
       personAccountHolder: {

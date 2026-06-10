@@ -4,7 +4,7 @@ import {
   PhoneLabel,
   PaymentCardClientTokenPermission,
 } from "../../src/index.js";
-import { resolvePersonalCardProductId } from "./cardProductHelpers.js";
+import { resolveConsumerCardProductId } from "./cardProductHelpers.js";
 
 /**
  * Full lifecycle integration test:
@@ -23,10 +23,10 @@ describe("full lifecycle (integration)", () => {
       environment: "test",
     });
 
-    // Resolve a personal-applicant-compatible card product. The test
+    // Resolve a consumer (USPerson-applicant) card card product. The test
     // environment may have commercial-only products listed first which
     // would reject our USPerson applicant with PARTY_ROLE_TYPE_NOT_SUPPORTED.
-    cardProductId = await resolvePersonalCardProductId(client);
+    cardProductId = await resolveConsumerCardProductId(client);
     expect(cardProductId).toBeDefined();
   });
 

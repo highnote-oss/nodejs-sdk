@@ -4,6 +4,7 @@ import {
   PhoneLabel,
   FinancialAccountSuspensionReasonInput,
 } from "../../src/index.js";
+import { resolvePersonalCardProductId } from "./cardProductHelpers.js";
 
 /**
  * Card and financial account lifecycle integration tests.
@@ -21,12 +22,10 @@ describe("card & financial account lifecycle (integration)", () => {
       environment: "test",
     });
 
-    // Get a card product
-    let cardProductId: string | undefined;
-    for await (const product of client.cardProducts.list({ pageSize: 1 })) {
-      cardProductId = product.id;
-      break;
-    }
+    // Resolve a personal-applicant-compatible card product. The test
+    // environment may have commercial-only products listed first which
+    // would reject our USPerson applicant with PARTY_ROLE_TYPE_NOT_SUPPORTED.
+    const cardProductId = await resolvePersonalCardProductId(client);
     expect(cardProductId).toBeDefined();
 
     // Create account holder
@@ -59,7 +58,7 @@ describe("card & financial account lifecycle (integration)", () => {
     // Create and approve application
     const app = await client.applications.create({
       accountHolderId: holder.id,
-      cardProductId: cardProductId!,
+      cardProductId,
       cardHolderAgreementConsent: {
         consentTimestamp: new Date().toISOString(),
         primaryAuthorizedPersonId: holder.id,
@@ -237,11 +236,7 @@ describe("card & financial account lifecycle (integration)", () => {
   it("suspends and unsuspends a financial account", async () => {
     // Issue a separate financial account for this test so we don't break the shared one
     // We'll use the same pattern — get a fresh application
-    let cardProductId: string | undefined;
-    for await (const product of client.cardProducts.list({ pageSize: 1 })) {
-      cardProductId = product.id;
-      break;
-    }
+    const cardProductId = await resolvePersonalCardProductId(client);
 
     const holder = await client.accountHolders.createUSPerson({
       personAccountHolder: {
@@ -271,7 +266,7 @@ describe("card & financial account lifecycle (integration)", () => {
 
     const app = await client.applications.create({
       accountHolderId: holder.id,
-      cardProductId: cardProductId!,
+      cardProductId,
       cardHolderAgreementConsent: {
         consentTimestamp: new Date().toISOString(),
         primaryAuthorizedPersonId: holder.id,

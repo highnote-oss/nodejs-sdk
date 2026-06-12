@@ -4784,6 +4784,7 @@ For more information on `FinancialAccountStatuses` please check the developer do
 - `CLOSED`
 - `PENDING_CLOSURE`
 - `SUSPENDED`
+- `UNACTIVATED`
 - `UNDER_REVIEW`
 
 ### `FinancialAccountSuspensionReasonInput`
@@ -6004,8 +6005,10 @@ The possible values of a Ledger's name, based on the type of activity a ledger t
 - `DEPOSIT_AUTHORIZATION`
 - `DEPOSIT_HOLD`
 - `DEPOSIT_RECEIVABLE`
+- `DISBURSEMENT_AVAILABLE_CASH`
 - `DISBURSEMENT_CARRY_OVER_PAYABLE`
 - `DISBURSEMENT_CARRY_OVER_RECEIVABLE`
+- `DISBURSEMENT_CASH`
 - `DISPUTE_CREDIT`
 - `DISPUTE_EXPENSE`
 - `EXTERNAL_TRANSFER_PAYABLE`
@@ -6040,6 +6043,8 @@ The possible values of a Ledger's name, based on the type of activity a ledger t
 - `PSEUDO_AVAILABLE_CREDIT`
 - `PSEUDO_CASH`
 - `PSEUDO_CREDIT_OUTSTANDING`
+- `PSEUDO_OUTSTANDING_BALANCE_PAYABLE`
+- `PSEUDO_OUTSTANDING_BALANCE_RECEIVABLE`
 - `PULL_PAYMENT_CREDIT_HOLD`
 - `PULL_PAYMENT_FEE_PAYABLE`
 - `PULL_PAYMENT_RECEIVABLE`
@@ -8201,6 +8206,13 @@ Status of the preliminary decision on the merchant onboarding application
 - `NOT_DECISIONED`
 - `REDIRECT_TO_ISSUING`
 
+### `OnDemandPricingChargeImpact`
+
+Indicates whether an on-demand fee charge resulted in a debit or credit to the payer.
+
+- `CREDIT`
+- `DEBIT`
+
 ### `OrganizationBusinessRelationshipStatus`
 
 The status of an organization business relationship.
@@ -8941,6 +8953,7 @@ The lifecycle states for a `PricingPlan`.
 
 The frequency at which a `PricingRule` is evaluated and billed.
 
+- `MONTHLY`
 - `TRANSACTIONAL`
 
 ### `PricingRuleParameterType`
@@ -8957,6 +8970,7 @@ The type of a `PricingRuleParameter` value.
 The event that triggers a `PricingRule`.
 
 - `BATCH`
+- `RECURRING`
 - `TRANSACTION`
 
 ### `ProcessingCapabilityStatus`
@@ -9053,6 +9067,7 @@ The frequency of the scheduled transfer
 
 Method of Redemption for Rewards Points.
 
+- `REDEEM_TO_FINANCIAL_ACCOUNT`
 - `STATEMENT_CREDIT`
 
 ### `ReissueReason`
@@ -9158,7 +9173,10 @@ Additional details regarding a `FAILED` reward points transfer.
 - `ACCOUNT_CLOSED`
 - `ACCOUNT_CURRENCY_MISMATCH`
 - `ACCOUNT_NOT_FOUND`
+- `ACCOUNTS_DO_NOT_BELONG_TO_SAME_PRODUCT`
 - `INSUFFICIENT_FUNDS`
+- `PREPAID_CARD_FEATURE_NOT_ENABLED`
+- `REDEMPTION_CONFIGURATION_ID_NOT_PROVIDED`
 - `REWARD_POINT_FEATURE_NOT_ENABLED`
 
 ### `RewardPointsTransferSource`
@@ -9406,7 +9424,9 @@ The status of a transaction batch.
 - `DISBURSEMENT_PENDING`
 - `ON_HOLD`
 - `OPEN`
-- `PAYOUT_SENT`
+- `PAYOUT_COMPLETE`
+- `PAYOUT_FAILED`
+- `PAYOUT_PENDING`
 - `PROCESSING`
 - `REJECTED`
 
@@ -12411,9 +12431,25 @@ The details about the backing bank.
 
 A permanent adjustment on a `TransactionBatch`.
 
+### `BatchAdjustmentConnection`
+
+The connection type for a `BatchAdjustment`.
+
+### `BatchAdjustmentEdge`
+
+The edge type for a `BatchAdjustment`.
+
 ### `BatchHold`
 
 A temporary hold on a `TransactionBatch`.
+
+### `BatchHoldConnection`
+
+The connection type for a `BatchHold`.
+
+### `BatchHoldEdge`
+
+The edge type for a `BatchHold`.
 
 ### `BillingCycle`
 
@@ -12687,9 +12723,21 @@ Profile for a `Business`.
 
 A service a `Business` is set up for in the payments ecosystem.
 
+### `BusinessServiceConnection`
+
+The connection type for `BusinessService`.
+
+### `BusinessServiceEdge`
+
+The edge type for `BusinessService`.
+
 ### `BusinessServices`
 
 The service-specific details for the `Business`, such as account holder and merchant details.
+
+### `BusinessServicesArgs`
+
+A `Business` including profile details such as name and address, and service details such as account holder and merchant details.
 
 ### `BusinessUltimateBeneficialOwner`
 
@@ -13526,6 +13574,16 @@ The details of the Payment Card to close.
 ### `ClosePaymentCardPayload`
 
 The return types when closing a Payment Card.
+
+### `CloseTransactionBatch`
+
+### `CloseTransactionBatchInput`
+
+Input for closing a `TransactionBatch`.
+
+### `CloseTransactionBatchPayload`
+
+Result of closing a `TransactionBatch`.
 
 ### `CollaborativeApplicationUnderwritingCardProductFeature`
 
@@ -17405,6 +17463,10 @@ Root Mutation type extending the main GraphQL schema.
 
 Root Mutation type extending the main GraphQL schema.
 
+### `MutationCloseTransactionBatchArgs`
+
+Root Mutation type extending the main GraphQL schema.
+
 ### `MutationCompletePhysicalCardGroupOrderArgs`
 
 Root Mutation type extending the main GraphQL schema.
@@ -18005,6 +18067,10 @@ Root Mutation type extending the main GraphQL schema.
 
 Root Mutation type extending the main GraphQL schema.
 
+### `MutationRedeemRewardsToFinancialAccountArgs`
+
+Root Mutation type extending the main GraphQL schema.
+
 ### `MutationReevaluateApplicationArgs`
 
 Root Mutation type extending the main GraphQL schema.
@@ -18485,10 +18551,6 @@ Root Mutation type extending the main GraphQL schema.
 
 Root Mutation type extending the main GraphQL schema.
 
-### `MutationUpdatePricingConfigurationArgs`
-
-Root Mutation type extending the main GraphQL schema.
-
 ### `MutationUpdatePseudoBalanceArgs`
 
 Root Mutation type extending the main GraphQL schema.
@@ -18875,6 +18937,22 @@ Whether or not the `CardProduct` supports on demand funding.
 ### `OnDemandFundingFinancialAccountFeature`
 
 Whether or not the Financial Account supports On-Demand Funding.
+
+### `OnDemandPricingCharge`
+
+A successfully created on-demand pricing charge.
+
+### `OnDemandPricingChargeCalculationMetadata`
+
+Metadata describing how the charge amount was derived. Echoed from the request.
+
+### `OnDemandPricingPercentageCalculation`
+
+Percentage-of-amount calculation echoed from the request.
+
+### `OnDemandPricingPerItemCalculation`
+
+Rate-per-item calculation echoed from the request.
 
 ### `OneTimeAchTransfer`
 
@@ -19487,7 +19565,7 @@ The possible return types of `PaymentCardTransactionDisputePayload`.
 
 ### `PaymentCardTransactionDisputeProvisionalCredit`
 
-The payment card transaction chargeback credit.
+A provisional credit issued on a payment card transaction dispute. Posted to the Account Holder's `FinancialAccount` while a related chargeback is in flight with the network, and finalized — retained, partially adjusted, or reversed — based on the chargeback's outcome.
 
 ### `PaymentCardTransactionDisputesFilterInput`
 
@@ -19668,6 +19746,8 @@ Response codes for a payment transaction.
 ### `PaymentTransactionsConnection`
 
 The connection type for the `paymentTransactions` query.
+
+### `PaymentTransactionsConnectionPayload`
 
 ### `PaymentTransactionsEdge`
 
@@ -20284,6 +20364,10 @@ All Queries that can be performed.
 
 All Queries that can be performed.
 
+### `QueryTransactionBatchesArgs`
+
+All Queries that can be performed.
+
 ### `QuoteBankTransferDetailsInput`
 
 Additional details for bank-to-bank transfers used in `createUnifiedFundsTransferQuote`.
@@ -20321,6 +20405,10 @@ A scheduled recurring ACH transfer
 ### `RedeemRewardsForStatementCreditInput`
 
 Input type for redeeming reward points.
+
+### `RedeemRewardsToFinancialAccountInput`
+
+Input type for redeeming reward points to a destination `FinancialAccount`.
 
 ### `RedemptionCriteriaInput`
 
@@ -21866,13 +21954,51 @@ The possible types of transactions.
 
 A `TransactionBatch` groups `PaymentTransaction`s for settlement and payout.
 
+### `TransactionBatchAdjustmentsArgs`
+
+A `TransactionBatch` groups `PaymentTransaction`s for settlement and payout.
+
+### `TransactionBatchConnection`
+
+The connection type for a `TransactionBatch`.
+
+### `TransactionBatchConnectionPayload`
+
+### `TransactionBatchEdge`
+
+The edge type for a `TransactionBatch`.
+
+### `TransactionBatchEntryFilterInput`
+
+Filters for querying `TransactionBatch` entries.
+
 ### `TransactionBatchFee`
 
 Fee associated with a `PaymentTransaction`.
 
+### `TransactionBatchFilterInput`
+
+Filters for querying `TransactionBatch`s.
+
+### `TransactionBatchHoldsArgs`
+
+A `TransactionBatch` groups `PaymentTransaction`s for settlement and payout.
+
+### `TransactionBatchOwner`
+
+The entity that owns a `TransactionBatch` — either a `Merchant` or a `Payfac`.
+
 ### `TransactionBatchProcessingFee`
 
 A processing fee on a `TransactionBatch`.
+
+### `TransactionBatchTotal`
+
+A summary of `PaymentTransaction`s within a `TransactionBatch` for a specific transaction type.
+
+### `TransactionBatchTransactionsArgs`
+
+A `TransactionBatch` groups `PaymentTransaction`s for settlement and payout.
 
 ### `TransactionBusinessMetricAttribute`
 
@@ -22388,15 +22514,6 @@ The details of the `PostalCodeVerificationSpendRule` spend rule to update.
 ### `UpdatePostalCodeVerificationSpendRulePayload`
 
 The return types when updating an existing postal code verification rule.
-
-### `UpdatePricingConfigurationInput`
-
-The input details for updating the `effectiveThrough` timestamp of a `PricingConfiguration`.
-
-### `UpdatePricingConfigurationPayload`
-
-The result of updating the `effectiveThrough` timestamp of a `PricingConfiguration`.
-Returns the updated configuration or error details.
 
 ### `UpdatePseudoBalanceInput`
 

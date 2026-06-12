@@ -74,7 +74,7 @@ for await (const product of client.cardProducts.list()) {
 | `ach` | `cancelTransfer()`, `createOneTimeTransfer()`, `createRecurringTransfer()`, `initiateTransfer()` | Available |
 | `addresses` | `validate()` | Available |
 | `applications` | `create()`, `get()` | Available |
-| `cardProducts` | `get()`, `list()` | Available |
+| `cardProducts` | `get()`, `list()`, `listFinancialAccounts()` | Available |
 | `cards` | `activate()`, `cancelPhysicalOrder()`, `close()`, `findATMLocations()`, `get()`, `issue()`, `issueForApplicationWithOnDemandFunding()`, `orderPhysical()`, `orderPhysicalWithValidatedAddress()`, `reissue()`, `suspend()` | Available |
 | `clientTokens` | `createForDocumentUpload()`, `createForPaymentCard()`, `createForTokenization()` | Available |
 | `collaborativeAuth` | `activateEndpoint()`, `addEndpoint()`, `deactivateEndpoint()`, `list()`, `removeEndpoint()`, `renameEndpoint()` | Available |

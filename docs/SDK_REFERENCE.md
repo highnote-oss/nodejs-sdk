@@ -767,6 +767,42 @@ for await (const product of client.cardProducts.list()) {
 }
 ```
 
+#### `listFinancialAccounts(cardProductId, options)`
+
+Returns an async iterable over the financial accounts associated with a
+card product. This is the right entry point for org-scoped accounts such
+as the Product Funding Account (`ProductFundingFinancialAccountFeature`)
+which back ODF-enabled card products — those FAs do NOT appear under
+`accountHolders.listFinancialAccounts(<applicant's accountHolderId>)`,
+because they are owned by the issuer, not by the applicant.
+
+The optional `filterBy` accepts Highnote's search-query language:
+
+
+
+Pass no options to iterate every account on the product.
+
+**Parameters**
+
+- `cardProductId` (string, **required**)
+- `options.filterBy` (AccountHolderFinancialAccountsFilterInput, optional) — Optional Highnote search-language filter passed through to the API.
+- `options.pageSize` (number, optional) — Number of items per page. Defaults to client's defaultPageSize.
+
+**Returns** `AsyncIterable<FinancialAccountSummaryFragment>`.
+
+**Throws** `HighnoteUserError`, `HighnoteAccessDeniedError`, `HighnoteUnexpectedResponseError`.
+
+**Example**
+
+```ts
+for await (const fa of client.cardProducts.listFinancialAccounts(
+  cardProductId,
+  { filterBy: { searchQueryLanguage: { query: "", version: "VERSION_1" } } },
+)) {
+  console.log(fa.name, fa.features?.map((f) => f.__typename));
+}
+```
+
 ### client.cards
 
 #### `activate(input)`
@@ -1316,7 +1352,7 @@ Add a collaborative authorization endpoint.
 
   Example: `https://mywebhook.com`
 
-**Returns** `CollaborativeAuthorizationEndpoint` — fields: `createdAt`, `id`, `name`, `status`, `updatedAt`, `uri`.
+**Returns** `CollaborativeAuthorizationEndpoint` — fields: `createdAt`, `id`, `name`, `signingKeys`, `status`, `updatedAt`, `uri`.
 
 **Throws** `HighnoteUserError`, `HighnoteAccessDeniedError`, `HighnoteUnexpectedResponseError`.
 
@@ -13284,6 +13320,13 @@ A shared configuration for a group of cards.
 
 A shared configuration for a group of cards.
 
+### `CardProductFinancialAccountSummary`
+
+A financial account as returned by `cardProducts.listFinancialAccounts`.
+Matches the shared `FinancialAccountSummary` fragment used by the
+`accountHolders.listFinancialAccounts` query, so consumers can compare
+results from either listing without re-narrowing the shape.
+
 ### `CardProductGroupOrdersArgs`
 
 A shared configuration for a group of cards.
@@ -16911,6 +16954,10 @@ Input for linking an account holder with a verified external bank account
 ### `ListBusinessAccountHoldersQuery`
 
 ### `ListBusinessAccountHoldersQueryVariables`
+
+### `ListCardProductFinancialAccountsQuery`
+
+### `ListCardProductFinancialAccountsQueryVariables`
 
 ### `ListCardProductsQuery`
 

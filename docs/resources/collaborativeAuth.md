@@ -31,7 +31,7 @@ Add a collaborative authorization endpoint.
 
   Example: `https://mywebhook.com`
 
-**Returns** `CollaborativeAuthorizationEndpoint` — fields: `createdAt`, `id`, `name`, `status`, `updatedAt`, `uri`.
+**Returns** `CollaborativeAuthorizationEndpoint` — fields: `createdAt`, `id`, `name`, `signingKeys`, `status`, `updatedAt`, `uri`.
 
 **Throws** `HighnoteUserError`, `HighnoteAccessDeniedError`, `HighnoteUnexpectedResponseError`.
 

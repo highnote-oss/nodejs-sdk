@@ -4,9 +4,16 @@ import type { Highnote } from "../client.js";
 import { throwIfError, HighnoteUnexpectedResponseError } from "../errors.js";
 import { paginate, type RelayConnection } from "../pagination.js";
 import type {
+  CreateMinimalUsBusinessAccountHolderMutation,
+  CreateMinimalUsBusinessAccountHolderMutationVariables,
+  CreateUsBusinessAccountHolderMutation,
+  CreateUsBusinessAccountHolderMutationVariables,
   CreateUsPersonAccountHolderMutation,
   CreateUsPersonAccountHolderMutationVariables,
+  FinancialAccountSummaryFragment,
   FindAccountHolderQuery,
+  ListAccountHolderFinancialAccountsQuery,
+  ListAccountHolderFinancialAccountsQueryVariables,
   ListPersonAccountHoldersQuery,
   ListBusinessAccountHoldersQuery,
   SearchPersonAccountHoldersQuery,
@@ -15,8 +22,11 @@ import type {
   SearchBusinessAccountHoldersQueryVariables,
 } from "../generated/graphql.js";
 import {
+  CreateMinimalUsBusinessAccountHolderDocument,
+  CreateUsBusinessAccountHolderDocument,
   CreateUsPersonAccountHolderDocument,
   FindAccountHolderDocument,
+  ListAccountHolderFinancialAccountsDocument,
   ListPersonAccountHoldersDocument,
   ListBusinessAccountHoldersDocument,
   SearchPersonAccountHoldersDocument,
@@ -36,6 +46,16 @@ type CreatedPersonAccountHolder = Extract<
   { __typename: "USPersonAccountHolder" }
 >;
 
+type CreatedMinimalBusinessAccountHolder = Extract<
+  NonNullable<CreateMinimalUsBusinessAccountHolderMutation["createMinimalUSBusinessAccountHolder"]>,
+  { __typename: "USBusinessAccountHolder" }
+>;
+
+type CreatedBusinessAccountHolder = Extract<
+  NonNullable<CreateUsBusinessAccountHolderMutation["createUSBusinessAccountHolder"]>,
+  { __typename: "USBusinessAccountHolder" }
+>;
+
 type FindAccountHolderNode = Extract<
   NonNullable<FindAccountHolderQuery["node"]>,
   { __typename: "USPersonAccountHolder" | "USBusinessAccountHolder" }
@@ -48,6 +68,13 @@ type BusinessAccountHolderNode = NonNullable<
 >["node"];
 
 export type BusinessAccountHolder = NonNullable<BusinessAccountHolderNode>;
+
+export type AccountHolderFinancialAccountSummary = FinancialAccountSummaryFragment;
+
+export interface ListAccountHolderFinancialAccountsOptions {
+  pageSize?: number;
+  filterBy?: ListAccountHolderFinancialAccountsQueryVariables["filterBy"];
+}
 
 export interface ListPersonAccountHoldersOptions {
   pageSize?: number;
@@ -99,6 +126,73 @@ export class AccountHoldersResource {
     }
 
     return result as CreatedPersonAccountHolder;
+  }
+
+  /**
+   * Create a US business account holder with the minimal required profile.
+   * Use this when you intend to fill in additional fields via subsequent
+   * update mutations.
+   *
+   * ```ts
+   * const holder = await client.accountHolders.createMinimalUSBusiness({
+   *   businessProfile: { ... },
+   * });
+   * ```
+   */
+  async createMinimalUSBusiness(
+    input: CreateMinimalUsBusinessAccountHolderMutationVariables["input"],
+  ): Promise<CreatedMinimalBusinessAccountHolder> {
+    const { data } =
+      await this.client.graphql.rawRequest<CreateMinimalUsBusinessAccountHolderMutation>(
+        print(CreateMinimalUsBusinessAccountHolderDocument),
+        { input },
+      );
+
+    const result = data?.createMinimalUSBusinessAccountHolder;
+    throwIfError(result);
+
+    if (!result || result.__typename !== "USBusinessAccountHolder") {
+      throw new HighnoteUnexpectedResponseError(
+        result?.__typename ?? "null",
+        "Unexpected response from createMinimalUSBusinessAccountHolder",
+      );
+    }
+
+    return result as CreatedMinimalBusinessAccountHolder;
+  }
+
+  /**
+   * Create a US business account holder with the full profile and onboarding details
+   * (authorized persons, ultimate beneficial owners, credit risk attributes).
+   *
+   * ```ts
+   * const holder = await client.accountHolders.createUSBusiness({
+   *   businessProfile: { ... },
+   *   authorizedPersons: [...],
+   *   ultimateBeneficialOwners: [...],
+   * });
+   * ```
+   */
+  async createUSBusiness(
+    input: CreateUsBusinessAccountHolderMutationVariables["input"],
+  ): Promise<CreatedBusinessAccountHolder> {
+    const { data } =
+      await this.client.graphql.rawRequest<CreateUsBusinessAccountHolderMutation>(
+        print(CreateUsBusinessAccountHolderDocument),
+        { input },
+      );
+
+    const result = data?.createUSBusinessAccountHolder;
+    throwIfError(result);
+
+    if (!result || result.__typename !== "USBusinessAccountHolder") {
+      throw new HighnoteUnexpectedResponseError(
+        result?.__typename ?? "null",
+        "Unexpected response from createUSBusinessAccountHolder",
+      );
+    }
+
+    return result as CreatedBusinessAccountHolder;
   }
 
   /**
@@ -236,6 +330,72 @@ export class AccountHoldersResource {
         edges: [],
         pageInfo: { hasNextPage: false, endCursor: "" },
       }) as RelayConnection<BusinessAccountHolder>;
+    });
+  }
+
+  /**
+   * List the financial accounts owned by an account holder, auto-paginated.
+   * Dispatches across the `AccountHolder` union internally — works for
+   * `USPersonAccountHolder`, `USBusinessAccountHolder`, and `Organization` IDs.
+   *
+   * ```ts
+   * import { FinancialAccountFeatureType } from "@highnote-oss/nodejs-sdk";
+   *
+   * for await (const fa of client.accountHolders.listFinancialAccounts(
+   *   accountHolderId,
+   *   {
+   *     filterBy: {
+   *       features: { includes: [FinancialAccountFeatureType.CARD_FUNDING_ACCOUNT] },
+   *       cardProductId: { equals: cardProductId },
+   *     },
+   *   },
+   * )) {
+   *   console.log(fa.name);
+   * }
+   * ```
+   */
+  listFinancialAccounts(
+    accountHolderId: string,
+    options?: ListAccountHolderFinancialAccountsOptions,
+  ): AsyncIterable<AccountHolderFinancialAccountSummary> {
+    const pageSize = options?.pageSize ?? this.client.defaultPageSize;
+    const filterBy = options?.filterBy;
+
+    return paginate<AccountHolderFinancialAccountSummary>(async (after) => {
+      const { data } =
+        await this.client.graphql.rawRequest<ListAccountHolderFinancialAccountsQuery>(
+          print(ListAccountHolderFinancialAccountsDocument),
+          { id: accountHolderId, first: pageSize, after, filterBy },
+        );
+
+      const node = data?.node;
+      if (!node) {
+        throw new HighnoteUnexpectedResponseError(
+          "null",
+          `Unexpected response from listFinancialAccounts: account holder not found for ${accountHolderId}`,
+        );
+      }
+
+      let connection;
+      switch (node.__typename) {
+        case "USPersonAccountHolder":
+        case "USBusinessAccountHolder":
+          connection = node.financialAccounts;
+          break;
+        case "Organization":
+          connection = node.accounts;
+          break;
+        default:
+          throw new HighnoteUnexpectedResponseError(
+            node.__typename,
+            `Unexpected response from listFinancialAccounts: expected account holder type for ${accountHolderId}, got ${node.__typename}`,
+          );
+      }
+
+      return (connection ?? {
+        edges: [],
+        pageInfo: { hasNextPage: false, endCursor: "" },
+      }) as RelayConnection<AccountHolderFinancialAccountSummary>;
     });
   }
 }

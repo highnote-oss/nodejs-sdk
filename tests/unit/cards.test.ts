@@ -548,4 +548,76 @@ describe("CardsResource", () => {
       expect(result).toEqual([]);
     });
   });
+
+  describe("issueForApplicationWithOnDemandFunding()", () => {
+    it("returns a PaymentCard with its newly created FinancialAccount", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          issuePaymentCardForApplicationWithOnDemandFundingSource: {
+            __typename: "PaymentCard",
+            id: "pc_1",
+            bin: "411111",
+            last4: "1234",
+            network: "VISA",
+            status: "ACTIVE",
+            formFactor: "VIRTUAL",
+            expirationDate: "2028-12-31T00:00:00Z",
+            expirationMonth: "12",
+            expirationYear: "2028",
+            externalId: null,
+            financialAccounts: [
+              {
+                __typename: "FinancialAccount",
+                id: "fa_1",
+                name: "Invoice INV-1",
+              },
+            ],
+          },
+        },
+      });
+
+      const card = await client.cards.issueForApplicationWithOnDemandFunding({
+        applicationId: "app_1",
+        sourceFinancialAccountId: "fa_funding",
+        options: { activateOnCreate: true, expirationDate: "2028-12-31T00:00:00Z" },
+      });
+
+      expect(card.id).toBe("pc_1");
+      expect(card.__typename).toBe("PaymentCard");
+      expect(card.financialAccounts?.[0]?.id).toBe("fa_1");
+    });
+
+    it("throws HighnoteUserError on validation failure", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          issuePaymentCardForApplicationWithOnDemandFundingSource: {
+            __typename: "UserError",
+            errors: [{ code: "INVALID" }],
+          },
+        },
+      });
+
+      await expect(
+        client.cards.issueForApplicationWithOnDemandFunding({
+          applicationId: "app_1",
+          sourceFinancialAccountId: "fa_funding",
+          options: { activateOnCreate: true, expirationDate: "2028-12-31T00:00:00Z" },
+        }),
+      ).rejects.toThrow(HighnoteUserError);
+    });
+
+    it("throws HighnoteUnexpectedResponseError on unknown __typename", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: { issuePaymentCardForApplicationWithOnDemandFundingSource: { __typename: "Other" } },
+      });
+
+      await expect(
+        client.cards.issueForApplicationWithOnDemandFunding({
+          applicationId: "app_1",
+          sourceFinancialAccountId: "fa_funding",
+          options: { activateOnCreate: true, expirationDate: "2028-12-31T00:00:00Z" },
+        }),
+      ).rejects.toThrow(/Unexpected response/);
+    });
+  });
 });

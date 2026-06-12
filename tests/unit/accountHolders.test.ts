@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Highnote } from "../../src/client.js";
 import { HighnoteUserError, HighnoteUnexpectedResponseError } from "../../src/errors.js";
+import type { AccountHolderFinancialAccountSummary } from "../../src/resources/accountHolders.js";
+import { FinancialAccountFeatureType } from "../../src/generated/graphql.js";
 
 const { mockRawRequest, MockGraphQLClient } = vi.hoisted(() => {
   const mockRawRequest = vi.fn();
@@ -305,6 +307,215 @@ describe("AccountHoldersResource", () => {
         expect.any(String),
         expect.objectContaining({ filterBy }),
       );
+    });
+  });
+
+  describe("createMinimalUSBusiness()", () => {
+    it("returns a USBusinessAccountHolder on success", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          createMinimalUSBusinessAccountHolder: {
+            __typename: "USBusinessAccountHolder",
+            id: "ah_biz_123",
+            externalId: "ext_abc",
+            createdAt: "2026-01-01T00:00:00Z",
+          },
+        },
+      });
+
+      const holder = await client.accountHolders.createMinimalUSBusiness({
+        businessProfile: {
+          businessName: "Acme Co",
+          businessType: "CORPORATION",
+        } as any,
+      });
+
+      expect(holder.id).toBe("ah_biz_123");
+      expect(holder.__typename).toBe("USBusinessAccountHolder");
+    });
+
+    it("throws HighnoteUserError on validation failure", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          createMinimalUSBusinessAccountHolder: {
+            __typename: "UserError",
+            errors: [{ code: "INVALID", description: "Missing field" }],
+          },
+        },
+      });
+
+      await expect(
+        client.accountHolders.createMinimalUSBusiness({ businessProfile: {} as any }),
+      ).rejects.toThrow(HighnoteUserError);
+    });
+
+    it("throws HighnoteUnexpectedResponseError on unknown __typename", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: { createMinimalUSBusinessAccountHolder: { __typename: "Other" } },
+      });
+
+      await expect(
+        client.accountHolders.createMinimalUSBusiness({ businessProfile: {} as any }),
+      ).rejects.toThrow(/Unexpected response/);
+    });
+  });
+
+  describe("createUSBusiness()", () => {
+    it("returns a USBusinessAccountHolder on success", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          createUSBusinessAccountHolder: {
+            __typename: "USBusinessAccountHolder",
+            id: "ah_biz_456",
+            externalId: null,
+            createdAt: "2026-01-01T00:00:00Z",
+          },
+        },
+      });
+
+      const holder = await client.accountHolders.createUSBusiness({
+        businessProfile: {} as any,
+        authorizedPersons: [],
+        ultimateBeneficialOwners: [],
+      } as any);
+
+      expect(holder.id).toBe("ah_biz_456");
+      expect(holder.__typename).toBe("USBusinessAccountHolder");
+    });
+
+    it("throws HighnoteUserError on validation failure", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          createUSBusinessAccountHolder: {
+            __typename: "UserError",
+            errors: [{ code: "INVALID" }],
+          },
+        },
+      });
+
+      await expect(
+        client.accountHolders.createUSBusiness({} as any),
+      ).rejects.toThrow(HighnoteUserError);
+    });
+
+    it("throws HighnoteUnexpectedResponseError on unknown __typename", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: { createUSBusinessAccountHolder: { __typename: "Other" } },
+      });
+
+      await expect(
+        client.accountHolders.createUSBusiness({} as any),
+      ).rejects.toThrow(/Unexpected response/);
+    });
+  });
+
+  describe("listFinancialAccounts()", () => {
+    const summary = (id: string) => ({
+      id,
+      name: `FA ${id}`,
+      createdAt: "2026-01-01T00:00:00Z",
+      updatedAt: "2026-01-01T00:00:00Z",
+      features: [],
+      ledgers: [],
+    });
+
+    it("dispatches on USPersonAccountHolder.financialAccounts", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          node: {
+            __typename: "USPersonAccountHolder",
+            financialAccounts: {
+              pageInfo: { hasNextPage: false, endCursor: "" },
+              edges: [{ node: summary("fa_1") }],
+            },
+          },
+        },
+      });
+
+      const accounts: AccountHolderFinancialAccountSummary[] = [];
+      for await (const fa of client.accountHolders.listFinancialAccounts("ah_person_1")) {
+        accounts.push(fa);
+      }
+      expect(accounts).toHaveLength(1);
+      expect(accounts[0].id).toBe("fa_1");
+    });
+
+    it("dispatches on USBusinessAccountHolder.financialAccounts", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          node: {
+            __typename: "USBusinessAccountHolder",
+            financialAccounts: {
+              pageInfo: { hasNextPage: false, endCursor: "" },
+              edges: [{ node: summary("fa_2") }],
+            },
+          },
+        },
+      });
+
+      const accounts: AccountHolderFinancialAccountSummary[] = [];
+      for await (const fa of client.accountHolders.listFinancialAccounts("ah_biz_1")) {
+        accounts.push(fa);
+      }
+      expect(accounts).toHaveLength(1);
+      expect(accounts[0].id).toBe("fa_2");
+    });
+
+    it("dispatches on Organization.accounts", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          node: {
+            __typename: "Organization",
+            accounts: {
+              pageInfo: { hasNextPage: false, endCursor: "" },
+              edges: [{ node: summary("fa_3") }],
+            },
+          },
+        },
+      });
+
+      const accounts: AccountHolderFinancialAccountSummary[] = [];
+      for await (const fa of client.accountHolders.listFinancialAccounts("og_1")) {
+        accounts.push(fa);
+      }
+      expect(accounts).toHaveLength(1);
+      expect(accounts[0].id).toBe("fa_3");
+    });
+
+    it("forwards filterBy to the query variables", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: {
+          node: {
+            __typename: "Organization",
+            accounts: { pageInfo: { hasNextPage: false, endCursor: "" }, edges: [] },
+          },
+        },
+      });
+
+      const iter = client.accountHolders.listFinancialAccounts("og_1", {
+        filterBy: { features: { includes: [FinancialAccountFeatureType.CARD_FUNDING_ACCOUNT] } },
+      });
+      for await (const _ of iter) {
+        // exhaust
+      }
+
+      const variables = mockRawRequest.mock.calls[0][1];
+      expect(variables.filterBy).toEqual({
+        features: { includes: [FinancialAccountFeatureType.CARD_FUNDING_ACCOUNT] },
+      });
+    });
+
+    it("throws HighnoteUnexpectedResponseError when the node isn't an account-holder type", async () => {
+      mockRawRequest.mockResolvedValueOnce({
+        data: { node: { __typename: "PaymentCard" } },
+      });
+
+      const iter = client.accountHolders.listFinancialAccounts("pc_1");
+      await expect(async () => {
+        for await (const _ of iter) {
+          // should throw on first iteration
+        }
+      }).rejects.toThrow(/Unexpected response/);
     });
   });
 });

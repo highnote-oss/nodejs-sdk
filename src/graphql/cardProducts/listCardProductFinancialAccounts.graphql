@@ -1,0 +1,16 @@
+query ListCardProductFinancialAccounts(
+  $id: ID!
+  $first: Int = 20
+  $after: String
+  $filterBy: AccountHolderFinancialAccountsFilterInput
+) {
+  node(id: $id) {
+    __typename
+    ... on CardProduct {
+      accounts(first: $first, after: $after, filterBy: $filterBy) {
+        pageInfo { hasNextPage endCursor }
+        edges { node { ...FinancialAccountSummary } }
+      }
+    }
+  }
+}

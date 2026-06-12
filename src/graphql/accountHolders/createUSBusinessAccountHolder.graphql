@@ -1,0 +1,22 @@
+mutation CreateUSBusinessAccountHolder($input: CreateUSBusinessAccountHolderInput!) {
+  createUSBusinessAccountHolder(input: $input) {
+    ... on USBusinessAccountHolder {
+      __typename
+      id
+      externalId
+      createdAt
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

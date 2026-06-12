@@ -1,0 +1,28 @@
+query ListAccountHolderFinancialAccounts(
+  $id: ID!
+  $first: Int = 20
+  $after: String
+  $filterBy: AccountHolderFinancialAccountsFilterInput
+) {
+  node(id: $id) {
+    __typename
+    ... on USPersonAccountHolder {
+      financialAccounts(first: $first, after: $after, filterBy: $filterBy) {
+        pageInfo { hasNextPage endCursor }
+        edges { node { ...FinancialAccountSummary } }
+      }
+    }
+    ... on USBusinessAccountHolder {
+      financialAccounts(first: $first, after: $after, filterBy: $filterBy) {
+        pageInfo { hasNextPage endCursor }
+        edges { node { ...FinancialAccountSummary } }
+      }
+    }
+    ... on Organization {
+      accounts(first: $first, after: $after, filterBy: $filterBy) {
+        pageInfo { hasNextPage endCursor }
+        edges { node { ...FinancialAccountSummary } }
+      }
+    }
+  }
+}

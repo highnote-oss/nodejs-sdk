@@ -1,0 +1,36 @@
+mutation IssuePaymentCardForApplicationWithOnDemandFundingSource(
+  $input: IssuePaymentCardForApplicationWithOnDemandFundingSourceInput!
+) {
+  issuePaymentCardForApplicationWithOnDemandFundingSource(input: $input) {
+    ... on PaymentCard {
+      __typename
+      id
+      bin
+      last4
+      network
+      status
+      formFactor
+      expirationDate
+      expirationMonth
+      expirationYear
+      externalId
+      financialAccounts {
+        __typename
+        id
+        name
+      }
+    }
+    ... on UserError {
+      __typename
+      errors {
+        code
+        errorPath
+        description
+      }
+    }
+    ... on AccessDeniedError {
+      __typename
+      message
+    }
+  }
+}

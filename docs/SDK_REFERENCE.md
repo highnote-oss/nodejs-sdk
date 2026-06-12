@@ -16,6 +16,209 @@
 
 ### client.accountHolders
 
+#### `createMinimalUSBusiness(input)`
+
+Create a US business account holder with the minimal required profile.
+Use this when you intend to fill in additional fields via subsequent
+update mutations.
+
+**Parameters**
+
+- `input.businessProfile.billingAddress` (AddressInput, optional) — The business' U.S. billing address.
+
+  Exactly one of `billingAddress` or `billingAddressToken` must be provided.
+- `input.businessProfile.billingAddressToken` (string, optional) — A token representing the business' U.S. billing address.
+
+  Exactly one of `billingAddress` or `billingAddressToken` must be provided.
+- `input.businessProfile.businessCreditRiskAttributes` (BusinessCreditRiskAttributesInput, optional) — The business' credit risk attributes. Only used for unsecured credit applications.
+- `input.businessProfile.businessDescription` (string, optional) — A short description of what the business does, its purpose, and the products or services it provides.
+
+  Max length: 140 characters.
+  Min length: 1 character.
+  Input Regex Validation: `^[a-zA-Z\d$ ',.\-\_!@#$%^&*+=`?"\n]+$`
+- `input.businessProfile.businessType` (BusinessStructure, **required**) — Type of business.
+- `input.businessProfile.identificationDocument` (UsBusinessIdentificationDocumentInput, optional) — Business identification document such as employer identification number in USA.
+
+  A business identification document is not required for SOLE_PROPRIETORSHIP.
+
+  Highnote recommends passing an identification document when available to streamline the onboarding and future product approval processes.
+- `input.businessProfile.legalAddress` (AddressInput, optional) — The address supplied for the business' registration.
+  Supplying the address associated with the business primary SOS filing location is recommended.
+
+  **Note**:  Depending on the product that the Account Holder is applying for, the legal entity address may be required.
+  During your implementation review, requirements around conditionally mandatory fields will be outlined.
+- `input.businessProfile.name.doingBusinessAsName` (string, optional) — The business' doing business as name.
+
+  **Minimum length:** 1 character
+  **Maximum length:** 255 characters
+- `input.businessProfile.name.legalBusinessName` (string, **required**) — The business' legal name.
+  **Minimum length:** 1 character
+  **Maximum length:** 255 characters
+- `input.businessProfile.phoneNumber` (PhoneInput, optional) — The primary phone number for this business.
+- `input.businessProfile.ultimateBeneficialOwners` (MinimalUsUltimateBeneficialOwnerInput[], optional) — Ultimate beneficial owners of business information
+- `input.businessProfile.website` (string, optional) — Business website URL.
+
+  The validation for the `website` URL uses the following regex pattern `^((((https?|ftps?|gopher|telnet|nntp)://)|(mailto:|news:))(%[0-9A-Fa-f]{2}|[-()_.!~*';/?:@&=+$,A-Za-z0-9])+)([).!';/?:,][[:blank:|:blank:]])?$`
+- `input.externalId` (string, optional) — An ID representing this account holder in an external system. Provide this field if you create identifiers for this business that you would like us to store for easy access to their information.
+- `input.idempotencyKey` (string, **required**) — The idempotency key for this request.
+
+  This is a random string such as UUIDv4 used to uniquely identify requests.
+
+  If a request with the same `IdempotencyKey` is received multiple times, only the first request will be processed. Subsequent requests will return the same response as the first request.
+
+  [See this link for more](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))
+
+  Minimum length: 5 characters
+  Maximum length: 255 characters
+- `input.primaryAuthorizedPerson.authorizingPersonTitle` (BusinessTitle, optional) — Authorized person's title.
+- `input.primaryAuthorizedPerson.dateOfBirth` (string, **required**) — Date of birth in YYYY-MM-DD format.
+  **Minimum age:** 18 years. **Maximum age:** 100 years, in place to combat fraud and potential elder financial abuse.
+- `input.primaryAuthorizedPerson.email` (string, optional) — The authorized person's e-mail address.
+
+  **Note:** Highnote does not verify the e-mail address.
+- `input.primaryAuthorizedPerson.homeAddress` (AddressInput, optional) — The authorized person's U.S. physical address.
+
+  Provide either `homeAddress` or `homeAddressToken`, but not both.
+- `input.primaryAuthorizedPerson.homeAddressToken` (string, optional) — A token representing the authorized person's U.S. physical address.
+
+  Provide either `homeAddress` or `homeAddressToken`, but not both.
+- `input.primaryAuthorizedPerson.identificationDocument` (UsIdentificationDocumentInput, optional) — The identification document used to verify the authorized person.
+- `input.primaryAuthorizedPerson.name.familyName` (string, **required**) — Part of a personal name that identifies a family, tribe, or community.
+
+  **Minimum length:** 2 characters
+  **Maximum length:** 255 characters
+  **Allowed characters:** Lower and upper case Latin letters (without [diacritical marks](https://en.wikipedia.org/wiki/Diacritic)) and any of: ''', ',', '.', ' ','-'
+- `input.primaryAuthorizedPerson.name.givenName` (string, **required**) — The part of the name that identifies a person.
+
+  **Minimum length:** 1 character
+  **Maximum length:** 255 characters
+  **Allowed characters:** Lower and upper case Latin letters (without [diacritical marks](https://en.wikipedia.org/wiki/Diacritic)) and any of: ''', ',', '.', ' ','-'
+- `input.primaryAuthorizedPerson.name.middleName` (string, optional) — Additional part of name that identifies a person.
+
+  **Minimum length:** 1 character
+  **Maximum length:** 255 characters
+  **Allowed characters:** Lower and upper case Latin letters (without [diacritical marks](https://en.wikipedia.org/wiki/Diacritic)) and any of: ''', ',', '.', ' ','-'
+- `input.primaryAuthorizedPerson.name.suffix` (string, optional) — Provides additional information about the person (e.g. Jr., Sr.)
+- `input.primaryAuthorizedPerson.name.title` (string, optional) — One or more words used before the person's name (e.g. Mx., Dr.).
+- `input.primaryAuthorizedPerson.percentageOwnership` (number, optional) — Percentage ownership of this authorized person in business if any.
+- `input.primaryAuthorizedPerson.phoneNumber` (PhoneInput, optional) — The primary phone number for this authorized person.
+
+**Returns** `USBusinessAccountHolder` — fields: `createdAt`, `externalId`, `id`.
+
+**Throws** `HighnoteUserError`, `HighnoteAccessDeniedError`, `HighnoteUnexpectedResponseError`.
+
+**Example**
+
+```ts
+const holder = await client.accountHolders.createMinimalUSBusiness({
+  businessProfile: { ... },
+});
+```
+
+#### `createUSBusiness(input)`
+
+Create a US business account holder with the full profile and onboarding details
+(authorized persons, ultimate beneficial owners, credit risk attributes).
+
+**Parameters**
+
+- `input.businessProfile.billingAddress` (AddressInput, optional) — The business' U.S. billing address.
+
+  Exactly one of `billingAddress` or `billingAddressToken` must be provided.
+- `input.businessProfile.billingAddressToken` (string, optional) — A token representing the business' U.S. billing address.
+
+  Exactly one of `billingAddress` or `billingAddressToken` must be provided.
+- `input.businessProfile.businessCreditRiskAttributes` (BusinessCreditRiskAttributesInput, optional) — The business' credit risk attributes. Only used for unsecured credit applications.
+- `input.businessProfile.businessDescription` (string, optional) — A short description of what the business does, its purpose, and the products or services it provides.
+
+  Max length: 140 characters.
+  Min length: 1 character.
+  Input Regex Validation: `^[a-zA-Z\d$ ',.\-\_!@#$%^&*+=`?"\n]+$`
+- `input.businessProfile.businessPlanAttributes` (BusinessPlanAttributeInput[], optional) — Business plan indicator attributes for this business.
+- `input.businessProfile.businessType` (BusinessStructure, **required**) — Type of business.
+- `input.businessProfile.creditRiskAttributes` (CreditRiskAttributesInput, optional) — The business' credit risk attributes. Only used for unsecured credit applications.
+  ***Note** This attribute is deprecated and will be removed in a future release. Please use `businessCreditRiskAttributes`.
+- `input.businessProfile.identificationDocument` (UsBusinessIdentificationDocumentInput, optional) — Business identification document such as employer identification number in USA.
+
+  A business identification document is not required for SOLE_PROPRIETORSHIP.
+
+  Highnote recommends passing an identification document when available to streamline the onboarding and future product approval processes.
+- `input.businessProfile.legalAddress` (AddressInput, optional) — The address supplied for the business' registration.
+  Supplying the address associated with the business primary SOS filing location is recommended.
+
+  **Note**:  Depending on the product that the Account Holder is applying for, the legal entity address may be required.
+  During your implementation review, requirements around conditionally mandatory fields will be outlined.
+- `input.businessProfile.name.doingBusinessAsName` (string, optional) — The business' doing business as name.
+
+  **Minimum length:** 1 character
+  **Maximum length:** 255 characters
+- `input.businessProfile.name.legalBusinessName` (string, **required**) — The business' legal name.
+  **Minimum length:** 1 character
+  **Maximum length:** 255 characters
+- `input.businessProfile.phoneNumber.countryCode` (string, **required**) — The assigned country code for the number.
+- `input.businessProfile.phoneNumber.extension` (string, optional) — A number representing a specific phone on the same number as the main line.
+- `input.businessProfile.phoneNumber.label` (PhoneLabel, **required**) — A classification for the type of the device the phone number is attached or how the phone number is used (e.g. home or work)
+- `input.businessProfile.phoneNumber.number` (string, **required**) — The phone number in a country specific format.
+- `input.businessProfile.ultimateBeneficialOwners` (UsUltimateBeneficialOwnerInput[], optional) — Ultimate beneficial owners of business information
+- `input.businessProfile.website` (string, optional) — Business website URL.
+
+  The validation for the `website` URL uses the following regex pattern `^((((https?|ftps?|gopher|telnet|nntp)://)|(mailto:|news:))(%[0-9A-Fa-f]{2}|[-()_.!~*';/?:@&=+$,A-Za-z0-9])+)([).!';/?:,][[:blank:|:blank:]])?$`
+- `input.externalId` (string, optional) — An ID representing this account holder in an external system. Provide this field if you create identifiers for this business that you would like us to store for easy access to their information.
+  **Maximum length:** 255 characters.
+
+  The validation for the `externalId` uses the following regex pattern `^([a-zA-Z\d[\s][_][=][,][-][.][^;]])+$`.
+- `input.primaryAuthorizedPerson.authorizingPersonTitle` (BusinessTitle, optional) — Authorized person's title.
+- `input.primaryAuthorizedPerson.dateOfBirth` (string, **required**) — Date of birth in YYYY-MM-DD format.
+  **Minimum age:** 18 years. **Maximum age:** 100 years, in place to combat fraud and potential elder financial abuse.
+- `input.primaryAuthorizedPerson.email` (string, **required**) — The authorized person's e-mail address.
+
+  **Note:** Highnote does not verify the e-mail address.
+- `input.primaryAuthorizedPerson.homeAddress` (AddressInput, optional) — The authorized person's U.S. physical address.
+
+  Exactly one of `homeAddress` or `homeAddressToken` must be provided.
+- `input.primaryAuthorizedPerson.homeAddressToken` (string, optional) — A token representing the authorized person's U.S. physical address.
+
+  Exactly one of `homeAddress` or `homeAddressToken` must be provided.
+- `input.primaryAuthorizedPerson.identificationDocument.socialSecurityNumber.countryCodeAlpha3` (string, **required**) — The three character country code of the issuing country.
+- `input.primaryAuthorizedPerson.identificationDocument.socialSecurityNumber.number` (string, **required**) — The full tax identification number.
+- `input.primaryAuthorizedPerson.identificationDocument.socialSecurityNumber.taxIdentificationNumberType` (TaxIdentificationNumberType, optional) — The type of tax identification number.
+- `input.primaryAuthorizedPerson.name.familyName` (string, **required**) — Part of a personal name that identifies a family, tribe, or community.
+
+  **Minimum length:** 2 characters
+  **Maximum length:** 255 characters
+  **Allowed characters:** Lower and upper case Latin letters (without [diacritical marks](https://en.wikipedia.org/wiki/Diacritic)) and any of: ''', ',', '.', ' ','-'
+- `input.primaryAuthorizedPerson.name.givenName` (string, **required**) — The part of the name that identifies a person.
+
+  **Minimum length:** 1 character
+  **Maximum length:** 255 characters
+  **Allowed characters:** Lower and upper case Latin letters (without [diacritical marks](https://en.wikipedia.org/wiki/Diacritic)) and any of: ''', ',', '.', ' ','-'
+- `input.primaryAuthorizedPerson.name.middleName` (string, optional) — Additional part of name that identifies a person.
+
+  **Minimum length:** 1 character
+  **Maximum length:** 255 characters
+  **Allowed characters:** Lower and upper case Latin letters (without [diacritical marks](https://en.wikipedia.org/wiki/Diacritic)) and any of: ''', ',', '.', ' ','-'
+- `input.primaryAuthorizedPerson.name.suffix` (string, optional) — Provides additional information about the person (e.g. Jr., Sr.)
+- `input.primaryAuthorizedPerson.name.title` (string, optional) — One or more words used before the person's name (e.g. Mx., Dr.).
+- `input.primaryAuthorizedPerson.percentageOwnership` (number, optional) — Percentage ownership of this authorized person in business if any.
+- `input.primaryAuthorizedPerson.phoneNumber.countryCode` (string, **required**) — The assigned country code for the number.
+- `input.primaryAuthorizedPerson.phoneNumber.extension` (string, optional) — A number representing a specific phone on the same number as the main line.
+- `input.primaryAuthorizedPerson.phoneNumber.label` (PhoneLabel, **required**) — A classification for the type of the device the phone number is attached or how the phone number is used (e.g. home or work)
+- `input.primaryAuthorizedPerson.phoneNumber.number` (string, **required**) — The phone number in a country specific format.
+
+**Returns** `USBusinessAccountHolder` — fields: `createdAt`, `externalId`, `id`.
+
+**Throws** `HighnoteUserError`, `HighnoteAccessDeniedError`, `HighnoteUnexpectedResponseError`.
+
+**Example**
+
+```ts
+const holder = await client.accountHolders.createUSBusiness({
+  businessProfile: { ... },
+  authorizedPersons: [...],
+  ultimateBeneficialOwners: [...],
+});
+```
+
 #### `createUSPerson(input)`
 
 Create a US person account holder.
@@ -105,6 +308,40 @@ List business account holders with auto-pagination.
 ```ts
 for await (const holder of client.accountHolders.listBusinesses()) {
   console.log(holder.id);
+}
+```
+
+#### `listFinancialAccounts(accountHolderId, options)`
+
+List the financial accounts owned by an account holder, auto-paginated.
+Dispatches across the `AccountHolder` union internally — works for
+`USPersonAccountHolder`, `USBusinessAccountHolder`, and `Organization` IDs.
+
+**Parameters**
+
+- `accountHolderId` (string, **required**)
+- `options.filterBy` (AccountHolderFinancialAccountsFilterInput, optional)
+- `options.pageSize` (number, optional)
+
+**Returns** `AsyncIterable<FinancialAccountSummaryFragment>`.
+
+**Throws** `HighnoteUserError`, `HighnoteAccessDeniedError`, `HighnoteUnexpectedResponseError`.
+
+**Example**
+
+```ts
+import { FinancialAccountFeatureType } from "@highnote-oss/nodejs-sdk";
+
+for await (const fa of client.accountHolders.listFinancialAccounts(
+  accountHolderId,
+  {
+    filterBy: {
+      features: { includes: [FinancialAccountFeatureType.CARD_FUNDING_ACCOUNT] },
+      cardProductId: { equals: cardProductId },
+    },
+  },
+)) {
+  console.log(fa.name);
 }
 ```
 
@@ -530,6 +767,42 @@ for await (const product of client.cardProducts.list()) {
 }
 ```
 
+#### `listFinancialAccounts(cardProductId, options)`
+
+Returns an async iterable over the financial accounts associated with a
+card product. This is the right entry point for org-scoped accounts such
+as the Product Funding Account (`ProductFundingFinancialAccountFeature`)
+which back ODF-enabled card products — those FAs do NOT appear under
+`accountHolders.listFinancialAccounts(<applicant's accountHolderId>)`,
+because they are owned by the issuer, not by the applicant.
+
+The optional `filterBy` accepts Highnote's search-query language:
+
+
+
+Pass no options to iterate every account on the product.
+
+**Parameters**
+
+- `cardProductId` (string, **required**)
+- `options.filterBy` (AccountHolderFinancialAccountsFilterInput, optional) — Optional Highnote search-language filter passed through to the API.
+- `options.pageSize` (number, optional) — Number of items per page. Defaults to client's defaultPageSize.
+
+**Returns** `AsyncIterable<FinancialAccountSummaryFragment>`.
+
+**Throws** `HighnoteUserError`, `HighnoteAccessDeniedError`, `HighnoteUnexpectedResponseError`.
+
+**Example**
+
+```ts
+for await (const fa of client.cardProducts.listFinancialAccounts(
+  cardProductId,
+  { filterBy: { searchQueryLanguage: { query: "", version: "VERSION_1" } } },
+)) {
+  console.log(fa.name, fa.features?.map((f) => f.__typename));
+}
+```
+
 ### client.cards
 
 #### `activate(input)`
@@ -668,6 +941,52 @@ const card = await client.cards.issue({
   financialAccountId: "fa_...",
   options: { activateOnCreate: true, expirationDate: "2028-12-31T00:00:00Z" },
 });
+```
+
+#### `issueForApplicationWithOnDemandFunding(input)`
+
+Issue a payment card AND open a new on-demand-funded FinancialAccount
+under the given approved application, in a single mutation. The new FA
+pulls from `sourceFinancialAccountId` at authorization time.
+
+Use this when each card needs its own backing FA (e.g. AP invoice
+automation: one card == one invoice == one FA).
+For issuing an additional card on an EXISTING FA, use `cards.issue()`.
+
+**Parameters**
+
+- `input.applicationId` (string, **required**) — The ID of the application to issue this `PaymentCard` against.
+
+  **Note:** The Application must be APPROVED.
+- `input.customFields` (CustomFieldInput[], optional) — The `CustomFields` for the `PaymentCard`.
+- `input.externalId` (string, optional) — Externally provided ID (255 character limit) that is unique per organization and tenant. If not provided, Highnote will generate an ID (ten digit, Base58, all caps).
+- `input.idempotencyKey` (string, optional) — The idempotency key for this request.
+
+  This is a UUIDv4 string used to uniquely identify requests.
+
+  If a request with the same `IdempotencyKey` is received multiple times, only the first request will be processed. Subsequent requests will return the same response as the first request.
+
+  [See this link for more](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))
+- `input.options.activateOnCreate` (boolean, **required**) — Whether or not to activate the card when created. If **not** activated on creation, the card must be activated separately before use.
+- `input.options.cardProfileSetId` (string, optional) — The card profile set containing the card profile to use for the newly issued Payment Card.
+- `input.options.expirationDate` (string, **required**) — The exact date and time the payment card will expire. e.g. 2026-01-01T23:59:59Z
+- `input.options.externalId` (string, optional) — Externally provided ID (255 character limit) that is unique per organization and tenant. If not provided, Highnote will generate an ID (ten digit, Base58, all caps).
+- `input.sourceFinancialAccountId` (string, **required**) — The source `FinancialAccount` that will act as the on-demand funding source for this `PaymentCard`.
+
+**Returns** `PaymentCard` — fields: `bin`, `expirationDate`, `expirationMonth`, `expirationYear`, `externalId`, `financialAccounts`, `formFactor`, `id`, `last4`, `network`, `status`.
+
+**Throws** `HighnoteUserError`, `HighnoteAccessDeniedError`, `HighnoteUnexpectedResponseError`.
+
+**Example**
+
+```ts
+const card = await client.cards.issueForApplicationWithOnDemandFunding({
+  applicationId: "app_...",
+  sourceFinancialAccountId: "fa_program_funding",
+  options: { activateOnCreate: true, expirationDate: "2028-12-31T00:00:00Z" },
+  idempotencyKey: invoice.id,
+});
+const newFinancialAccountId = card.financialAccounts?.[0]?.id;
 ```
 
 #### `orderPhysical(input)`
@@ -1033,7 +1352,7 @@ Add a collaborative authorization endpoint.
 
   Example: `https://mywebhook.com`
 
-**Returns** `CollaborativeAuthorizationEndpoint` — fields: `createdAt`, `id`, `name`, `status`, `updatedAt`, `uri`.
+**Returns** `CollaborativeAuthorizationEndpoint` — fields: `createdAt`, `id`, `name`, `signingKeys`, `status`, `updatedAt`, `uri`.
 
 **Throws** `HighnoteUserError`, `HighnoteAccessDeniedError`, `HighnoteUnexpectedResponseError`.
 
@@ -1062,6 +1381,71 @@ Deactivate a collaborative authorization endpoint.
 
 ```ts
 await client.collaborativeAuth.deactivateEndpoint({ endpointId: "cae_..." });
+```
+
+#### `list(options)`
+
+Async-iterate every registered collaborative-authorization endpoint on the
+caller's organization.
+
+Pages are fetched lazily — break out of the loop to stop fetching.
+
+**Parameters**
+
+- `options.pageSize` (number, optional) — Number of items per page. Defaults to the client's `defaultPageSize`.
+
+**Returns** `AsyncIterable<object>`.
+
+**Throws** `HighnoteUserError`, `HighnoteAccessDeniedError`, `HighnoteUnexpectedResponseError`.
+
+**Example**
+
+```ts
+for await (const ep of client.collaborativeAuth.list()) {
+  console.log(ep.name, ep.status);
+}
+```
+
+#### `removeEndpoint(input)`
+
+Remove a collaborative authorization endpoint permanently.
+
+**Parameters**
+
+- `input.endpointId` (string, **required**) — The Global ID of the `CollaborativeAuthorizationEndpoint` to remove.
+
+**Returns** `CollaborativeAuthorizationEndpoint` — fields: `createdAt`, `id`, `name`, `status`, `updatedAt`, `uri`.
+
+**Throws** `HighnoteUserError`, `HighnoteAccessDeniedError`, `HighnoteUnexpectedResponseError`.
+
+**Example**
+
+```ts
+await client.collaborativeAuth.removeEndpoint({ endpointId: "cae_..." });
+```
+
+#### `renameEndpoint(input)`
+
+Rename a collaborative authorization endpoint.
+
+**Parameters**
+
+- `input.endpointId` (string, **required**) — The Global ID of the `CollaborativeAuthorizationEndpoint` to rename.
+- `input.name` (string, **required**) — The new, human-friendly name for your `CollaborativeAuthorizationEndpoint`.
+
+  This value can contain any characters but cannot exceed a length of 255.
+
+**Returns** `CollaborativeAuthorizationEndpoint` — fields: `createdAt`, `id`, `name`, `status`, `updatedAt`, `uri`.
+
+**Throws** `HighnoteUserError`, `HighnoteAccessDeniedError`, `HighnoteUnexpectedResponseError`.
+
+**Example**
+
+```ts
+await client.collaborativeAuth.renameEndpoint({
+  endpointId: "cae_...",
+  name: "Production AP automation endpoint",
+});
 ```
 
 ### client.digitalWallets
@@ -11135,6 +11519,8 @@ The edge type for an `AccountHolder`.
 
 Inputs for filtering business account holder data.
 
+### `AccountHolderFinancialAccountSummary`
+
 ### `AccountHolderIdentityRiskScore`
 
 Interface representing the common fields related to an account holder's identity risk score
@@ -12934,6 +13320,13 @@ A shared configuration for a group of cards.
 
 A shared configuration for a group of cards.
 
+### `CardProductFinancialAccountSummary`
+
+A financial account as returned by `cardProducts.listFinancialAccounts`.
+Matches the shared `FinancialAccountSummary` fragment used by the
+`accountHolders.listFinancialAccounts` query, so consumers can compare
+results from either listing without re-narrowing the shape.
+
 ### `CardProductGroupOrdersArgs`
 
 A shared configuration for a group of cards.
@@ -13258,6 +13651,12 @@ The connection type for `CollaborativeAuthorizationEndpoints`.
 ### `CollaborativeAuthorizationEndpointEdge`
 
 The edge type for `CollaborativeAuthorizationEndpoints`.
+
+### `CollaborativeAuthorizationEndpointNode`
+
+The canonical shape of a `CollaborativeAuthorizationEndpoint` yielded by
+`list()`. Useful as a parameter type when writing helpers that operate on
+endpoints.
 
 ### `CommercialChargeCardFinancialAccountStatement`
 
@@ -13735,6 +14134,10 @@ The return types when creating a new merchant identifier rule.
 
 The input for creating a minimal `USBusinessAccountHolder`
 
+### `CreateMinimalUsBusinessAccountHolderMutation`
+
+### `CreateMinimalUsBusinessAccountHolderMutationVariables`
+
 ### `CreateMinimalUsBusinessAccountHolderPayload`
 
 Response type for creating a minimal `USBusinessAccountHolder`.
@@ -13907,6 +14310,10 @@ User error paths returned match paths for `CreateUSBusinessAccountHolderInput`.
 ### `CreateUsBusinessAccountHolderInput`
 
 Input fields for creating a USBusinessAccountHolder.
+
+### `CreateUsBusinessAccountHolderMutation`
+
+### `CreateUsBusinessAccountHolderMutationVariables`
 
 ### `CreateUsBusinessAccountHolderPayload`
 
@@ -15552,6 +15959,8 @@ Interface for a FinancialAccountStatementSnapshot.
 
 Interface for a Statement for a Financial Account.
 
+### `FinancialAccountSummaryFragment`
+
 ### `FinancialAccountTransactionEventsArgs`
 
 A financial account allows you to move money into the Highnote platform and move funds to other accounts.
@@ -16430,6 +16839,10 @@ The return types when creating a new Payment Card against an Application.
 
 Details for issuing a `PaymentCard` against an on-demand funding source.
 
+### `IssuePaymentCardForApplicationWithOnDemandFundingSourceMutation`
+
+### `IssuePaymentCardForApplicationWithOnDemandFundingSourceMutationVariables`
+
 ### `IssuePaymentCardForApplicationWithOnDemandFundingSourcePayload`
 
 The return types when creating a new `PaymentCard` with an on-demand funding source.
@@ -16534,13 +16947,25 @@ A reason for the external bank account linking failure.
 
 Input for linking an account holder with a verified external bank account
 
+### `ListAccountHolderFinancialAccountsQuery`
+
+### `ListAccountHolderFinancialAccountsQueryVariables`
+
 ### `ListBusinessAccountHoldersQuery`
 
 ### `ListBusinessAccountHoldersQueryVariables`
 
+### `ListCardProductFinancialAccountsQuery`
+
+### `ListCardProductFinancialAccountsQueryVariables`
+
 ### `ListCardProductsQuery`
 
 ### `ListCardProductsQueryVariables`
+
+### `ListCollaborativeAuthorizationEndpointsQuery`
+
+### `ListCollaborativeAuthorizationEndpointsQueryVariables`
 
 ### `ListPaymentTransactionsQuery`
 
@@ -20084,6 +20509,10 @@ The return types when creating a new Payment Card based on an existing card.
 
 The input to remove a `CollaborativeAuthorizationEndpoint`.
 
+### `RemoveCollaborativeAuthorizationEndpointMutation`
+
+### `RemoveCollaborativeAuthorizationEndpointMutationVariables`
+
 ### `RemoveCollaborativeAuthorizationEndpointPayload`
 
 The return types when removing a `CollaborativeAuthorizationEndpoint`.
@@ -20135,6 +20564,10 @@ The possible return types of `removeUser`.
 ### `RenameCollaborativeAuthorizationEndpointInput`
 
 The input to rename a `CollaborativeAuthorizationEndpoint`.
+
+### `RenameCollaborativeAuthorizationEndpointMutation`
+
+### `RenameCollaborativeAuthorizationEndpointMutationVariables`
 
 ### `RenameCollaborativeAuthorizationEndpointPayload`
 

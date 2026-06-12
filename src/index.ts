@@ -12,13 +12,19 @@ export type {
   ListBusinessAccountHoldersOptions,
   SearchPersonAccountHoldersOptions,
   SearchBusinessAccountHoldersOptions,
+  AccountHolderFinancialAccountSummary,
+  ListAccountHolderFinancialAccountsOptions,
 } from "./resources/accountHolders.js";
 export type { Application } from "./resources/applications.js";
 export type { AchTransfer, OneTimeAchTransfer, RecurringAchTransfer, CancelledTransfer } from "./resources/ach.js";
 export type { AddressValidationResult } from "./resources/addresses.js";
 export type { PaymentCard, PhysicalPaymentCardOrder } from "./resources/cards.js";
 export type { ClientToken } from "./resources/clientTokens.js";
-export type { CollaborativeAuthorizationEndpoint } from "./resources/collaborativeAuth.js";
+export type {
+  CollaborativeAuthorizationEndpoint,
+  CollaborativeAuthorizationEndpointNode,
+  ListCollaborativeAuthorizationEndpointsOptions,
+} from "./resources/collaborativeAuth.js";
 export type { ApplePayProvisioning, GooglePayProvisioning } from "./resources/digitalWallets.js";
 export type { Dispute } from "./resources/disputes.js";
 export type { DocumentUploadSession, DocumentUploadLink } from "./resources/documents.js";
@@ -45,13 +51,18 @@ export {
   CardFormFactor,
   ElectronicFundTransferSource,
   CollaborativeAuthorizationEndpointStatus,
+  CollaborativeAuthorizationResponseCode,
   DocumentType,
   DocumentUploadClientTokenPermission,
   DocumentUploadSessionStatusCode,
+  FinancialAccountFeatureType,
   FinancialAccountStatus,
   FinancialAccountSuspensionReasonInput,
   GeneratePaymentMethodTokenizationClientTokenPermission,
   InterFinancialAccountTransferStatus,
+  Iso3166Alpha3Country,
+  Iso4217Alpha3SupportedCurrency,
+  MerchantCategory,
   NotificationEventName,
   NotificationTargetStatus,
   PaymentCardChargebackStatus,
@@ -90,3 +101,10 @@ export type {
   VerifyWebhookSignatureResult,
   WebhookEvent,
 } from "./webhookVerification.js";
+export { verifyCollaborativeAuthSignature } from "./collaborativeAuthVerification.js";
+export type {
+  VerifyCollaborativeAuthSignatureInput,
+  VerifyCollaborativeAuthSignatureResult,
+  CollaborativeAuthRequest,
+  CollaborativeAuthResponse,
+} from "./collaborativeAuthVerification.js";

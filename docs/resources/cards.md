@@ -138,6 +138,52 @@ const card = await client.cards.issue({
 });
 ```
 
+#### `issueForApplicationWithOnDemandFunding(input)`
+
+Issue a payment card AND open a new on-demand-funded FinancialAccount
+under the given approved application, in a single mutation. The new FA
+pulls from `sourceFinancialAccountId` at authorization time.
+
+Use this when each card needs its own backing FA (e.g. AP invoice
+automation: one card == one invoice == one FA).
+For issuing an additional card on an EXISTING FA, use `cards.issue()`.
+
+**Parameters**
+
+- `input.applicationId` (string, **required**) — The ID of the application to issue this `PaymentCard` against.
+
+  **Note:** The Application must be APPROVED.
+- `input.customFields` (CustomFieldInput[], optional) — The `CustomFields` for the `PaymentCard`.
+- `input.externalId` (string, optional) — Externally provided ID (255 character limit) that is unique per organization and tenant. If not provided, Highnote will generate an ID (ten digit, Base58, all caps).
+- `input.idempotencyKey` (string, optional) — The idempotency key for this request.
+
+  This is a UUIDv4 string used to uniquely identify requests.
+
+  If a request with the same `IdempotencyKey` is received multiple times, only the first request will be processed. Subsequent requests will return the same response as the first request.
+
+  [See this link for more](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))
+- `input.options.activateOnCreate` (boolean, **required**) — Whether or not to activate the card when created. If **not** activated on creation, the card must be activated separately before use.
+- `input.options.cardProfileSetId` (string, optional) — The card profile set containing the card profile to use for the newly issued Payment Card.
+- `input.options.expirationDate` (string, **required**) — The exact date and time the payment card will expire. e.g. 2026-01-01T23:59:59Z
+- `input.options.externalId` (string, optional) — Externally provided ID (255 character limit) that is unique per organization and tenant. If not provided, Highnote will generate an ID (ten digit, Base58, all caps).
+- `input.sourceFinancialAccountId` (string, **required**) — The source `FinancialAccount` that will act as the on-demand funding source for this `PaymentCard`.
+
+**Returns** `PaymentCard` — fields: `bin`, `expirationDate`, `expirationMonth`, `expirationYear`, `externalId`, `financialAccounts`, `formFactor`, `id`, `last4`, `network`, `status`.
+
+**Throws** `HighnoteUserError`, `HighnoteAccessDeniedError`, `HighnoteUnexpectedResponseError`.
+
+**Example**
+
+```ts
+const card = await client.cards.issueForApplicationWithOnDemandFunding({
+  applicationId: "app_...",
+  sourceFinancialAccountId: "fa_program_funding",
+  options: { activateOnCreate: true, expirationDate: "2028-12-31T00:00:00Z" },
+  idempotencyKey: invoice.id,
+});
+const newFinancialAccountId = card.financialAccounts?.[0]?.id;
+```
+
 #### `orderPhysical(input)`
 
 Order a physical card for an existing payment card.

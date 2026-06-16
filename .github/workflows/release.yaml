@@ -25,6 +25,16 @@ jobs:
       id-token: write
 
     steps:
+      # Guardrail: this workflow is workflow_dispatch and can be triggered from
+      # any branch, which checks out and publishes THAT ref. A release was once
+      # cut from a feature branch this way, so npm and main fell out of sync.
+      # Refuse to run unless dispatched from the default branch.
+      - name: Enforce release from main
+        if: ${{ github.ref != 'refs/heads/main' }}
+        run: |
+          echo "::error::Releases must be dispatched from 'main' (got '${{ github.ref_name }}'). Merge to main and re-run the Release workflow from main."
+          exit 1
+
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0

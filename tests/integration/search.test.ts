@@ -90,7 +90,9 @@ describe("account holder search (integration)", () => {
     if (results.length > 0) {
       expect(results[0]).toHaveProperty("id");
       expect(results[0].__typename).toBe("USBusinessAccountHolder");
-      expect(results[0]).toHaveProperty("financialAccounts");
+      // listBusinesses returns core fields only (like listPersons) — the
+      // financialAccounts edge is not part of the list selection; use
+      // listAccountHolderFinancialAccounts for that.
     }
   }, 30_000);
 

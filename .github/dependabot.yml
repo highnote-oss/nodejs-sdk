@@ -3,20 +3,33 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     open-pull-requests-limit: 5
+    ignore:
+      # Skip patch-level churn on type stubs (e.g. @types/node). Minor
+      # bumps still come through.
+      - dependency-name: "@types/*"
+        update-types: ["version-update:semver-patch"]
     groups:
-      # Bundle non-major upgrades into a single PR so the SDK isn't
-      # buried in 10+ patch PRs every week. Majors stay separate so
-      # breaking changes get individual review.
+      # Batch security fixes (including transitive deps like markdown-it /
+      # js-yaml) into one PR. Security updates ignore the schedule interval
+      # and aren't caught by version-update groups, so they need their own.
+      security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+      # Bundle non-major version upgrades into a single PR so the SDK isn't
+      # buried in patch PRs. Majors stay separate so a breaking change in a
+      # published SDK gets individual review + its own release note.
       minor-and-patch:
+        applies-to: version-updates
         update-types:
           - "minor"
           - "patch"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     open-pull-requests-limit: 5
     groups:
       actions-minor-and-patch:

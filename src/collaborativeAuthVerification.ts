@@ -22,7 +22,7 @@ export interface CollaborativeAuthRequest {
       requestedAmount: { value: number; currencyCode: string };
       merchantDetails: {
         merchantId: string;
-        merchantCategoryCode: string;
+        categoryCode?: string;
         description?: string;
         countryCodeAlpha3?: string;
       };

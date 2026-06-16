@@ -17,7 +17,7 @@ function makeSignedPayload(secret: string, timestampMs: number): { raw: string; 
         requestedAmount: { value: 100, currencyCode: "USD" },
         merchantDetails: {
           merchantId: "m_1",
-          merchantCategoryCode: "5411",
+          categoryCode: "5411",
           description: "Acme",
           countryCodeAlpha3: "USA",
         },

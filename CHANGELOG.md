@@ -5,6 +5,11 @@ All notable changes to `@highnote-oss/nodejs-sdk` will be documented in this fil
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.1] — 2026-06-16
+
+### Fixed
+- `CollaborativeAuthRequest.merchantDetails`: the merchant category code field is now `categoryCode` (matching the collaborative-auth wire payload and the GraphQL `MerchantDetails` type). It was previously typed as `merchantCategoryCode` — a name that exists only on unrelated schema types and is absent from the CA payload — so it read back `undefined` at runtime and broke MCC-based authorization decisions. The field is now also optional, matching the schema's nullability.
+
 ## [0.2.0] — 2026-06-04
 
 ### Added

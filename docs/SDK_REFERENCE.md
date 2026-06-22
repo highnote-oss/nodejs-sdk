@@ -2728,6 +2728,7 @@ The hold type of an ACH.
 The purpose of the `AchTransfer`.
 
 - `DEPOSIT`
+- `INTRA_BANK_ACH_TRANSFER`
 - `MERCHANT_DISBURSEMENT`
 - `MERCHANT_PAYOUT`
 - `MERCHANT_PUSH_PAYMENT_FUNDING`
@@ -2941,14 +2942,6 @@ The Card Processing Network that will process a payment
 - `PAYROC_AMERICAN_EXPRESS`
 - `PULSE`
 - `VISA`
-
-### `AcquiringMerchantType`
-
-The classification of a `Merchant`.
-
-- `CONNECTED_SUB`
-- `DIRECT`
-- `MANAGED_SUB`
 
 ### `AcquiringPaymentCardBrand`
 
@@ -3334,6 +3327,20 @@ Describes conditions on how the business operates.
 - `FORWARD_COMMITMENT`
 - `PHYSICAL_GOODS_SOLD`
 - `SEASONAL_BUSINESS`
+
+### `BusinessRelationshipStatus`
+
+The status of a business relationship.
+
+- `ACTIVE`
+- `INACTIVE`
+
+### `BusinessRelationshipType`
+
+The type of a business relationship.
+
+- `CUSTOMER`
+- `PARTNER`
 
 ### `BusinessStructure`
 
@@ -4772,10 +4779,13 @@ Possible features of the Financial Accounts
 - `AUTHORIZED_USER`
 - `CARD_FUNDING_ACCOUNT`
 - `CREDIT_PAYMENT_CARD`
+- `CRYPTO_FUNDING`
+- `CRYPTO_RECEIVING`
 - `DEBIT_PAYMENT_CARD`
 - `DIRECT_DEPOSIT`
 - `INCOME_ACCOUNT`
 - `JUST_IN_TIME_FUNDING`
+- `MERCHANT_FUNDING`
 - `MERCHANT_SETTLEMENT`
 - `NEGATIVE_BALANCE_RESERVE`
 - `ON_DEMAND_FUNDING`
@@ -4978,6 +4988,17 @@ The frequency at which installment payments occur.
 
 - `MONTHLY`
 
+### `InstantNetworkTransferCapabilityDeclineReason`
+
+The reason an `InstantNetworkTransfer` payment instrument capability is in a
+non-`ENABLED` (`DISABLED` or `REQUIRES_REVIEW`) state. The list is empty when the
+capability `status` is `ENABLED`.
+
+- `BIN_REGION_NOT_SUPPORTED`
+- `CASE_DECISIONED_BY_OPS`
+- `NO_MONEY_TRANSFER_CAPABILITY`
+- `NOT_DEBIT_OR_PREPAID`
+
 ### `InstantNetworkTransferDestinationPaymentInstrumentCapabilityStatus`
 
 The possible statuses of the `InstantNetworkTransferDestinationPaymentInstrumentCapabilityStatus`
@@ -5117,6 +5138,8 @@ The status of a `InstantNetworkTransfer`.
 
 - `COMPLETED`
 - `FAILED`
+- `ON_HOLD_AWAITING_NETWORK`
+- `ON_HOLD_AWAITING_RESOLUTION`
 - `PENDING`
 
 ### `InstantSettlementTransactionEventType`
@@ -8013,7 +8036,9 @@ The Notification Events that can be triggered in the Highnote platform.
 - `INTERNAL_TRANSFER_FROM_PAYMENT_CARD_FINANCIAL_ACCOUNT_TO_FUNDING_FINANCIAL_ACCOUNT_COMPLETED`
 - `INTERNAL_TRANSFER_FROM_PAYMENT_CARD_FINANCIAL_ACCOUNT_TO_FUNDING_FINANCIAL_ACCOUNT_FAILED`
 - `INTERNAL_TRANSFER_FROM_PAYMENT_CARD_FINANCIAL_ACCOUNT_TO_FUNDING_FINANCIAL_ACCOUNT_PENDING`
+- `LINK_VERIFIED_EXTERNAL_BANK_ACCOUNT_EXPIRED`
 - `LINK_VERIFIED_EXTERNAL_BANK_ACCOUNT_FAILED`
+- `LINK_VERIFIED_EXTERNAL_BANK_ACCOUNT_VERIFICATION_REQUIRED`
 - `NON_ORIGINATED_ACH_TRANSFER_FAILED`
 - `NON_ORIGINATED_ACH_TRANSFER_PROCESSED`
 - `NON_ORIGINATED_ACH_TRANSFER_RECEIVED`
@@ -8123,6 +8148,7 @@ The Notification Events that can be triggered in the Highnote platform.
 - `UNIFIED_FUNDS_TRANSFER_FAILED_EVENT`
 - `UNIFIED_FUNDS_TRANSFER_INITIATED_EVENT`
 - `UPCOMING_STATEMENT_DUE_DATE`
+- `WIRE_TRANSFER_COMPLETED_EVENT`
 
 ### `NotificationTargetStatus`
 
@@ -8726,6 +8752,13 @@ Possible values for the `PaymentTransactionAddressCodeResponseCode` enum.
 - `SKIPPED`
 - `UNKNOWN`
 
+### `PaymentTransactionHoldReason`
+
+The reason a `PaymentTransaction` is in a held state.
+
+- `AWAITING_PROCESSOR_NETWORK_RESPONSE`
+- `PENDING_INTERNAL_RESOLUTION`
+
 ### `PaymentTransactionLifecycleStepStatus`
 
 The status of a `PaymentTransactionLifecycleStep`
@@ -8971,12 +9004,6 @@ Code representing the result of AVS postal code verification
 - `ZIP5_MATCH`
 - `ZIP9_MATCH`
 
-### `PricingConfigurationAttachmentEntityType`
-
-The type of entity a `PricingConfiguration` can be attached to.
-
-- `MERCHANT`
-
 ### `PricingPlanStatus`
 
 The lifecycle states for a `PricingPlan`.
@@ -9208,12 +9235,18 @@ Additional details regarding a `FAILED` reward points transfer.
 
 - `ACCOUNT_CLOSED`
 - `ACCOUNT_CURRENCY_MISMATCH`
+- `ACCOUNT_NOT_ACTIVE`
 - `ACCOUNT_NOT_FOUND`
 - `ACCOUNTS_DO_NOT_BELONG_TO_SAME_PRODUCT`
+- `INSUFFICIENT_FUNDING_ACCOUNT_BALANCE`
 - `INSUFFICIENT_FUNDS`
+- `INVALID_ACCOUNT_ID`
 - `PREPAID_CARD_FEATURE_NOT_ENABLED`
 - `REDEMPTION_CONFIGURATION_ID_NOT_PROVIDED`
+- `REDEMPTION_CONFIGURATION_ID_OR_POINT_VALUE_REQUIRED`
+- `REDEMPTION_CONFIGURATION_NOT_FOUND`
 - `REWARD_POINT_FEATURE_NOT_ENABLED`
+- `TRANSFER_AMOUNT_NOT_POSITIVE`
 
 ### `RewardPointsTransferSource`
 
@@ -9269,6 +9302,7 @@ Reasons an `RtpTransfer` may have failed.
 - `INVALID_AMOUNT`
 - `NETWORK_ERROR`
 - `NETWORK_NOT_SUPPORTED`
+- `RISK_DECLINE`
 - `TIMEOUT`
 - `TRANSFER_NOT_PERMITTED`
 - `UNSPECIFIED`
@@ -11927,19 +11961,6 @@ Input to Provision a `PaymentCard` to a Google Pay Eligible Device via Push Prov
 
 ### `AddPaymentCardToGooglePayByDevicePushProvisioningMutationVariables`
 
-### `AddPricingConfigurationEntityInput`
-
-The entity to attach a `PricingConfiguration` to.
-
-### `AddPricingConfigurationInput`
-
-The input details for creating a `PricingConfiguration`.
-
-### `AddPricingConfigurationPayload`
-
-The result of creating a `PricingConfiguration`.
-Returns the newly created configuration or error details.
-
 ### `Address`
 
 Type representing the parts of an address.
@@ -12642,6 +12663,10 @@ A type representing credit risk attributes.
 
 Input fields for business credit risk attributes.
 
+### `BusinessCustomerRelationship`
+
+Represents a business relationship with a customer.
+
 ### `BusinessDetail`
 
 Detailed information about the business
@@ -12689,6 +12714,10 @@ Type representing common name fields of a business.
 ### `BusinessOwnershipInformation`
 
 Information about a business' ownership
+
+### `BusinessPartnerRelationship`
+
+Represents a business relationship with a partner.
 
 ### `BusinessPlanAttributeInput`
 
@@ -12754,6 +12783,26 @@ Information about the business.
 ### `BusinessProfileDetail`
 
 Profile for a `Business`.
+
+### `BusinessRelationship`
+
+Represents all possible types of business relationships.
+
+### `BusinessRelationshipConnection`
+
+A paginated list of business relationships.
+
+### `BusinessRelationshipEdge`
+
+An edge in the business relationship connection.
+
+### `BusinessRelationshipFilterInput`
+
+Inputs for filtering business relationships.
+
+### `BusinessRelationshipParty`
+
+Represents the party in a business relationship.
 
 ### `BusinessService`
 
@@ -13005,6 +13054,10 @@ Represents an arbitration event for an acquiring `PaymentTransaction`.
 ### `CardPaymentAuthorizationDeclinedEvent`
 
 Represents a synchronous card authorization declined payment event for an acquiring `PaymentTransaction`.
+
+### `CardPaymentAuthorizationHeldEvent`
+
+Represents a card authorization held payment event for an acquiring `PaymentTransaction`. The transaction is in a held state pending final resolution and is expected to resolve to a final approved or reversed state without further cardholder action. See `holdReason` for the high-level category.
 
 ### `CardPaymentAuthorizedEvent`
 
@@ -14659,6 +14712,10 @@ Details about the source, model, and retrieval context for a specific credit sco
 
 Details about why a `CreditUnderwritingVerification` is in `IN_REVIEW` status.
 
+### `CryptoFundingFinancialAccountFeature`
+
+Whether or not the `FinancialAccount` supports crypto funding.
+
 ### `CryptoFundingFlowEvent`
 
 A lifecycle event emitted for a `CryptoFundingFlowTransfer`.
@@ -14682,6 +14739,10 @@ An event that occurs when a `CryptoFundingFlowTransfer` is first received from t
 ### `CryptoFundingFlowTransfer`
 
 A crypto funding flow movement. This represents the overall state of the transfer.
+
+### `CryptoReceivingFinancialAccountFeature`
+
+Whether or not the `FinancialAccount` supports crypto receiving.
 
 ### `CumulativeInterFinancialAccountTransferRule`
 
@@ -16935,6 +16996,10 @@ Inputs for  filtering ledger entries.
 ledger report parameters.
 these are additional, optional, parameters applicable only to ledger report.
 
+### `LinkVerifiedExternalBankAccountExpiredEvent`
+
+Event generated when a verified external bank account linking journey has expired.
+
 ### `LinkVerifiedExternalBankAccountFailedEvent`
 
 Event generated when an external bank account linking is failed.
@@ -16942,6 +17007,10 @@ Event generated when an external bank account linking is failed.
 ### `LinkVerifiedExternalBankAccountFailureReason`
 
 A reason for the external bank account linking failure.
+
+### `LinkVerifiedExternalBankAccountVerificationRequiredEvent`
+
+Event generated when a verified external bank account linking journey requires verification.
 
 ### `LinkVerifiedExternalBankInput`
 
@@ -17115,11 +17184,23 @@ submerchant of a `Payfac`.
 A merchant acceptor — Identifies how transactions for a merchant are routed and reported
 across processors and card networks.
 
+### `MerchantAcceptorConnection`
+
+A paginated list of `MerchantAcceptor`s.
+
 ### `MerchantAcceptorDetails`
 
 Descriptive details about the merchant accepting payments through a
 `MerchantAcceptor`. These values describe the merchant as it appears to
 cardholders and to card networks.
+
+### `MerchantAcceptorEdge`
+
+A `MerchantAcceptor` and its position within the connection.
+
+### `MerchantAcceptorFilterInput`
+
+The filters used to scope the type of `MerchantAcceptor`s returned.
 
 ### `MerchantAcceptorProcessorConfiguration`
 
@@ -17213,6 +17294,10 @@ The edge type for `Merchant`.
 
 A fee associated for the merchant to process the `PaymentTransaction`.
 
+### `MerchantFundingFinancialAccountFeature`
+
+Whether or not the `FinancialAccount` supports merchant funding.
+
 ### `MerchantIdentifierSpendRule`
 
 A Spend Control rule that allows or blocks authorizations based on merchant identifier.
@@ -17236,6 +17321,11 @@ Information about a merchant-managed installment payment plan.
 ### `MerchantManagedInstallmentPaymentInput`
 
 Information about a merchant-managed installment payment plan.
+
+### `MerchantMerchantAcceptorsArgs`
+
+A `Business` enrolled as an acquiring merchant, either directly or as a
+submerchant of a `Payfac`.
 
 ### `MerchantPayfacRelationship`
 
@@ -17363,10 +17453,6 @@ Root Mutation type extending the main GraphQL schema.
 Root Mutation type extending the main GraphQL schema.
 
 ### `MutationAddPaymentCardToGooglePayByDevicePushProvisioningArgs`
-
-Root Mutation type extending the main GraphQL schema.
-
-### `MutationAddPricingConfigurationArgs`
 
 Root Mutation type extending the main GraphQL schema.
 
@@ -20319,6 +20405,10 @@ All Queries that can be performed.
 
 All Queries that can be performed.
 
+### `QueryBusinessRelationshipsArgs`
+
+All Queries that can be performed.
+
 ### `QueryCardProductApplicationBusinessMetricArgs`
 
 All Queries that can be performed.
@@ -20344,6 +20434,10 @@ All Queries that can be performed.
 All Queries that can be performed.
 
 ### `QueryInstallmentOffersForTransactionEventArgs`
+
+All Queries that can be performed.
+
+### `QueryMerchantAcceptorsArgs`
 
 All Queries that can be performed.
 

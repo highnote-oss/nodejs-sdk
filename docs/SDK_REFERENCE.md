@@ -2694,6 +2694,33 @@ Represents the direction funds are moving in an accounting context.
 - `CREDIT`
 - `DEBIT`
 
+### `AccountReceivableCollectionSchedule`
+
+Cadence on which collection is attempted during the effective window.
+
+- `DAILY`
+- `MONTHLY`
+- `ONE_TIME`
+
+### `AccountReceivableStatus`
+
+Lifecycle status of an `AccountReceivable`.
+
+- `ACTIVE`
+- `CANCELLED`
+- `COMPLETED`
+- `PENDING`
+- `WRITTEN_OFF`
+
+### `AccountReceivableType`
+
+Classification of a receivable.
+
+- `CASH_ADVANCE`
+- `INVOICE`
+- `ONE_TIME_FEE`
+- `RECURRING_FEE`
+
 ### `AccountRelationshipStatus`
 
 The status of an account relationship.
@@ -2728,6 +2755,7 @@ The hold type of an ACH.
 The purpose of the `AchTransfer`.
 
 - `DEPOSIT`
+- `INTRA_BANK_ACH_TRANSFER`
 - `MERCHANT_DISBURSEMENT`
 - `MERCHANT_PAYOUT`
 - `MERCHANT_PUSH_PAYMENT_FUNDING`
@@ -2941,14 +2969,6 @@ The Card Processing Network that will process a payment
 - `PAYROC_AMERICAN_EXPRESS`
 - `PULSE`
 - `VISA`
-
-### `AcquiringMerchantType`
-
-The classification of a `Merchant`.
-
-- `CONNECTED_SUB`
-- `DIRECT`
-- `MANAGED_SUB`
 
 ### `AcquiringPaymentCardBrand`
 
@@ -3252,6 +3272,14 @@ The type of identifying information which has been modified in a `BusinessAccoun
 - `EMPLOYER_IDENTIFICATION_NUMBER`
 - `LEGAL_BUSINESS_NAME`
 
+### `BusinessAccountPurpose`
+
+The role a financial account plays for a business.
+
+- `NEGATIVE_BALANCE_FUNDING`
+- `PAYOUT`
+- `PERIODIC_FEE`
+
 ### `BusinessAddressType`
 
 Roles a business address may fill. Exactly one address per `Business` is the
@@ -3334,6 +3362,20 @@ Describes conditions on how the business operates.
 - `FORWARD_COMMITMENT`
 - `PHYSICAL_GOODS_SOLD`
 - `SEASONAL_BUSINESS`
+
+### `BusinessRelationshipStatus`
+
+The status of a business relationship.
+
+- `ACTIVE`
+- `INACTIVE`
+
+### `BusinessRelationshipType`
+
+The type of a business relationship.
+
+- `CUSTOMER`
+- `PARTNER`
 
 ### `BusinessStructure`
 
@@ -4772,10 +4814,13 @@ Possible features of the Financial Accounts
 - `AUTHORIZED_USER`
 - `CARD_FUNDING_ACCOUNT`
 - `CREDIT_PAYMENT_CARD`
+- `CRYPTO_FUNDING`
+- `CRYPTO_RECEIVING`
 - `DEBIT_PAYMENT_CARD`
 - `DIRECT_DEPOSIT`
 - `INCOME_ACCOUNT`
 - `JUST_IN_TIME_FUNDING`
+- `MERCHANT_FUNDING`
 - `MERCHANT_SETTLEMENT`
 - `NEGATIVE_BALANCE_RESERVE`
 - `ON_DEMAND_FUNDING`
@@ -4978,6 +5023,17 @@ The frequency at which installment payments occur.
 
 - `MONTHLY`
 
+### `InstantNetworkTransferCapabilityDeclineReason`
+
+The reason an `InstantNetworkTransfer` payment instrument capability is in a
+non-`ENABLED` (`DISABLED` or `REQUIRES_REVIEW`) state. The list is empty when the
+capability `status` is `ENABLED`.
+
+- `BIN_REGION_NOT_SUPPORTED`
+- `CASE_DECISIONED_BY_OPS`
+- `NO_MONEY_TRANSFER_CAPABILITY`
+- `NOT_DEBIT_OR_PREPAID`
+
 ### `InstantNetworkTransferDestinationPaymentInstrumentCapabilityStatus`
 
 The possible statuses of the `InstantNetworkTransferDestinationPaymentInstrumentCapabilityStatus`
@@ -5117,6 +5173,8 @@ The status of a `InstantNetworkTransfer`.
 
 - `COMPLETED`
 - `FAILED`
+- `ON_HOLD_AWAITING_NETWORK`
+- `ON_HOLD_AWAITING_RESOLUTION`
 - `PENDING`
 
 ### `InstantSettlementTransactionEventType`
@@ -8013,7 +8071,9 @@ The Notification Events that can be triggered in the Highnote platform.
 - `INTERNAL_TRANSFER_FROM_PAYMENT_CARD_FINANCIAL_ACCOUNT_TO_FUNDING_FINANCIAL_ACCOUNT_COMPLETED`
 - `INTERNAL_TRANSFER_FROM_PAYMENT_CARD_FINANCIAL_ACCOUNT_TO_FUNDING_FINANCIAL_ACCOUNT_FAILED`
 - `INTERNAL_TRANSFER_FROM_PAYMENT_CARD_FINANCIAL_ACCOUNT_TO_FUNDING_FINANCIAL_ACCOUNT_PENDING`
+- `LINK_VERIFIED_EXTERNAL_BANK_ACCOUNT_EXPIRED`
 - `LINK_VERIFIED_EXTERNAL_BANK_ACCOUNT_FAILED`
+- `LINK_VERIFIED_EXTERNAL_BANK_ACCOUNT_VERIFICATION_REQUIRED`
 - `NON_ORIGINATED_ACH_TRANSFER_FAILED`
 - `NON_ORIGINATED_ACH_TRANSFER_PROCESSED`
 - `NON_ORIGINATED_ACH_TRANSFER_RECEIVED`
@@ -8123,6 +8183,7 @@ The Notification Events that can be triggered in the Highnote platform.
 - `UNIFIED_FUNDS_TRANSFER_FAILED_EVENT`
 - `UNIFIED_FUNDS_TRANSFER_INITIATED_EVENT`
 - `UPCOMING_STATEMENT_DUE_DATE`
+- `WIRE_TRANSFER_COMPLETED_EVENT`
 
 ### `NotificationTargetStatus`
 
@@ -8726,6 +8787,13 @@ Possible values for the `PaymentTransactionAddressCodeResponseCode` enum.
 - `SKIPPED`
 - `UNKNOWN`
 
+### `PaymentTransactionHoldReason`
+
+The reason a `PaymentTransaction` is in a held state.
+
+- `AWAITING_PROCESSOR_NETWORK_RESPONSE`
+- `PENDING_INTERNAL_RESOLUTION`
+
 ### `PaymentTransactionLifecycleStepStatus`
 
 The status of a `PaymentTransactionLifecycleStep`
@@ -8971,12 +9039,6 @@ Code representing the result of AVS postal code verification
 - `ZIP5_MATCH`
 - `ZIP9_MATCH`
 
-### `PricingConfigurationAttachmentEntityType`
-
-The type of entity a `PricingConfiguration` can be attached to.
-
-- `MERCHANT`
-
 ### `PricingPlanStatus`
 
 The lifecycle states for a `PricingPlan`.
@@ -9208,12 +9270,18 @@ Additional details regarding a `FAILED` reward points transfer.
 
 - `ACCOUNT_CLOSED`
 - `ACCOUNT_CURRENCY_MISMATCH`
+- `ACCOUNT_NOT_ACTIVE`
 - `ACCOUNT_NOT_FOUND`
 - `ACCOUNTS_DO_NOT_BELONG_TO_SAME_PRODUCT`
+- `INSUFFICIENT_FUNDING_ACCOUNT_BALANCE`
 - `INSUFFICIENT_FUNDS`
+- `INVALID_ACCOUNT_ID`
 - `PREPAID_CARD_FEATURE_NOT_ENABLED`
 - `REDEMPTION_CONFIGURATION_ID_NOT_PROVIDED`
+- `REDEMPTION_CONFIGURATION_ID_OR_POINT_VALUE_REQUIRED`
+- `REDEMPTION_CONFIGURATION_NOT_FOUND`
 - `REWARD_POINT_FEATURE_NOT_ENABLED`
+- `TRANSFER_AMOUNT_NOT_POSITIVE`
 
 ### `RewardPointsTransferSource`
 
@@ -9269,6 +9337,7 @@ Reasons an `RtpTransfer` may have failed.
 - `INVALID_AMOUNT`
 - `NETWORK_ERROR`
 - `NETWORK_NOT_SUPPORTED`
+- `RISK_DECLINE`
 - `TIMEOUT`
 - `TRANSFER_NOT_PERMITTED`
 - `UNSPECIFIED`
@@ -11574,6 +11643,18 @@ Type representing a verification attempt on an Account Holder. Not all attempts 
 
 Type representing one result on a verification.
 
+### `AccountPayableParty`
+
+The party that owes an `AccountReceivable`.
+
+### `AccountReceivable`
+
+An amount owed by a `payableParty` to a `receivableParty`, collected against `payableAccount` automatically — via settlement deduction, internal account transfer, or ACH debit — depending on the configured collection strategy.
+
+### `AccountReceivableParty`
+
+The party owed an `AccountReceivable`.
+
 ### `AccountRelationship`
 
 Represents a relationship between two financial accounts.
@@ -11778,6 +11859,22 @@ Input for filtering by `AchTransferType`.
 
 Input for specifying an externally stored credential on file.
 
+### `AcquiringThreeDSecureAuthentication`
+
+3DSecure authentication context attached to a `PaymentMethodToken`. Surfaces the two raw
+inputs a merchant needs to derive their own liability-shift decision per their risk model:
+the network-returned ECI and whether a CAVV was produced.
+
+Network-specific derivation rules (Visa `eci = "05"` / `"06"` → shift; Mastercard `"02"`
+or `"01"` + CAVV → shift; etc.) intentionally live with the merchant. Highnote does not
+expose `liabilityShifted` directly today because the network-specific carveouts
+(corporate-card subprograms, Mastercard attempts-server stand-ins, etc.) are merchant-policy
+decisions, not platform decisions. Additional derived fields can be added additively if a
+common merchant pattern emerges.
+
+Raw CAVV stays server-side on the `PaymentMethodToken` and is consumed by Highnote's
+authorization pipeline at submit time; this type exposes `cavvPresent` only.
+
 ### `ActivateCardProductCreditPlanInput`
 
 Input fields for activating a `CreditPlan` for a `CardProduct`.
@@ -11926,19 +12023,6 @@ Input to Provision a `PaymentCard` to a Google Pay Eligible Device via Push Prov
 ### `AddPaymentCardToGooglePayByDevicePushProvisioningMutation`
 
 ### `AddPaymentCardToGooglePayByDevicePushProvisioningMutationVariables`
-
-### `AddPricingConfigurationEntityInput`
-
-The entity to attach a `PricingConfiguration` to.
-
-### `AddPricingConfigurationInput`
-
-The input details for creating a `PricingConfiguration`.
-
-### `AddPricingConfigurationPayload`
-
-The result of creating a `PricingConfiguration`.
-Returns the newly created configuration or error details.
 
 ### `Address`
 
@@ -12166,6 +12250,19 @@ The input for approving a credit-based `AccountHolderCardProductApplication`.
 ### `ApproveCreditProductApplicationUnderwritingPayload`
 
 The response type for approving a credit-product `AccountHolderCardProductApplication`.
+
+### `AssignFinancialBankAccountInput`
+
+The financial account to assign.
+
+### `AssignFinancialBankAccountToBusinessInput`
+
+Input for `assignFinancialBankAccountToBusiness`.
+
+### `AssignFinancialBankAccountToBusinessPayload`
+
+The result of `assignFinancialBankAccountToBusiness`.
+Returns the `BusinessAccountConfiguration` or error details.
 
 ### `AssignPaymentCardToFinancialAccountInput`
 
@@ -12523,6 +12620,11 @@ Boolean value type
 
 A `Business` including profile details such as name and address, and service details such as account holder and merchant details.
 
+### `BusinessAccountConfiguration`
+
+An assignment of a financial account to a business for a given purpose.
+At most one assignment is active per `(business, purpose)` pair.
+
 ### `BusinessAccountHolder`
 
 The base fields for all BusinessAccountHolders (regardless of region or snapshot).
@@ -12642,6 +12744,10 @@ A type representing credit risk attributes.
 
 Input fields for business credit risk attributes.
 
+### `BusinessCustomerRelationship`
+
+Represents a business relationship with a customer.
+
 ### `BusinessDetail`
 
 Detailed information about the business
@@ -12689,6 +12795,10 @@ Type representing common name fields of a business.
 ### `BusinessOwnershipInformation`
 
 Information about a business' ownership
+
+### `BusinessPartnerRelationship`
+
+Represents a business relationship with a partner.
 
 ### `BusinessPlanAttributeInput`
 
@@ -12755,6 +12865,26 @@ Information about the business.
 
 Profile for a `Business`.
 
+### `BusinessRelationship`
+
+Represents all possible types of business relationships.
+
+### `BusinessRelationshipConnection`
+
+A paginated list of business relationships.
+
+### `BusinessRelationshipEdge`
+
+An edge in the business relationship connection.
+
+### `BusinessRelationshipFilterInput`
+
+Inputs for filtering business relationships.
+
+### `BusinessRelationshipParty`
+
+Represents the party in a business relationship.
+
 ### `BusinessService`
 
 A service a `Business` is set up for in the payments ecosystem.
@@ -12774,6 +12904,10 @@ The service-specific details for the `Business`, such as account holder and merc
 ### `BusinessServicesArgs`
 
 A `Business` including profile details such as name and address, and service details such as account holder and merchant details.
+
+### `BusinessServiceTargetInput`
+
+The business receiving the assignment.
 
 ### `BusinessUltimateBeneficialOwner`
 
@@ -13005,6 +13139,10 @@ Represents an arbitration event for an acquiring `PaymentTransaction`.
 ### `CardPaymentAuthorizationDeclinedEvent`
 
 Represents a synchronous card authorization declined payment event for an acquiring `PaymentTransaction`.
+
+### `CardPaymentAuthorizationHeldEvent`
+
+Represents a card authorization held payment event for an acquiring `PaymentTransaction`. The transaction is in a held state pending final resolution and is expected to resolve to a final approved or reversed state without further cardholder action. See `holdReason` for the high-level category.
 
 ### `CardPaymentAuthorizedEvent`
 
@@ -14659,6 +14797,10 @@ Details about the source, model, and retrieval context for a specific credit sco
 
 Details about why a `CreditUnderwritingVerification` is in `IN_REVIEW` status.
 
+### `CryptoFundingFinancialAccountFeature`
+
+Whether or not the `FinancialAccount` supports crypto funding.
+
 ### `CryptoFundingFlowEvent`
 
 A lifecycle event emitted for a `CryptoFundingFlowTransfer`.
@@ -14682,6 +14824,10 @@ An event that occurs when a `CryptoFundingFlowTransfer` is first received from t
 ### `CryptoFundingFlowTransfer`
 
 A crypto funding flow movement. This represents the overall state of the transfer.
+
+### `CryptoReceivingFinancialAccountFeature`
+
+Whether or not the `FinancialAccount` supports crypto receiving.
 
 ### `CumulativeInterFinancialAccountTransferRule`
 
@@ -15789,6 +15935,10 @@ A financial account allows you to move money into the Highnote platform and move
 
 A financial account allows you to move money into the Highnote platform and move funds to other accounts.
 
+### `FinancialAccountHolder`
+
+A holder of issuance financial accounts. Wraps an underlying `Business` with its own lifecycle. The issuance-side counterpart to acquiring's `Merchant`, `Payfac`, and `Iso`.
+
 ### `FinancialAccountIncomingScheduledTransfersArgs`
 
 A financial account allows you to move money into the Highnote platform and move funds to other accounts.
@@ -16773,6 +16923,57 @@ Data needed to invite a new User.
 
 The possible return types of `inviteUser`.
 
+### `Invoice`
+
+An invoice issued to or from a business, aggregating one or more
+`InvoiceItem` charges over a billing period.
+
+### `InvoiceItem`
+
+A single line item on an `Invoice`, representing a charge with a quantity,
+rate, and computed line total.
+
+### `InvoiceItemCalculationMetadata`
+
+Describes how an `InvoiceItem`'s amount was calculated.
+
+### `InvoiceItemConnection`
+
+The connection type for `InvoiceItem`.
+
+### `InvoiceItemEdge`
+
+The edge type for an `InvoiceItem`.
+
+### `InvoiceItemPercentageCalculation`
+
+Percentage calculation for an `InvoiceItem`.
+
+### `InvoiceItemPerItemCalculation`
+
+Per-item calculation for an `InvoiceItem`.
+
+### `InvoiceItemsArgs`
+
+An invoice issued to or from a business, aggregating one or more
+`InvoiceItem` charges over a billing period.
+
+### `InvoiceItemServiceDate`
+
+A single service date for an `InvoiceItem`.
+
+### `InvoiceItemServicePeriod`
+
+The service period an `InvoiceItem` covers. Exactly one variant is populated.
+
+### `InvoiceItemServicePeriodRange`
+
+A from/through service period range for an `InvoiceItem`.
+
+### `InvoiceParty`
+
+A party on an `Invoice`.
+
 ### `IpAddress`
 
 IP address details.
@@ -16935,6 +17136,10 @@ Inputs for  filtering ledger entries.
 ledger report parameters.
 these are additional, optional, parameters applicable only to ledger report.
 
+### `LinkVerifiedExternalBankAccountExpiredEvent`
+
+Event generated when a verified external bank account linking journey has expired.
+
 ### `LinkVerifiedExternalBankAccountFailedEvent`
 
 Event generated when an external bank account linking is failed.
@@ -16942,6 +17147,10 @@ Event generated when an external bank account linking is failed.
 ### `LinkVerifiedExternalBankAccountFailureReason`
 
 A reason for the external bank account linking failure.
+
+### `LinkVerifiedExternalBankAccountVerificationRequiredEvent`
+
+Event generated when a verified external bank account linking journey requires verification.
 
 ### `LinkVerifiedExternalBankInput`
 
@@ -17115,17 +17324,33 @@ submerchant of a `Payfac`.
 A merchant acceptor — Identifies how transactions for a merchant are routed and reported
 across processors and card networks.
 
+### `MerchantAcceptorConnection`
+
+A paginated list of `MerchantAcceptor`s.
+
 ### `MerchantAcceptorDetails`
 
 Descriptive details about the merchant accepting payments through a
 `MerchantAcceptor`. These values describe the merchant as it appears to
 cardholders and to card networks.
 
+### `MerchantAcceptorEdge`
+
+A `MerchantAcceptor` and its position within the connection.
+
+### `MerchantAcceptorFilterInput`
+
+The filters used to scope the type of `MerchantAcceptor`s returned.
+
 ### `MerchantAcceptorProcessorConfiguration`
 
 A single processor routing row for a `MerchantAcceptor`. Defines how
 transactions of a given network, card brand, and transaction type are
 processed and where they settle.
+
+### `MerchantBusinessServiceTargetInput`
+
+Reference to a `Merchant`, optionally scoped to a payfac relationship.
 
 ### `MerchantCategoryCodeSankeyDataPointsFilterInput`
 
@@ -17213,6 +17438,10 @@ The edge type for `Merchant`.
 
 A fee associated for the merchant to process the `PaymentTransaction`.
 
+### `MerchantFundingFinancialAccountFeature`
+
+Whether or not the `FinancialAccount` supports merchant funding.
+
 ### `MerchantIdentifierSpendRule`
 
 A Spend Control rule that allows or blocks authorizations based on merchant identifier.
@@ -17237,6 +17466,11 @@ Information about a merchant-managed installment payment plan.
 
 Information about a merchant-managed installment payment plan.
 
+### `MerchantMerchantAcceptorsArgs`
+
+A `Business` enrolled as an acquiring merchant, either directly or as a
+submerchant of a `Payfac`.
+
 ### `MerchantPayfacRelationship`
 
 A relationship between a `Merchant` and a `Payfac`, optionally brokered by
@@ -17249,6 +17483,10 @@ The connection type for `MerchantPayfacRelationship`.
 ### `MerchantPayfacRelationshipEdge`
 
 The edge type for `MerchantPayfacRelationship`.
+
+### `MerchantPayfacRelationshipQualifierInput`
+
+Identifies a specific merchant-payfac relationship.
 
 ### `MerchantPayfacRelationshipsArgs`
 
@@ -17366,10 +17604,6 @@ Root Mutation type extending the main GraphQL schema.
 
 Root Mutation type extending the main GraphQL schema.
 
-### `MutationAddPricingConfigurationArgs`
-
-Root Mutation type extending the main GraphQL schema.
-
 ### `MutationAddSubscriptionsToNotificationTargetArgs`
 
 Root Mutation type extending the main GraphQL schema.
@@ -17391,6 +17625,10 @@ Root Mutation type extending the main GraphQL schema.
 Root Mutation type extending the main GraphQL schema.
 
 ### `MutationApproveCreditProductApplicationUnderwritingArgs`
+
+Root Mutation type extending the main GraphQL schema.
+
+### `MutationAssignFinancialBankAccountToBusinessArgs`
 
 Root Mutation type extending the main GraphQL schema.
 
@@ -18989,18 +19227,6 @@ Whether or not the Financial Account supports On-Demand Funding.
 
 A successfully created on-demand pricing charge.
 
-### `OnDemandPricingChargeCalculationMetadata`
-
-Metadata describing how the charge amount was derived. Echoed from the request.
-
-### `OnDemandPricingPercentageCalculation`
-
-Percentage-of-amount calculation echoed from the request.
-
-### `OnDemandPricingPerItemCalculation`
-
-Rate-per-item calculation echoed from the request.
-
 ### `OneTimeAchTransfer`
 
 A scheduled one time ACH transfer
@@ -19285,6 +19511,10 @@ A representation of a passport identification document.
 
 A `Business` operating as a Payment Facilitator, onboarding and managing
 submerchants on behalf of the acquirer.
+
+### `PayfacBusinessServiceTargetInput`
+
+Reference to a `Payfac`.
 
 ### `PayfacIsoPartnership`
 
@@ -20168,6 +20398,15 @@ Supports either a single value or a list of values.
 
 A single value for a `PricingRuleParameter`.
 
+### `PrimaryAuthorizedPerson`
+
+The primary person authorized to act on behalf of a business account holder.
+
+A person identified by a passport or non-US national identification is
+returned as a `BusinessAuthorizedPerson`; otherwise (a US Social Security
+Number, or no distinguishing document) the person is returned as a
+`USBusinessAuthorizedPerson`.
+
 ### `ProcessingCapability`
 
 ### `ProductApplicantBusinessProfileSnapshot`
@@ -20319,6 +20558,10 @@ All Queries that can be performed.
 
 All Queries that can be performed.
 
+### `QueryBusinessRelationshipsArgs`
+
+All Queries that can be performed.
+
 ### `QueryCardProductApplicationBusinessMetricArgs`
 
 All Queries that can be performed.
@@ -20344,6 +20587,10 @@ All Queries that can be performed.
 All Queries that can be performed.
 
 ### `QueryInstallmentOffersForTransactionEventArgs`
+
+All Queries that can be performed.
+
+### `QueryMerchantAcceptorsArgs`
 
 All Queries that can be performed.
 
@@ -22196,6 +22443,15 @@ Result of `TransferPurposeInterFinancialAccountTransferRule`
 A `InterFinancialAccountTransferRule` that will block an inter financial account transfer if the transfer purpose is not allowed or blocked.
 
 ### `TransferredEventNode`
+
+### `UltimateBeneficialOwner`
+
+An ultimate beneficial owner of a business.
+
+An owner identified by a passport or non-US national identification is
+returned as a `BusinessAuthorizedPerson`; otherwise (a US Social Security
+Number, or no distinguishing document) the owner is returned as a
+`USBusinessUltimateBeneficialOwner`.
 
 ### `UltimateBeneficialOwnerAddressFilterInput`
 

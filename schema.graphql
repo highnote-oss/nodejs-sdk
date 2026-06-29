@@ -159,7 +159,19 @@ type Query {
 
     """Filter results to specific relationships."""
     filterBy: OrganizationBusinessRelationshipFilterInput
-  ): OrganizationBusinessRelationshipConnection
+  ): OrganizationBusinessRelationshipConnection @deprecated(reason: "Use businessRelationships instead.")
+
+  """
+  A paginated list of `Business`es that have an existing business relationship.
+  For information on Highnote's Search API, see our [Search guide](https://highnote.com/docs/basics/graphql-api/search).
+  """
+  businessRelationships(
+    first: Int = 20
+    after: String
+
+    """Filter results to specific relationships."""
+    filterBy: BusinessRelationshipFilterInput
+  ): BusinessRelationshipConnection
 
   """A list of organizations."""
   organizations: [Organization!]
@@ -266,6 +278,9 @@ type Query {
 
   """A paginated list of `PaymentTransaction`s."""
   paymentTransactions(first: Int = 20, after: String, filterBy: PaymentTransactionFilterInput): PaymentTransactionsConnection
+
+  """A paginated list of `MerchantAcceptor`s."""
+  merchantAcceptors(first: Int = 20, after: String, filterBy: MerchantAcceptorFilterInput): MerchantAcceptorConnection
 
   """Finds application metrics that match the given filter."""
   cardProductApplicationBusinessMetric(filterBy: CardProductApplicationBusinessMetricFilterInput): CardProductApplicationBusinessMetricResult
@@ -1972,6 +1987,9 @@ type Mutation {
   """
   forceStandaloneCapturePayment(input: ForceStandaloneCapturePaymentInput!): CapturePaymentTransactionPayload
 
+  """Assigns a financial account to a business."""
+  assignFinancialBankAccountToBusiness(input: AssignFinancialBankAccountToBusinessInput!): AssignFinancialBankAccountToBusinessPayload
+
   """
   Creates a new `PricingPlan` for a specific entity with the provided rules.
   New plans are created in a `DRAFT` state by default.
@@ -1999,14 +2017,6 @@ type Mutation {
     """The input details for the pricing simulation."""
     input: SimulatePricingPlanInput!
   ): SimulatePricingPlanPayload
-
-  """
-  Adds a `PricingConfiguration` linking a `PricingPlan` to a merchant with a validity period.
-  """
-  addPricingConfiguration(
-    """The input details for the pricing configuration."""
-    input: AddPricingConfigurationInput!
-  ): AddPricingConfigurationPayload
 
   """Updates `CustomFields` for an object."""
   updateCustomFields(input: UpdateCustomFieldsInput!): CustomFieldsPayload
@@ -3767,7 +3777,16 @@ type USBusinessAccountHolder implements Node & BusinessAccountHolder {
   id: ID!
 
   """The details of the person authorized to act on behalf of business."""
-  primaryAuthorizedPerson: USBusinessAuthorizedPerson
+  primaryAuthorizedPerson: USBusinessAuthorizedPerson @deprecated(reason: "Use primaryAuthorizedPersonDetail instead.")
+
+  """
+  The person authorized to act on behalf of the business.
+  
+  Unlike `primaryAuthorizedPerson`, this field can also represent a person
+  identified with a passport or non-US national identification, returned as a
+  `BusinessAuthorizedPerson` with `identificationDocuments` and `jurisdiction`.
+  """
+  primaryAuthorizedPersonDetail: PrimaryAuthorizedPerson
 
   """Information about the business."""
   businessProfile: USBusinessProfile
@@ -3906,6 +3925,16 @@ type USBusinessAuthorizedPerson implements AuthorizedPerson {
 }
 
 """
+The primary person authorized to act on behalf of a business account holder.
+
+A person identified by a passport or non-US national identification is
+returned as a `BusinessAuthorizedPerson`; otherwise (a US Social Security
+Number, or no distinguishing document) the person is returned as a
+`USBusinessAuthorizedPerson`.
+"""
+union PrimaryAuthorizedPerson = USBusinessAuthorizedPerson | BusinessAuthorizedPerson
+
+"""
 The snapshot details of the person authorized to act on behalf of business.
 """
 union BusinessAuthorizedPersonSnapshot = USBusinessAuthorizedPersonSnapshot
@@ -3959,6 +3988,16 @@ type USBusinessUltimateBeneficialOwner implements BusinessUltimateBeneficialOwne
   updatedAt: String
 }
 
+"""
+An ultimate beneficial owner of a business.
+
+An owner identified by a passport or non-US national identification is
+returned as a `BusinessAuthorizedPerson`; otherwise (a US Social Security
+Number, or no distinguishing document) the owner is returned as a
+`USBusinessUltimateBeneficialOwner`.
+"""
+union UltimateBeneficialOwner = USBusinessUltimateBeneficialOwner | BusinessAuthorizedPerson
+
 """Information about the US business."""
 type USBusinessProfile implements BusinessProfile {
   """Global ID used to reference the business."""
@@ -4001,7 +4040,16 @@ type USBusinessProfile implements BusinessProfile {
   identificationDocument: USBusinessIdentificationDocument
 
   """Ultimate beneficial owners of the business."""
-  ultimateBeneficialOwners: [USBusinessUltimateBeneficialOwner]
+  ultimateBeneficialOwners: [USBusinessUltimateBeneficialOwner] @deprecated(reason: "Use ultimateBeneficialOwnerDetails instead.")
+
+  """
+  The ultimate beneficial owners of the business.
+  
+  Unlike `ultimateBeneficialOwners`, this field can also represent owners
+  identified with a passport or non-US national identification, returned as
+  `BusinessAuthorizedPerson`s with `identificationDocuments` and `jurisdiction`.
+  """
+  ultimateBeneficialOwnerDetails: [UltimateBeneficialOwner!]
 
   """Authorized users of the business."""
   authorizedUsers(first: Int = 20, after: String): AuthorizedUserConnection @deprecated(reason: "Use UsBusinessAccountHolder.authorizedAccountHolderRelationships instead.")
@@ -8027,17 +8075,8 @@ type BusinessEdge {
 
 """Filter input for the `businesses` query."""
 input BusinessFilterInput {
-  """Filter by the `Business`'s business profile name."""
-  businessProfile: BusinessAccountHolderBusinessProfileFilterInput
-
   """Filter by the `Business`'s global ID."""
   id: IDFilterInput
-
-  """Filter by an external system identifier."""
-  externalId: IDFilterInput
-
-  """Filter by the primary authorized person."""
-  primaryAuthorizedPerson: BusinessAccountHolderPrimaryAuthorizedPersonFilterInput
 }
 
 """
@@ -8358,7 +8397,7 @@ type NationalIdentificationDocument {
 union BusinessIdentificationDocument = NationalIdentificationDocument
 
 """`Person` identification document types."""
-union PersonIdentificationDocument = NationalIdentificationDocument
+union PersonIdentificationDocument = NationalIdentificationDocument | PassportIdentificationDocument
 
 """Business information collected for a subscriber application"""
 type OnboardingBusinessOrganizationInformation implements Node {
@@ -9232,6 +9271,66 @@ enum OrganizationBusinessRelationshipStatus {
 
 """The type of an organization business relationship."""
 enum OrganizationBusinessRelationshipType {
+  """The relationship is with a customer."""
+  CUSTOMER
+
+  """The relationship is with a partner."""
+  PARTNER
+}
+
+"""Represents all possible types of business relationships."""
+union BusinessRelationship = BusinessCustomerRelationship | BusinessPartnerRelationship
+
+"""Represents the party in a business relationship."""
+union BusinessRelationshipParty = Business
+
+"""Represents a business relationship with a customer."""
+type BusinessCustomerRelationship {
+  """The customer in the relationship."""
+  party: BusinessRelationshipParty
+
+  """The status of the relationship."""
+  relationshipStatus: BusinessRelationshipStatus
+}
+
+"""Represents a business relationship with a partner."""
+type BusinessPartnerRelationship {
+  """The partner in the relationship."""
+  party: BusinessRelationshipParty
+
+  """The status of the relationship."""
+  relationshipStatus: BusinessRelationshipStatus
+}
+
+"""A paginated list of business relationships."""
+type BusinessRelationshipConnection {
+  """Information about the current page."""
+  pageInfo: PageInfo!
+
+  """A list of edges representing business relationships."""
+  edges: [BusinessRelationshipEdge!]
+}
+
+"""An edge in the business relationship connection."""
+type BusinessRelationshipEdge {
+  """A pagination cursor for this edge."""
+  cursor: String!
+
+  """The business relationship represented by this edge."""
+  node: BusinessRelationship
+}
+
+"""The status of a business relationship."""
+enum BusinessRelationshipStatus {
+  """The relationship is currently active and valid."""
+  ACTIVE
+
+  """The relationship is inactive or has been revoked."""
+  INACTIVE
+}
+
+"""The type of a business relationship."""
+enum BusinessRelationshipType {
   """The relationship is with a customer."""
   CUSTOMER
 
@@ -14146,6 +14245,21 @@ enum FinancialAccountFeatureType {
   MERCHANT_SETTLEMENT
 
   """
+  Whether or not the `FinancialAccount` supports the merchant funding account feature.
+  """
+  MERCHANT_FUNDING
+
+  """
+  Whether or not the `FinancialAccount` supports the crypto funding account feature.
+  """
+  CRYPTO_FUNDING
+
+  """
+  Whether or not the `FinancialAccount` supports the crypto receiving account feature.
+  """
+  CRYPTO_RECEIVING
+
+  """
   Whether or not the `FinancialAccount` is associated to the authorized user.
   """
   AUTHORIZED_USER
@@ -14761,6 +14875,66 @@ type ProductSecuredDepositFinancialAccountFeature implements FinancialAccountFea
 
 """Whether or not the `FinancialAccount` supports merchant settlement."""
 type MerchantSettlementFinancialAccountFeature implements FinancialAccountFeature {
+  """Whether or not the feature is enabled for the Financial Account."""
+  enabled: Boolean
+
+  """The date and time, in ISO 8601 format, the feature was created."""
+  createdAt: String
+
+  """The date and time, in ISO 8601 format, the feature was last updated."""
+  updatedAt: String
+
+  """The date and time, in ISO 8601 format, the feature was effective from."""
+  effectiveFrom: String
+
+  """
+  The date and time, in ISO 8601 format, the feature was effective through.
+  """
+  effectiveThrough: String
+}
+
+"""Whether or not the `FinancialAccount` supports merchant funding."""
+type MerchantFundingFinancialAccountFeature implements FinancialAccountFeature {
+  """Whether or not the feature is enabled for the Financial Account."""
+  enabled: Boolean
+
+  """The date and time, in ISO 8601 format, the feature was created."""
+  createdAt: String
+
+  """The date and time, in ISO 8601 format, the feature was last updated."""
+  updatedAt: String
+
+  """The date and time, in ISO 8601 format, the feature was effective from."""
+  effectiveFrom: String
+
+  """
+  The date and time, in ISO 8601 format, the feature was effective through.
+  """
+  effectiveThrough: String
+}
+
+"""Whether or not the `FinancialAccount` supports crypto funding."""
+type CryptoFundingFinancialAccountFeature implements FinancialAccountFeature {
+  """Whether or not the feature is enabled for the Financial Account."""
+  enabled: Boolean
+
+  """The date and time, in ISO 8601 format, the feature was created."""
+  createdAt: String
+
+  """The date and time, in ISO 8601 format, the feature was last updated."""
+  updatedAt: String
+
+  """The date and time, in ISO 8601 format, the feature was effective from."""
+  effectiveFrom: String
+
+  """
+  The date and time, in ISO 8601 format, the feature was effective through.
+  """
+  effectiveThrough: String
+}
+
+"""Whether or not the `FinancialAccount` supports crypto receiving."""
+type CryptoReceivingFinancialAccountFeature implements FinancialAccountFeature {
   """Whether or not the feature is enabled for the Financial Account."""
   enabled: Boolean
 
@@ -16910,6 +17084,56 @@ type LinkVerifiedExternalBankAccountFailedEvent implements Node {
 
   """The reasons for the external bank account linking failure."""
   reasons: [LinkVerifiedExternalBankAccountFailureReason!]
+
+  """
+  The date and time, in ISO 8601 format, the external bank account was created.
+  """
+  createdAt: String
+
+  """
+  The date and time, in ISO 8601 format, the external bank account was last updated.
+  """
+  updatedAt: String
+}
+
+"""
+Event generated when a verified external bank account linking journey requires verification.
+"""
+type LinkVerifiedExternalBankAccountVerificationRequiredEvent implements Node {
+  """Id for the workflow."""
+  id: ID!
+
+  """The account holder for whom the bank account is being linked."""
+  accountHolder: AccountHolder
+
+  """
+  Update-mode hosted Link URL the account holder uses to complete verification. Actionable and time-limited; do not cache past expiry.
+  """
+  hostedLinkUrl: String
+
+  """Lifetime of the hosted Link URL in seconds."""
+  expirySeconds: Int
+
+  """
+  The date and time, in ISO 8601 format, the external bank account was created.
+  """
+  createdAt: String
+
+  """
+  The date and time, in ISO 8601 format, the external bank account was last updated.
+  """
+  updatedAt: String
+}
+
+"""
+Event generated when a verified external bank account linking journey has expired.
+"""
+type LinkVerifiedExternalBankAccountExpiredEvent implements Node {
+  """Id for the workflow."""
+  id: ID!
+
+  """The account holder for whom the bank account is being linked."""
+  accountHolder: AccountHolder
 
   """
   The date and time, in ISO 8601 format, the external bank account was created.
@@ -21316,6 +21540,17 @@ type Ledger implements Node {
   ): LedgerEntryConnection
 
   """
+  `signedBalance` represents the balance of the ledger, using `normalBalance` to determine its sign (positive or negative).
+  
+  Examples:
+  If the ledger's normalBalance is DEBIT, a positive signedBalance indicates a `debitBalance` > 0
+  If the ledger's normalBalance is DEBIT, a negative signedBalance indicates a `creditBalance` > 0
+  If the ledger's normalBalance is CREDIT, a positive signedBalance indicates a `creditBalance` > 0
+  If the ledger's normalBalance is CREDIT, a negative signedBalance indicates a `debitBalance` > 0
+  """
+  signedBalance: SignedAmount
+
+  """
   This property is for `PSEUDO*` ledgers and relates to the `PseudoBalanceCadence` set by the pseudo balance mutations.
   
   The date and time, in ISO 8601 format, when the pseudo balance for this ledger will next be reset. If it is empty, the balance will never reset.
@@ -24006,9 +24241,6 @@ type VisaFleetAuthorizationData implements Node & AdditionalTransactionData {
   customPrompt2: String
 
   """Indicates whether the POS supports host-based restriction processing"""
-  purchaseRestrictonsFlag: Boolean @deprecated(reason: "Use purchaseRestrictionsFlag instead")
-
-  """Indicates whether the POS supports host-based restriction processing"""
   purchaseRestrictionsFlag: Boolean
 
   """
@@ -24187,9 +24419,6 @@ input SimulateVisaFleetAuthorizationDataInput {
   **Maximum length:** 255 characters
   """
   customPrompt2: String
-
-  """Indicates whether the POS supports host-based restriction processing"""
-  purchaseRestrictonsFlag: Boolean
 
   """Indicates whether the POS supports host-based restriction processing"""
   purchaseRestrictionsFlag: Boolean
@@ -30270,7 +30499,7 @@ enum WireTransferType {
   """Represents an incoming wire transfer reversal."""
   INCOMING_WIRE_TRANSFER_REVERSAL
 
-  """Represents an incoming wire transfer reversal."""
+  """Represents an outgoing wire transfer reversal."""
   OUTGOING_WIRE_TRANSFER_REVERSAL
 }
 
@@ -41900,6 +42129,18 @@ input OrganizationBusinessRelationshipFilterInput {
   fromOrganization: ID
 }
 
+"""Inputs for filtering business relationships."""
+input BusinessRelationshipFilterInput {
+  """Filter by relationship status (ACTIVE or INACTIVE)."""
+  relationshipStatus: [BusinessRelationshipStatus!]
+
+  """The types of relationships."""
+  relationshipTypes: [BusinessRelationshipType!]
+
+  """The ID of the `Business` from where the relationship originates."""
+  fromBusiness: ID
+}
+
 """Input for setting the email for a notification target."""
 input SetEmailForNotificationTargetInput {
   """The notification target ID."""
@@ -42440,7 +42681,7 @@ type WebhookNotificationTargetEvent {
 }
 
 """The types providing more details about the Notification Event."""
-union NotificationEventNode = AuthorizationEvent | AccountHolderCardProductApplication | AuthorizedUserCardProductApplication | NotificationTargetActivationEvent | NotificationPingTestEvent | NotificationEventValidationTestEvent | SecureDepositInitiatedEvent | SecureDepositProcessingEvent | SecureDepositProcessedEvent | SecureDepositFailedEvent | SecureDepositReturnedEvent | SecureDepositCanceledEvent | FundsWithdrawalInitiatedEvent | FundsWithdrawalProcessingEvent | FundsWithdrawalProcessedEvent | FundsWithdrawalFailedEvent | FundsWithdrawalReturnedEvent | FundsWithdrawalCanceledEvent | FundsDepositInitiatedEvent | FundsDepositProcessingEvent | FundsDepositProcessedEvent | FundsDepositFailedEvent | FundsDepositReturnedEvent | FundsDepositCanceledEvent | RepaymentProcessedEvent | RepaymentProcessingEvent | RepaymentFailedEvent | RepaymentReturnedEvent | AchExternallyInitatedDepositReceivedEvent | AchExternallyInitatedDepositProcessedEvent | AchExternallyInitatedDepositFailedEvent | AchExternallyInitiatedWithdrawalReceivedEvent | AchExternallyInitiatedWithdrawalProcessedEvent | AchExternallyInitiatedWithdrawalFailedEvent | PaymentCardAdjustmentEvent | PaymentCardAuthorizationApprovedEvent | PaymentCardAuthorizationCreatedEvent | PaymentCardAuthorizationDeclinedEvent | PaymentCardAuthorizationReversedEvent | PaymentCardAuthorizationAndClearApprovedEvent | PaymentCardAuthorizationAndClearDeclinedEvent | PaymentCardClearedEvent | PaymentCardEnhancedDataEvent | PaymentCardVerificationApprovedEvent | PaymentCardVerificationDeclinedEvent | PaymentCardIssuedEvent | PaymentCardActivatedEvent | PaymentCardSuspendedEvent | PaymentCardUnsuspendedEvent | PaymentCardClosedEvent | PhysicalPaymentCardShippedEvent | PhysicalPaymentCardShipFailedEvent | FinancialAccountStatementReadyEvent | InternalTransferFromFundingFinancialAccountToPaymentCardFinancialAccountPendingEvent | InternalTransferFromFundingFinancialAccountToPaymentCardFinancialAccountCompletedEvent | InternalTransferFromFundingFinancialAccountToPaymentCardFinancialAccountFailedEvent | InternalTransferFromPaymentCardFinancialAccountToFundingFinancialAccountPendingEvent | InternalTransferFromPaymentCardFinancialAccountToFundingFinancialAccountCompletedEvent | InternalTransferFromPaymentCardFinancialAccountToFundingFinancialAccountFailedEvent | PhysicalPaymentCardGroupOrderShippedEvent | PhysicalPaymentCardGroupOrderShipFailedEvent | PayrollAdvanceRepaymentCompletedEvent | PayrollAdvanceWriteOffCompletedEvent | AccountStatusActiveEvent | AccountStatusSuspendedEvent | AccountStatusUnderReviewEvent | AccountStatusPendingClosureEvent | AccountStatusClosedEvent | FinancialAccount | ExternalBankAccountAddedEvent | ExternalBankAccountRemovedEvent | CardDigitalWalletTokenActivatedEvent | CardDigitalWalletTokenSuspendedEvent | CardDigitalWalletTokenTerminatedEvent | AchHoldAddedEvent | AchHoldRemovedEvent | Report | InterFinancialAccountTransfer | PaymentCardTransactionDispute | PaymentCardTransactionChargeback | PersonAccountHolderIdentityUpdatedEvent | BusinessAccountHolderIdentityUpdatedEvent | BusinessAuthorizedPersonIdentityUpdatedEvent | BusinessUltimateBeneficialOwnerIdentityUpdatedEvent | PersonAccountHolderIdentityDocumentsRequestedEvent | BusinessAccountHolderIdentityDocumentsRequestedEvent | BusinessAuthorizedPersonIdentityDocumentsRequestedEvent | BusinessUltimateBeneficialOwnerIdentityDocumentsRequestedEvent | OriginatedAchTransferInitiatedEvent | OriginatedAchTransferPendingEvent | OriginatedAchTransferProcessingEvent | OriginatedAchTransferProcessedEvent | OriginatedAchTransferCanceledEvent | OriginatedAchTransferFailedEvent | OriginatedAchTransferReturnedEvent | NonOriginatedAchTransferReceivedEvent | NonOriginatedAchTransferProcessedEvent | NonOriginatedAchTransferFailedEvent | NonOriginatedAchTransferReturnedEvent | CreditLimitChangeRequestStatusChangedEvent | AchTransferHoldAddedEvent | AchTransferHoldRemovedEvent | LinkVerifiedExternalBankAccountFailedEvent | CheckPaymentEvent | UpcomingStatementDueDateEvent | AccountHolderProvisioning | AccountHolderProvisioningWorkflowAction | FeeChargeEvent | FeeReversalEvent | InstantNetworkTransfer | UnifiedFundsTransfer | OriginatedRtpTransferEvent | NonOriginatedRtpTransferEvent | ManualDocumentRequestUploadSession | FileUploadCompleteEvent | DocumentUploadSessionCompleteEvent | CardPaymentAuthorizingEvent | CardPaymentAuthorizedEvent | CardPaymentIncrementalAuthorizedEvent | CardPaymentReversedEvent | CardPaymentPartialReversedEvent | CardPaymentCapturingEvent | CardPaymentCaptureProcessingEvent | CardPaymentClearedEvent | CardPaymentClearingFailedEvent | CardPaymentDisbursedEvent | CardPaymentAuthorizationDeclinedEvent | CardPaymentIncrementalAuthorizationDeclinedEvent | CardPaymentReversalDeclinedEvent | CardPaymentCaptureDeclinedEvent | CardPaymentPayoutEvent | PayoutTransferCompletedEvent | CardPaymentVerificationPendingEvent | CardPaymentVerifiedEvent | CardPaymentVerificationDeclinedEvent | CardPaymentDispute | PaymentMethodCapabilityEnabledEvent | PaymentMethodCapabilityDisabledEvent | PaymentMethodCapabilityRequiresReviewEvent | PaymentMethodCapabilityReviewedEvent | BalanceNotificationEvent | CryptoFundingFlowReceivedEvent | CryptoFundingFlowProcessingEvent | CryptoFundingFlowProcessedEvent | CryptoFundingFlowFailedEvent
+union NotificationEventNode = AuthorizationEvent | AccountHolderCardProductApplication | AuthorizedUserCardProductApplication | NotificationTargetActivationEvent | NotificationPingTestEvent | NotificationEventValidationTestEvent | SecureDepositInitiatedEvent | SecureDepositProcessingEvent | SecureDepositProcessedEvent | SecureDepositFailedEvent | SecureDepositReturnedEvent | SecureDepositCanceledEvent | FundsWithdrawalInitiatedEvent | FundsWithdrawalProcessingEvent | FundsWithdrawalProcessedEvent | FundsWithdrawalFailedEvent | FundsWithdrawalReturnedEvent | FundsWithdrawalCanceledEvent | FundsDepositInitiatedEvent | FundsDepositProcessingEvent | FundsDepositProcessedEvent | FundsDepositFailedEvent | FundsDepositReturnedEvent | FundsDepositCanceledEvent | RepaymentProcessedEvent | RepaymentProcessingEvent | RepaymentFailedEvent | RepaymentReturnedEvent | AchExternallyInitatedDepositReceivedEvent | AchExternallyInitatedDepositProcessedEvent | AchExternallyInitatedDepositFailedEvent | AchExternallyInitiatedWithdrawalReceivedEvent | AchExternallyInitiatedWithdrawalProcessedEvent | AchExternallyInitiatedWithdrawalFailedEvent | PaymentCardAdjustmentEvent | PaymentCardAuthorizationApprovedEvent | PaymentCardAuthorizationCreatedEvent | PaymentCardAuthorizationDeclinedEvent | PaymentCardAuthorizationReversedEvent | PaymentCardAuthorizationAndClearApprovedEvent | PaymentCardAuthorizationAndClearDeclinedEvent | PaymentCardClearedEvent | PaymentCardEnhancedDataEvent | PaymentCardVerificationApprovedEvent | PaymentCardVerificationDeclinedEvent | PaymentCardIssuedEvent | PaymentCardActivatedEvent | PaymentCardSuspendedEvent | PaymentCardUnsuspendedEvent | PaymentCardClosedEvent | PhysicalPaymentCardShippedEvent | PhysicalPaymentCardShipFailedEvent | FinancialAccountStatementReadyEvent | InternalTransferFromFundingFinancialAccountToPaymentCardFinancialAccountPendingEvent | InternalTransferFromFundingFinancialAccountToPaymentCardFinancialAccountCompletedEvent | InternalTransferFromFundingFinancialAccountToPaymentCardFinancialAccountFailedEvent | InternalTransferFromPaymentCardFinancialAccountToFundingFinancialAccountPendingEvent | InternalTransferFromPaymentCardFinancialAccountToFundingFinancialAccountCompletedEvent | InternalTransferFromPaymentCardFinancialAccountToFundingFinancialAccountFailedEvent | PhysicalPaymentCardGroupOrderShippedEvent | PhysicalPaymentCardGroupOrderShipFailedEvent | PayrollAdvanceRepaymentCompletedEvent | PayrollAdvanceWriteOffCompletedEvent | AccountStatusActiveEvent | AccountStatusSuspendedEvent | AccountStatusUnderReviewEvent | AccountStatusPendingClosureEvent | AccountStatusClosedEvent | FinancialAccount | ExternalBankAccountAddedEvent | ExternalBankAccountRemovedEvent | CardDigitalWalletTokenActivatedEvent | CardDigitalWalletTokenSuspendedEvent | CardDigitalWalletTokenTerminatedEvent | AchHoldAddedEvent | AchHoldRemovedEvent | Report | InterFinancialAccountTransfer | PaymentCardTransactionDispute | PaymentCardTransactionChargeback | PersonAccountHolderIdentityUpdatedEvent | BusinessAccountHolderIdentityUpdatedEvent | BusinessAuthorizedPersonIdentityUpdatedEvent | BusinessUltimateBeneficialOwnerIdentityUpdatedEvent | PersonAccountHolderIdentityDocumentsRequestedEvent | BusinessAccountHolderIdentityDocumentsRequestedEvent | BusinessAuthorizedPersonIdentityDocumentsRequestedEvent | BusinessUltimateBeneficialOwnerIdentityDocumentsRequestedEvent | OriginatedAchTransferInitiatedEvent | OriginatedAchTransferPendingEvent | OriginatedAchTransferProcessingEvent | OriginatedAchTransferProcessedEvent | OriginatedAchTransferCanceledEvent | OriginatedAchTransferFailedEvent | OriginatedAchTransferReturnedEvent | NonOriginatedAchTransferReceivedEvent | NonOriginatedAchTransferProcessedEvent | NonOriginatedAchTransferFailedEvent | NonOriginatedAchTransferReturnedEvent | CreditLimitChangeRequestStatusChangedEvent | AchTransferHoldAddedEvent | AchTransferHoldRemovedEvent | LinkVerifiedExternalBankAccountFailedEvent | LinkVerifiedExternalBankAccountVerificationRequiredEvent | LinkVerifiedExternalBankAccountExpiredEvent | CheckPaymentEvent | UpcomingStatementDueDateEvent | AccountHolderProvisioning | AccountHolderProvisioningWorkflowAction | FeeChargeEvent | FeeReversalEvent | InstantNetworkTransfer | UnifiedFundsTransfer | WireTransfer | OriginatedRtpTransferEvent | NonOriginatedRtpTransferEvent | ManualDocumentRequestUploadSession | FileUploadCompleteEvent | DocumentUploadSessionCompleteEvent | CardPaymentAuthorizingEvent | CardPaymentAuthorizedEvent | CardPaymentIncrementalAuthorizedEvent | CardPaymentReversedEvent | CardPaymentPartialReversedEvent | CardPaymentCapturingEvent | CardPaymentCaptureProcessingEvent | CardPaymentClearedEvent | CardPaymentClearingFailedEvent | CardPaymentDisbursedEvent | CardPaymentAuthorizationDeclinedEvent | CardPaymentIncrementalAuthorizationDeclinedEvent | CardPaymentReversalDeclinedEvent | CardPaymentCaptureDeclinedEvent | CardPaymentPayoutEvent | PayoutTransferCompletedEvent | CardPaymentVerificationPendingEvent | CardPaymentVerifiedEvent | CardPaymentVerificationDeclinedEvent | CardPaymentDispute | PaymentMethodCapabilityEnabledEvent | PaymentMethodCapabilityDisabledEvent | PaymentMethodCapabilityRequiresReviewEvent | PaymentMethodCapabilityReviewedEvent | BalanceNotificationEvent | CryptoFundingFlowReceivedEvent | CryptoFundingFlowProcessingEvent | CryptoFundingFlowProcessedEvent | CryptoFundingFlowFailedEvent
 
 """The event sent to a notification target during activation."""
 type NotificationTargetActivationEvent {
@@ -43146,6 +43387,16 @@ enum NotificationEventName {
   """
   LINK_VERIFIED_EXTERNAL_BANK_ACCOUNT_FAILED
 
+  """
+  The name of the Notification Event when a `Verified External Financial Account` requires verification. The account holder must complete verification using the time-limited hosted Link URL.
+  """
+  LINK_VERIFIED_EXTERNAL_BANK_ACCOUNT_VERIFICATION_REQUIRED
+
+  """
+  The name of the Notification Event when a `Verified External Financial Account` linking journey has expired before completion.
+  """
+  LINK_VERIFIED_EXTERNAL_BANK_ACCOUNT_EXPIRED
+
   """The check has been initiated and is pending funding."""
   CHECK_PAYMENT_EVENT_FUNDING_PENDING
 
@@ -43411,6 +43662,11 @@ enum NotificationEventName {
 
   """Triggered when the `UnifiedFundsTransfer` has failed."""
   UNIFIED_FUNDS_TRANSFER_FAILED_EVENT
+
+  """
+  Triggered when a `WireTransfer` crediting a financial account has completed.
+  """
+  WIRE_TRANSFER_COMPLETED_EVENT
 
   """
   Triggered when an `OriginatedRtpTransfer` record is created from a customer-initiated outbound RTP request, before any funds move.
@@ -51080,6 +51336,11 @@ enum AchTransferPurpose {
   The `AchTransfer` is a disbursement from a Highnote `FinancialAccount` to a merchant funding account.
   """
   MERCHANT_PUSH_PAYMENT_FUNDING
+
+  """
+  The `AchTransfer` is an intra-bank (on-us) withdrawal between two external accounts at the same partner bank.
+  """
+  INTRA_BANK_ACH_TRANSFER
 }
 
 """
@@ -53689,6 +53950,37 @@ enum RewardPointsTransferFailureReasonCode {
 
   """The accounts on the transfer do not belong to the same card product."""
   ACCOUNTS_DO_NOT_BELONG_TO_SAME_PRODUCT
+
+  """
+  The `RewardRedemptionConfiguration` referenced by the redemption could not be found.
+  """
+  REDEMPTION_CONFIGURATION_NOT_FOUND
+
+  """
+  The redemption requires either a `RewardRedemptionConfiguration` identifier or an explicit point value, but neither was provided.
+  """
+  REDEMPTION_CONFIGURATION_ID_OR_POINT_VALUE_REQUIRED
+
+  """
+  The funding account does not have a sufficient balance to cover the cash value of the redemption.
+  """
+  INSUFFICIENT_FUNDING_ACCOUNT_BALANCE
+
+  """
+  The number of reward points requested for the transfer must be greater than zero.
+  """
+  TRANSFER_AMOUNT_NOT_POSITIVE
+
+  """
+  The receiving `FinancialAccount` is not active and cannot accept the transfer.
+  """
+  ACCOUNT_NOT_ACTIVE
+
+  """
+  An account id provided for the transfer is not a structurally valid account id. The id format is
+  checked, not whether the account exists.
+  """
+  INVALID_ACCOUNT_ID
 }
 
 """Status of the reward points transfer."""
@@ -54411,6 +54703,13 @@ input RedeemRewardsToFinancialAccountInput {
   An optional tracker for external transaction identifier. Max character length is 255.
   """
   externalTransactionIdentifier: String
+
+  """
+  Optional client-supplied idempotency key. Repeating a request with the same
+  key returns the original `RewardPointsTransfer` instead of creating a duplicate
+  redemption. If omitted, a key is generated server-side. Max length 255.
+  """
+  idempotencyKey: IdempotencyKey
 }
 
 """Input type for redeeming reward points."""
@@ -54432,6 +54731,13 @@ input RedeemRewardsForStatementCreditInput {
   An optional tracker for external transaction identifier. Max character length is 255.
   """
   externalTransactionIdentifier: String
+
+  """
+  Optional client-supplied idempotency key. Repeating a request with the same
+  key returns the original `RewardPointsTransfer` instead of creating a duplicate
+  redemption. If omitted, a key is generated server-side. Max length 255.
+  """
+  idempotencyKey: IdempotencyKey
 }
 
 """Redemption information required to redeem points."""
@@ -54471,6 +54777,129 @@ enum RewardPointsActivityTypeInput {
 
   """Deduct reward points from an enabled `FinancialAccount`."""
   DEDUCT
+}
+
+"""
+An amount owed by a `payableParty` to a `receivableParty`, collected against `payableAccount` automatically — via settlement deduction, internal account transfer, or ACH debit — depending on the configured collection strategy.
+"""
+type AccountReceivable implements Node {
+  """
+  Global ID used to reference the receivable in operations. Prefixed `acrcv_`.
+  """
+  id: ID!
+
+  """The current lifecycle status of the receivable."""
+  status: AccountReceivableStatus
+
+  """The business classification of the receivable."""
+  receivableType: AccountReceivableType
+
+  """
+  The cadence on which collection is attempted during the effective window.
+  """
+  collectionSchedule: AccountReceivableCollectionSchedule
+
+  """
+  The amount owed at creation. Immutable after the receivable is created.
+  """
+  originalAmount: Amount
+
+  """The outstanding balance. Decreases as collections complete."""
+  remainingAmount: Amount
+
+  """The party that owes the receivable."""
+  payableParty: AccountPayableParty
+
+  """The party owed the receivable."""
+  receivableParty: AccountReceivableParty
+
+  """
+  The account funds are collected from. Will be populated after the `PENDING` state.
+  """
+  payableAccount: FinancialAccount
+
+  """
+  The account collected funds are deposited into. Will be populated after the `PENDING` state.
+  """
+  receivableAccount: FinancialAccount
+
+  """The date the receivable is scheduled to be paid."""
+  paymentDate: Date
+
+  """Upon this date, the receivable will attempt to recapture the funds."""
+  arrearsDate: Date
+
+  """A description of the receivable for reference."""
+  memo: String
+
+  """The date and time, in ISO 8601 format, the receivable was created."""
+  createdAt: String
+
+  """
+  The date and time, in ISO 8601 format, the receivable was last updated.
+  """
+  updatedAt: String
+}
+
+"""The party that owes an `AccountReceivable`."""
+union AccountPayableParty = Merchant | Payfac | Iso | FinancialAccountHolder
+
+"""The party owed an `AccountReceivable`."""
+union AccountReceivableParty = Merchant | Payfac | Iso | FinancialAccountHolder
+
+"""Lifecycle status of an `AccountReceivable`."""
+enum AccountReceivableStatus {
+  """Persisted; not yet eligible for collection."""
+  PENDING
+
+  """Eligible for collection."""
+  ACTIVE
+
+  """
+  Fully collected; `remainingAmount` has reached zero. This is a terminal status.
+  """
+  COMPLETED
+
+  """
+  Cancelled before full collection. The remaining balance will not be collected. This is a terminal status.
+  """
+  CANCELLED
+
+  """
+  Remaining balance was deemed uncollectable and written off. This is a terminal status.
+  """
+  WRITTEN_OFF
+}
+
+"""Classification of a receivable."""
+enum AccountReceivableType {
+  """A recurring fee (e.g. SaaS subscription, platform fee)."""
+  RECURRING_FEE
+
+  """
+  A non-recurring fee tied to a specific event (e.g. setup, onboarding, processing).
+  """
+  ONE_TIME_FEE
+
+  """A balance owed on a cash advance issued to the payable party."""
+  CASH_ADVANCE
+
+  """An amount owed against an invoice generated by the invoicing domain."""
+  INVOICE
+}
+
+"""Cadence on which collection is attempted during the effective window."""
+enum AccountReceivableCollectionSchedule {
+  """
+  Collect once at the start of the effective window; no further attempts within the window.
+  """
+  ONE_TIME
+
+  """Attempt collection daily."""
+  DAILY
+
+  """Attempt collection monthly."""
+  MONTHLY
 }
 
 """Input fields for shifting the current statement period"""
@@ -66560,7 +66989,7 @@ enum PaymentTransactionResponseCodeProcessorResponseCode {
   EXCEEDS_WITHDRAWAL_FREQUENCY_LIMIT
 
   """
-  The authorization was declined because the issuer requires strong customer authentication (SCA) before the transaction can proceed. The merchant should initiate a 3DS authentication flow and retry the authorization with the resulting authentication data.
+  The authorization was declined because the issuer requires strong customer authentication (SCA) before the transaction can proceed. The merchant should initiate a 3DSecure authentication flow and retry the authorization with the resulting authentication data.
   """
   AUTHENTICATION_REQUIRED
 
@@ -67046,6 +67475,29 @@ enum InstantNetworkTransferDestinationPaymentInstrumentCapabilityStatus {
 }
 
 """
+The reason an `InstantNetworkTransfer` payment instrument capability is in a
+non-`ENABLED` (`DISABLED` or `REQUIRES_REVIEW`) state. The list is empty when the
+capability `status` is `ENABLED`.
+"""
+enum InstantNetworkTransferCapabilityDeclineReason {
+  """
+  The card's issuing region is not supported for `InstantNetworkTransfer`.
+  """
+  BIN_REGION_NOT_SUPPORTED
+
+  """The `PaymentInstrument` is not a debit or prepaid card."""
+  NOT_DEBIT_OR_PREPAID
+
+  """The `PaymentInstrument` does not support money transfer."""
+  NO_MONEY_TRANSFER_CAPABILITY
+
+  """
+  The capability was decisioned by Highnote operations through case management.
+  """
+  CASE_DECISIONED_BY_OPS
+}
+
+"""
 Indicates that this `PaymentInstrument` can be used as the destination ID for `InstantNetworkTransfer`.
 """
 type InstantNetworkTransferDestinationPaymentInstrumentCapability {
@@ -67064,6 +67516,11 @@ type InstantNetworkTransferDestinationPaymentInstrumentCapability {
 
   """The `PaymentTransaction` that originated this capability."""
   verificationPaymentTransaction: PaymentTransaction
+
+  """
+  The reason(s) this capability is not `ENABLED`. Empty when the `status` is `ENABLED`.
+  """
+  declineReasons: [InstantNetworkTransferCapabilityDeclineReason!]
 }
 
 """
@@ -67105,6 +67562,11 @@ type InstantNetworkTransferSourcePaymentInstrumentCapability {
 
   """The `PaymentTransaction` that originated this capability."""
   verificationPaymentTransaction: PaymentTransaction
+
+  """
+  The reason(s) this capability is not `ENABLED`. Empty when the `status` is `ENABLED`.
+  """
+  declineReasons: [InstantNetworkTransferCapabilityDeclineReason!]
 }
 
 union PaymentCardInstrumentCapability = InstantNetworkTransferDestinationPaymentInstrumentCapability | InstantNetworkTransferSourcePaymentInstrumentCapability | UserError | AccessDeniedError
@@ -67272,6 +67734,47 @@ type CardPaymentAuthorizingEvent implements PaymentTransactionEvent {
   identifier assigned by the acquiring processor to track the transaction.
   """
   acquirerReferenceNumber: String
+}
+
+"""The reason a `PaymentTransaction` is in a held state."""
+enum PaymentTransactionHoldReason {
+  """
+  The `PaymentTransaction` is held pending resolution of a transient processing condition. The transaction is expected to resolve to a final state without cardholder action.
+  """
+  AWAITING_PROCESSOR_NETWORK_RESPONSE
+
+  """
+  The `PaymentTransaction` is held pending internal resolution. The transaction is expected to resolve to a final state without cardholder action.
+  """
+  PENDING_INTERNAL_RESOLUTION
+}
+
+"""
+Represents a card authorization held payment event for an acquiring `PaymentTransaction`. The transaction is in a held state pending final resolution and is expected to resolve to a final approved or reversed state without further cardholder action. See `holdReason` for the high-level category.
+"""
+type CardPaymentAuthorizationHeldEvent implements PaymentTransactionEvent {
+  """
+  Reference to the parent `PaymentTransaction` that this event was created for.
+  """
+  paymentTransaction: PaymentTransaction
+
+  """The amount associated with the `PaymentTransactionEvent`."""
+  amount: Amount
+
+  """The date and time, in ISO 8601 format, this object was created."""
+  createdAt: String
+
+  """The date and time, in ISO 8601 format, this object was updated."""
+  updatedAt: String
+
+  """
+  The acquirer reference number associated with this event. This is a unique
+  identifier assigned by the acquiring processor to track the transaction.
+  """
+  acquirerReferenceNumber: String
+
+  """The high-level reason this authorization is held."""
+  holdReason: PaymentTransactionHoldReason
 }
 
 """
@@ -68783,8 +69286,12 @@ input RefundPaymentTransactionInput {
   """The payment transaction to refund."""
   paymentTransactionId: ID!
 
-  """The amount to refund."""
-  amount: AmountInput!
+  """
+  The amount to refund.
+  
+  Defaults to refund the remaining captured amount.
+  """
+  amount: AmountInput
 
   """
   The idempotency key for this request.
@@ -69432,6 +69939,36 @@ union VerifyNetworkTokenPayload = AccessDeniedError | UserError | PaymentCardVer
 """Result of verifying a payment method token."""
 union VerifyPaymentMethodTokenPayload = AccessDeniedError | UserError | PaymentCardVerification
 
+"""The filters used to scope the type of `MerchantAcceptor`s returned."""
+input MerchantAcceptorFilterInput {
+  """
+  Filter `MerchantAcceptor`s by the merchant id.
+  
+  **Note:** This filter only supports `equals` currently, all other comparison operators will be ignored.
+  """
+  merchantId: IDFilterInput
+}
+
+"""A paginated list of `MerchantAcceptor`s."""
+type MerchantAcceptorConnection {
+  """Information about the current page."""
+  pageInfo: PageInfo!
+
+  """The list of `MerchantAcceptor`s on this page."""
+  edges: [MerchantAcceptorEdge!]
+}
+
+"""A `MerchantAcceptor` and its position within the connection."""
+type MerchantAcceptorEdge {
+  """
+  The cursor for this `MerchantAcceptor`'s position within the connection.
+  """
+  cursor: String!
+
+  """The `MerchantAcceptor` at this position in the connection."""
+  node: MerchantAcceptor
+}
+
 """
 A merchant acceptor — Identifies how transactions for a merchant are routed and reported
 across processors and card networks.
@@ -69455,9 +69992,6 @@ type MerchantAcceptor implements Node {
 
   """The `Merchant` that owns this `MerchantAcceptor`."""
   merchant: Merchant
-
-  """The `PricingPlan` applied to transactions on this `MerchantAcceptor`."""
-  pricingPlan: PricingPlan
 
   """The date and time, in ISO 8601 format, this object was created."""
   createdAt: String
@@ -69531,6 +70065,87 @@ type MerchantAcceptorProcessorConfiguration {
   settlementAccount: FinancialAccount
 }
 
+"""A token representing a payment method."""
+type PaymentMethodToken implements Node {
+  """
+  3DSecure authentication context attached when this token was minted via an acquiring
+  3DSecure flow (`initiateAcquiringThreeDSecureAuthentication` /
+  `completeAcquiringThreeDSecureAuthenticationChallenge`). Null for tokens minted through
+  any other path.
+  
+  Read this before authorizing against the token to make a liability decision:
+  * `liabilityShifted = true` — issuer accepts fraud liability; proceed with confidence.
+  * `liabilityShifted = false` AND `liabilityShiftPossible = true` — merchant retains
+    liability; consider declining or applying additional risk checks.
+  * `liabilityShiftPossible = false` — card wasn't enrolled in 3DSecure; standard merchant
+    liability rules apply.
+  
+  Raw CAVV / full auth-message blob is intentionally not exposed here; Highnote applies it
+  server-side when authorizing the subsequent charge against this `PaymentMethodToken`.
+  """
+  acquiringThreeDSecureAuthentication: AcquiringThreeDSecureAuthentication
+
+  """Global ID used to reference this object."""
+  id: ID!
+
+  """The date and time, in ISO 8601 format, this object was created."""
+  createdAt: String
+
+  """The date and time, in ISO 8601 format, this object was updated."""
+  updatedAt: String
+
+  """How many times this `PaymentMethodToken` can be used."""
+  usage: PaymentMethodTokenUsage
+
+  """
+  The payment instrument used for the `PaymentMethodToken`. Instrument data can be used to display information to the user without violating PCI compliance.
+  """
+  instrument: PaymentInstrument
+
+  """
+  The date and time, in ISO 8601 format, the payment method token will expire.
+  """
+  expiresAt: String
+
+  """
+  A short lived scoped payment method token for the `PaymentMethodToken`.
+  """
+  token(scope: TokenScope!): ScopedPaymentMethodTokenPayload
+}
+
+"""
+3DSecure authentication context attached to a `PaymentMethodToken`. Surfaces the two raw
+inputs a merchant needs to derive their own liability-shift decision per their risk model:
+the network-returned ECI and whether a CAVV was produced.
+
+Network-specific derivation rules (Visa `eci = "05"` / `"06"` → shift; Mastercard `"02"`
+or `"01"` + CAVV → shift; etc.) intentionally live with the merchant. Highnote does not
+expose `liabilityShifted` directly today because the network-specific carveouts
+(corporate-card subprograms, Mastercard attempts-server stand-ins, etc.) are merchant-policy
+decisions, not platform decisions. Additional derived fields can be added additively if a
+common merchant pattern emerges.
+
+Raw CAVV stays server-side on the `PaymentMethodToken` and is consumed by Highnote's
+authorization pipeline at submit time; this type exposes `cavvPresent` only.
+"""
+type AcquiringThreeDSecureAuthentication {
+  """
+  Electronic Commerce Indicator returned by the issuer ACS. Network-specific encoding —
+  Visa: `05` = full shift, `06` = attempted, `07` = no shift. Mastercard: `02` = full shift,
+  `01` = attempted (when CAVV is also present), `00` = no shift. Amex / Discover follow the
+  Visa convention.
+  """
+  eci: String
+
+  """
+  Whether the issuer ACS returned a CAVV (Cardholder Authentication Verification Value).
+  The CAVV value itself is kept server-side on the `PaymentMethodToken` for the authorization
+  pipeline; this field tells the merchant whether authentication produced one without
+  exposing the value.
+  """
+  cavvPresent: Boolean
+}
+
 """
 Represents an acquiring payment transaction dispute raised by a card network.
 
@@ -69552,6 +70167,9 @@ type CardPaymentDispute implements Node {
 
   """The network-defined reason for the dispute."""
   networkReason: CardPaymentDisputeNetworkReason
+
+  """The card network's identifier for this dispute case."""
+  networkCaseIdentifier: String
 
   """
   ISO-8601 formatted string representing when the dispute was initiated by the network.
@@ -69976,18 +70594,6 @@ enum MerchantStatus {
   TERMINATED
 }
 
-"""The classification of a `Merchant`."""
-enum AcquiringMerchantType {
-  """A direct merchant, not onboarded through a `Payfac`."""
-  DIRECT
-
-  """A submerchant connected to, but not fully managed by, a `Payfac`."""
-  CONNECTED_SUB
-
-  """A submerchant fully managed by a `Payfac`."""
-  MANAGED_SUB
-}
-
 """The lifecycle status of a `Payfac`."""
 enum PayfacStatus {
   """The `Payfac` is active and can onboard submerchants."""
@@ -70089,9 +70695,6 @@ type Merchant implements Node & BusinessService {
   """The display name of this `Merchant`."""
   displayName: String
 
-  """The classification of this `Merchant`."""
-  merchantType: AcquiringMerchantType
-
   """The lifecycle status of this `Merchant`."""
   status: MerchantStatus
 
@@ -70104,6 +70707,15 @@ type Merchant implements Node & BusinessService {
     after: String
   ): MerchantPayfacRelationshipConnection
 
+  """The `MerchantAcceptor`s owned by this `Merchant`."""
+  merchantAcceptors(
+    """The number of `MerchantAcceptor`s to return."""
+    first: Int = 20
+
+    """The cursor to start the page."""
+    after: String
+  ): MerchantAcceptorConnection
+
   """The product applications submitted for this `Merchant`."""
   productApplications(
     """The number of `ProductApplication` to return."""
@@ -70112,6 +70724,9 @@ type Merchant implements Node & BusinessService {
     """The cursor to start the page."""
     after: String
   ): ProductApplicationConnectionPayload
+
+  """The active `BusinessAccountConfiguration`s for this `Merchant`."""
+  businessAccountConfigurations: [BusinessAccountConfiguration!]
 }
 
 """The connection type for `Merchant`."""
@@ -70166,6 +70781,9 @@ type Payfac implements Node & BusinessService {
     """The cursor to start the page."""
     after: String
   ): PayfacIsoPartnershipConnection
+
+  """The active `BusinessAccountConfiguration`s for this `Payfac`."""
+  businessAccountConfigurations: [BusinessAccountConfiguration!]
 }
 
 """
@@ -70226,10 +70844,144 @@ type BusinessServiceEdge {
 }
 
 """
-The result of creating a `PricingConfiguration`.
-Returns the newly created configuration or error details.
+A holder of issuance financial accounts. Wraps an underlying `Business` with its own lifecycle. The issuance-side counterpart to acquiring's `Merchant`, `Payfac`, and `Iso`.
 """
-union AddPricingConfigurationPayload = AccessDeniedError | UserError | PricingConfiguration
+type FinancialAccountHolder implements Node {
+  """Global ID used to reference this `FinancialAccountHolder`."""
+  id: ID!
+
+  """The `Business` wrapped by this holder."""
+  business: Business
+
+  """
+  The date and time, in ISO 8601 format, the `FinancialAccountHolder` was created.
+  """
+  createdAt: String
+
+  """
+  The date and time, in ISO 8601 format, the `FinancialAccountHolder` was last updated.
+  """
+  updatedAt: String
+}
+
+"""Input for `assignFinancialBankAccountToBusiness`."""
+input AssignFinancialBankAccountToBusinessInput {
+  """The financial account to assign."""
+  financialAccount: AssignFinancialBankAccountInput!
+
+  """The business this account is assigned to."""
+  target: BusinessServiceTargetInput!
+
+  """The purpose this account serves for the business."""
+  purpose: BusinessAccountPurpose!
+
+  """
+  The timestamp, in ISO 8601 format, at which the assignment becomes
+  active. Defaults to now; past values are clamped to now.
+  """
+  effectiveFrom: String
+}
+
+"""The financial account to assign."""
+input AssignFinancialBankAccountInput {
+  """
+  The unique identifier of an existing `FinancialAccount`,
+  `ExternalFinancialBankAccount`, or
+  `NonVerifiedExternalUSFinancialBankAccount`.
+  """
+  id: ID
+}
+
+"""The business receiving the assignment."""
+input BusinessServiceTargetInput {
+  """
+  A `Merchant`, optionally scoped to its relationship with a specific payfac.
+  """
+  merchant: MerchantBusinessServiceTargetInput
+
+  """A `Payfac`."""
+  paymentFacilitator: PayfacBusinessServiceTargetInput
+}
+
+"""Reference to a `Merchant`, optionally scoped to a payfac relationship."""
+input MerchantBusinessServiceTargetInput {
+  """The unique identifier of the `Merchant`."""
+  id: ID!
+
+  """
+  When set, the assignment applies to the merchant's relationship with
+  this payfac (and optional iso) instead of the merchant itself.
+  """
+  paymentFacilitatorRelationship: MerchantPayfacRelationshipQualifierInput
+}
+
+"""Identifies a specific merchant-payfac relationship."""
+input MerchantPayfacRelationshipQualifierInput {
+  """The unique identifier of the `Payfac`."""
+  paymentFacilitatorId: ID!
+
+  """The unique identifier of the `Iso` that brokered the relationship."""
+  isoId: ID
+}
+
+"""Reference to a `Payfac`."""
+input PayfacBusinessServiceTargetInput {
+  """The unique identifier of the `Payfac`."""
+  id: ID!
+}
+
+"""The role a financial account plays for a business."""
+enum BusinessAccountPurpose {
+  """Receives payout funds."""
+  PAYOUT
+
+  """Funds periodic fees (e.g. monthly)."""
+  PERIODIC_FEE
+
+  """Funds negative-balance positions."""
+  NEGATIVE_BALANCE_FUNDING
+}
+
+"""
+The result of `assignFinancialBankAccountToBusiness`.
+Returns the `BusinessAccountConfiguration` or error details.
+"""
+union AssignFinancialBankAccountToBusinessPayload = BusinessAccountConfiguration | UserError | AccessDeniedError
+
+"""
+An assignment of a financial account to a business for a given purpose.
+At most one assignment is active per `(business, purpose)` pair.
+"""
+type BusinessAccountConfiguration implements Node {
+  """Global ID used to reference this `BusinessAccountConfiguration`."""
+  id: ID!
+
+  """The assigned financial account."""
+  financialAccount: AllFinancialAccount
+
+  """The business service this assignment is scoped to."""
+  service: BusinessService
+
+  """The purpose this account serves for the business."""
+  purpose: BusinessAccountPurpose
+
+  """The timestamp, in ISO 8601 format, when this assignment became active."""
+  effectiveFrom: String
+
+  """
+  The timestamp, in ISO 8601 format, when this assignment was superseded,
+  or null while this is the active assignment.
+  """
+  effectiveThrough: String
+
+  """The timestamp, in ISO 8601 format, when this assignment was created."""
+  createdAt: String
+
+  """
+  The timestamp, in ISO 8601 format, when this assignment was last updated.
+  """
+  updatedAt: String
+}
 
 """
 The result of creating a `PricingPlan`.
@@ -70417,41 +71169,6 @@ type PricingRuleParameterValueSingle {
   value: String
 }
 
-"""The input details for creating a `PricingConfiguration`."""
-input AddPricingConfigurationInput {
-  """The ID of the `PricingPlan` to associate with this configuration."""
-  pricingPlanId: ID!
-
-  """The entity to attach this pricing configuration to."""
-  addToEntity: AddPricingConfigurationEntityInput!
-
-  """The identifier of the payer entity associated with this configuration."""
-  payerEntityId: ID!
-
-  """The identifier of the payee entity associated with this configuration."""
-  payeeEntityId: ID!
-
-  """
-  The timestamp, in ISO 8601 format, from which this configuration is effective.
-  """
-  effectiveFrom: String!
-
-  """
-  The timestamp, in ISO 8601 format, through which this configuration is effective.
-  If not set, the configuration has no expiration.
-  """
-  effectiveThrough: String
-}
-
-"""The entity to attach a `PricingConfiguration` to."""
-input AddPricingConfigurationEntityInput {
-  """The unique identifier of the entity."""
-  id: ID!
-
-  """The type of entity being attached."""
-  type: PricingConfigurationAttachmentEntityType
-}
-
 """The input details for creating a `PricingPlan`."""
 input CreatePricingPlanInput {
   """The name of the pricing plan."""
@@ -70555,12 +71272,6 @@ enum PricingRuleFrequency {
   MONTHLY
 }
 
-"""The type of entity a `PricingConfiguration` can be attached to."""
-enum PricingConfigurationAttachmentEntityType {
-  """A merchant entity."""
-  MERCHANT
-}
-
 """The connection type for `PricingPlan`."""
 type PricingPlanConnection {
   """Information about the current page."""
@@ -70616,11 +71327,6 @@ type OnDemandPricingCharge implements Node {
 
   """The timestamp, in ISO 8601 format, when this charge was last updated."""
   updatedAt: String
-
-  """
-  Metadata describing how the charge amount was derived (echoed from the request).
-  """
-  metadata: OnDemandPricingChargeCalculationMetadata
 }
 
 """
@@ -70635,38 +71341,166 @@ enum OnDemandPricingChargeImpact {
 }
 
 """
-Metadata describing how the charge amount was derived. Echoed from the request.
+An invoice issued to or from a business, aggregating one or more
+`InvoiceItem` charges over a billing period.
 """
-type OnDemandPricingChargeCalculationMetadata {
-  """Per-item calculation, if supplied on the request."""
-  perItem: OnDemandPricingPerItemCalculation
+type Invoice implements Node {
+  """Global ID used to reference this `Invoice`."""
+  id: ID!
 
-  """Percentage calculation, if supplied on the request."""
-  percentage: OnDemandPricingPercentageCalculation
+  """The human-readable invoice reference identifier."""
+  referenceIdentifier: String
+
+  """The `Business` the invoice is billed from (the issuing party)."""
+  billFrom: InvoiceParty
+
+  """The `FinancialAccount` the invoice is billed from."""
+  billFromAccount: FinancialAccount
+
+  """The `Business` the invoice is billed to (the paying party)."""
+  billTo: InvoiceParty
+
+  """The `FinancialAccount` the invoice is billed to."""
+  billToAccount: FinancialAccount
+
+  """
+  The timestamp, in ISO 8601 format, marking the start of the billing period.
+  """
+  billingPeriodFrom: String
+
+  """
+  The timestamp, in ISO 8601 format, marking the end of the billing period.
+  """
+  billingPeriodThrough: String
+
+  """The timestamp, in ISO 8601 format, when the invoice was issued."""
+  issuedDate: String
+
+  """The timestamp, in ISO 8601 format, when payment is due."""
+  dueDate: String
+
+  """The total amount of the invoice across all of its items."""
+  totalAmount: Amount
+
+  """The `InvoiceItem` records that make up this invoice."""
+  items(
+    """The number of items to return."""
+    first: Int = 20
+
+    """The cursor to start the page."""
+    after: String
+  ): InvoiceItemConnection
+
+  """The timestamp, in ISO 8601 format, when this invoice was created."""
+  createdAt: String
+
+  """The timestamp, in ISO 8601 format, when this invoice was last updated."""
+  updatedAt: String
 }
 
-"""Rate-per-item calculation echoed from the request."""
-type OnDemandPricingPerItemCalculation {
+"""
+A single line item on an `Invoice`, representing a charge with a quantity,
+rate, and computed line total.
+"""
+type InvoiceItem implements Node {
+  """Global ID used to reference this `InvoiceItem`."""
+  id: ID!
+
+  """The `Invoice` this item belongs to."""
+  invoice: Invoice
+
+  """A human-readable description of the charge."""
+  description: String
+
+  """The code identifying the charge type."""
+  itemCode: String
+
+  """Metadata describing how the invoice item amount was derived."""
+  invoiceCalculationMetadata: InvoiceItemCalculationMetadata
+
+  """The computed total for this line item."""
+  amount: Amount
+
+  """
+  The service period this item covers — either a from/through range or a
+  single service date.
+  """
+  servicePeriod: InvoiceItemServicePeriod
+
+  """The timestamp, in ISO 8601 format, when this item was created."""
+  createdAt: String
+
+  """The timestamp, in ISO 8601 format, when this item was last updated."""
+  updatedAt: String
+}
+
+"""A party on an `Invoice`."""
+union InvoiceParty = Business
+
+"""
+The service period an `InvoiceItem` covers. Exactly one variant is populated.
+"""
+union InvoiceItemServicePeriod = InvoiceItemServicePeriodRange | InvoiceItemServiceDate
+
+"""Describes how an `InvoiceItem`'s amount was calculated."""
+union InvoiceItemCalculationMetadata = InvoiceItemPerItemCalculation | InvoiceItemPercentageCalculation
+
+"""Per-item calculation for an `InvoiceItem`."""
+type InvoiceItemPerItemCalculation {
   """Money charged per item."""
   ratePerItem: Amount
 
-  """Number of items the rate was applied to."""
-  itemCount: UnsignedInt
-
-  """Free-form description of this metadata entry."""
-  description: String
+  """
+  Number of items the rate was applied to, as a decimal string to preserve
+  precision (for example, "0.5" or "100").
+  """
+  itemCount: String
 }
 
-"""Percentage-of-amount calculation echoed from the request."""
-type OnDemandPricingPercentageCalculation {
+"""Percentage calculation for an `InvoiceItem`."""
+type InvoiceItemPercentageCalculation {
   """Rate in basis points (1 bp = 0.01%)."""
   rateBasisPoints: UnsignedInt
 
   """Financial amount the rate was applied to."""
   financialAmount: Amount
+}
 
-  """Free-form description of this metadata entry."""
-  description: String
+"""A from/through service period range for an `InvoiceItem`."""
+type InvoiceItemServicePeriodRange {
+  """
+  The timestamp, in ISO 8601 format, marking the start of the service period.
+  """
+  from: String
+
+  """
+  The timestamp, in ISO 8601 format, marking the end of the service period.
+  """
+  through: String
+}
+
+"""A single service date for an `InvoiceItem`."""
+type InvoiceItemServiceDate {
+  """The timestamp, in ISO 8601 format, of the service date."""
+  date: String
+}
+
+"""The connection type for `InvoiceItem`."""
+type InvoiceItemConnection {
+  """Information about the current page."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [InvoiceItemEdge!]
+}
+
+"""The edge type for an `InvoiceItem`."""
+type InvoiceItemEdge {
+  """The cursor for this edge for use in pagination."""
+  cursor: String!
+
+  """The `InvoiceItem` node."""
+  node: InvoiceItem
 }
 
 """Describes start and end timestamp of returned response."""
@@ -71167,36 +72001,6 @@ type ScopedPaymentMethodToken {
   The date and time, in ISO 8601 format, the short lived payment method token will expire.
   """
   expiresAt: String
-}
-
-"""A token representing a payment method."""
-type PaymentMethodToken implements Node {
-  """Global ID used to reference this object."""
-  id: ID!
-
-  """The date and time, in ISO 8601 format, this object was created."""
-  createdAt: String
-
-  """The date and time, in ISO 8601 format, this object was updated."""
-  updatedAt: String
-
-  """How many times this `PaymentMethodToken` can be used."""
-  usage: PaymentMethodTokenUsage
-
-  """
-  The payment instrument used for the `PaymentMethodToken`. Instrument data can be used to display information to the user without violating PCI compliance.
-  """
-  instrument: PaymentInstrument
-
-  """
-  The date and time, in ISO 8601 format, the payment method token will expire.
-  """
-  expiresAt: String
-
-  """
-  A short lived scoped payment method token for the `PaymentMethodToken`.
-  """
-  token(scope: TokenScope!): ScopedPaymentMethodTokenPayload
 }
 
 """Result of tokenizing a payment card."""
@@ -72407,6 +73211,16 @@ type FinancialAccountBalanceLedgerDetail {
   The date and time, in ISO 8601 format, the `debitBalance` and `creditBalance` were last calculated.
   """
   asOf: String
+
+  """
+  `signedBalance` represents the balance of the ledger, using `normalBalance` to determine its sign (positive or negative).
+  Examples:
+  If the ledger's normalBalance is DEBIT, a positive signedBalance indicates a `debitBalance` > 0
+  If the ledger's normalBalance is DEBIT, a negative signedBalance indicates a `creditBalance` > 0
+  If the ledger's normalBalance is CREDIT, a positive signedBalance indicates a `creditBalance` > 0
+  If the ledger's normalBalance is CREDIT, a negative signedBalance indicates a `debitBalance` > 0
+  """
+  signedBalance: SignedAmount
 }
 
 """Input for filtering `FinancialAccountBalanceSearchResults`."""
@@ -73406,6 +74220,11 @@ enum RtpTransferFailureReason {
   """The `RtpTransfer` failed due to a configuration error."""
   CONFIGURATION_ERROR
 
+  """
+  The `RtpTransfer` failed because the transaction was declined due to risk assessment.
+  """
+  RISK_DECLINE
+
   """The `RtpTransfer` failed for an unspecified reason."""
   UNSPECIFIED
 }
@@ -74348,6 +75167,25 @@ enum InstantNetworkTransferStatus {
 
   """The `InstantNetworkTransfer` has failed."""
   FAILED
+
+  """
+  The `InstantNetworkTransfer` has reached the network but the network approval
+  status is unknown due to a connectivity failure. The transfer is awaiting
+  automatic reconciliation against the network's settlement records. Typical
+  resolution time is several hours, after which the transfer will move to either
+  `COMPLETED` or `FAILED`. Ledger holds taken during
+  `AUTHORIZE_PUSH_PAYMENT_FUND` remain in place until reconciliation completes.
+  """
+  ON_HOLD_AWAITING_NETWORK
+
+  """
+  The `InstantNetworkTransfer` was approved by the network but is awaiting
+  internal resolution following a post-approval processing error on Highnote's
+  side. The transfer is expected to resolve to either `COMPLETED` or `FAILED`
+  without cardholder action. Ledger holds taken during
+  `AUTHORIZE_PUSH_PAYMENT_FUND` remain in place until resolution completes.
+  """
+  ON_HOLD_AWAITING_RESOLUTION
 }
 
 """

@@ -28,7 +28,7 @@ jobs:
     # while INTERNAL — the job activates automatically after public flip.
     if: ${{ github.event.repository.visibility == 'public' }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/dependency-review-action@v5
         with:

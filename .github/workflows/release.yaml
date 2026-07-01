@@ -35,7 +35,7 @@ jobs:
           echo "::error::Releases must be dispatched from 'main' (got '${{ github.ref_name }}'). Merge to main and re-run the Release workflow from main."
           exit 1
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 

@@ -111,14 +111,19 @@ update mutations.
 
 ```ts
 const holder = await client.accountHolders.createMinimalUSBusiness({
-  businessProfile: { ... },
+  idempotencyKey: crypto.randomUUID(),
+  businessProfile: { name: { ... }, businessType: ..., phoneNumber: { ... } },
+  primaryAuthorizedPerson: { ... },
 });
 ```
 
 #### `createUSBusiness(input)`
 
-Create a US business account holder with the full profile and onboarding details
-(authorized persons, ultimate beneficial owners, credit risk attributes).
+Create a US business account holder with the full profile and onboarding details.
+
+Ultimate beneficial owners and credit risk attributes are nested **inside**
+`businessProfile`; the authorized person is the top-level, single-valued
+`primaryAuthorizedPerson`.
 
 **Parameters**
 
@@ -213,9 +218,14 @@ Create a US business account holder with the full profile and onboarding details
 
 ```ts
 const holder = await client.accountHolders.createUSBusiness({
-  businessProfile: { ... },
-  authorizedPersons: [...],
-  ultimateBeneficialOwners: [...],
+  businessProfile: {
+    name: { ... },
+    businessType: ...,
+    phoneNumber: { ... },
+    ultimateBeneficialOwners: [...],
+    businessCreditRiskAttributes: { ... },
+  },
+  primaryAuthorizedPerson: { ... },
 });
 ```
 
@@ -463,18 +473,30 @@ Schedule a one-time ACH transfer for a future date.
 **Example**
 
 ```ts
+import { Iso4217Alpha3SupportedCurrency } from "@highnote-oss/nodejs-sdk";
+
 const scheduled = await client.ach.createOneTimeTransfer({
-  financialAccountId: "fa_...",
-  externalAccountId: "ea_...",
-  amount: { value: 5000, currencyCode: "USD" },
-  purpose: AchTransferPurpose.WITHDRAWAL,
-  scheduledDate: "2026-06-01",
+  fromFinancialAccountId: "fa_...",
+  toFinancialAccountId: "eba_...",
+  descriptor: { companyEntryDescription: "PAYMENT", individualName: "Jane Doe" },
+  transferAmountStrategy: {
+    transferAmount: { value: 5000, currencyCode: Iso4217Alpha3SupportedCurrency.USD },
+  },
+  transferDateStrategy: { transferDate: "2026-06-01" },
+  transferAgreementConsent: {
+    consentTimestamp: new Date().toISOString(),
+    authorizedPersonId: "ah_...",
+    template: { consentTemplateId: "ct_...", consentTemplateVersion: "1" },
+  },
 });
 ```
 
 #### `createRecurringTransfer(input)`
 
 Schedule a recurring ACH transfer (e.g., payroll, monthly deposits).
+
+`frequency` is a `RecurringAchTransferFrequencyCode`; `MONTHLY` is currently
+the only supported value.
 
 **Parameters**
 
@@ -512,18 +534,35 @@ Schedule a recurring ACH transfer (e.g., payroll, monthly deposits).
 **Example**
 
 ```ts
+import {
+  Iso4217Alpha3SupportedCurrency,
+  RecurringAchTransferFrequencyCode,
+} from "@highnote-oss/nodejs-sdk";
+
 const recurring = await client.ach.createRecurringTransfer({
-  financialAccountId: "fa_...",
-  externalAccountId: "ea_...",
-  amount: { value: 100000, currencyCode: "USD" },
-  purpose: AchTransferPurpose.PAYROLL,
-  schedule: { frequency: "BIWEEKLY", startDate: "2026-06-01" },
+  fromFinancialAccountId: "fa_...",
+  toFinancialAccountId: "eba_...",
+  frequency: RecurringAchTransferFrequencyCode.MONTHLY,
+  descriptor: { companyEntryDescription: "PAYROLL", individualName: "Jane Doe" },
+  transferAmountStrategy: {
+    transferAmount: { value: 100000, currencyCode: Iso4217Alpha3SupportedCurrency.USD },
+  },
+  transferDayStrategy: { transferDayOfMonth: 1 },
+  transferAgreementConsent: {
+    consentTimestamp: new Date().toISOString(),
+    authorizedPersonId: "ah_...",
+    template: { consentTemplateId: "ct_...", consentTemplateVersion: "1" },
+  },
 });
 ```
 
 #### `initiateTransfer(input)`
 
 Initiate an ACH transfer to or from an external bank account.
+
+Exactly one of `fromFinancialAccountId` / `toFinancialAccountId` references an
+external bank account and the other a Highnote `FinancialAccount`. The example
+below pulls funds from an external account into a Highnote account.
 
 **Parameters**
 
@@ -601,11 +640,21 @@ Initiate an ACH transfer to or from an external bank account.
 **Example**
 
 ```ts
+import { AchTransferPurpose, Iso4217Alpha3SupportedCurrency } from "@highnote-oss/nodejs-sdk";
+
 const transfer = await client.ach.initiateTransfer({
-  financialAccountId: "fa_...",
-  externalAccountId: "ea_...",
-  amount: { value: 10000, currencyCode: "USD" },
+  idempotencyKey: crypto.randomUUID(),
+  fromFinancialAccountId: "eba_...",
+  toFinancialAccountId: "fa_...",
+  amount: { value: 10000, currencyCode: Iso4217Alpha3SupportedCurrency.USD },
   purpose: AchTransferPurpose.DEPOSIT,
+  companyEntryDescription: "DEPOSIT",
+  individualName: "Jane Doe",
+  transferAgreementConsent: {
+    consentTimestamp: new Date().toISOString(),
+    authorizedPersonId: "ah_...",
+    template: { consentTemplateId: "ct_...", consentTemplateVersion: "1" },
+  },
 });
 ```
 
@@ -795,10 +844,13 @@ Pass no options to iterate every account on the product.
 **Example**
 
 ```ts
-for await (const fa of client.cardProducts.listFinancialAccounts(
-  cardProductId,
-  { filterBy: { searchQueryLanguage: { query: "", version: "VERSION_1" } } },
-)) {
+import { SearchQueryLanguageVersion } from "@highnote-oss/nodejs-sdk";
+
+for await (const fa of client.cardProducts.listFinancialAccounts(cardProductId, {
+  filterBy: {
+    searchQueryLanguage: { query: "", version: SearchQueryLanguageVersion.VERSION_1 },
+  },
+})) {
   console.log(fa.name, fa.features?.map((f) => f.__typename));
 }
 ```
@@ -1104,7 +1156,8 @@ const order = await client.cards.orderPhysical({
 #### `orderPhysicalWithValidatedAddress(input)`
 
 Order a physical card using a validated address token.
-Call `client.addresses.validate()` first to get the token ID.
+Call `client.addresses.validate()` first and pass the resulting token id as
+`deliveryDetails.validatedAddressId`.
 
 **Parameters**
 
@@ -1186,11 +1239,22 @@ Call `client.addresses.validate()` first to get the token ID.
 **Example**
 
 ```ts
-const { token } = await client.addresses.validate({ address });
+const validation = await client.addresses.validate({
+  address,
+  idempotencyKey: crypto.randomUUID(),
+});
+if (validation.outcome?.__typename !== "AddressValidatedResult") {
+  throw new Error("Address could not be validated");
+}
+
 const order = await client.cards.orderPhysicalWithValidatedAddress({
   paymentCardId: "pc_...",
+  idempotencyKey: crypto.randomUUID(),
   cardPersonalization: { textLines: { line1: "JANE DOE" } },
-  validatedAddressToken: token,
+  deliveryDetails: {
+    name: { givenName: "Jane", familyName: "Doe" },
+    validatedAddressId: validation.outcome.token!.id,
+  },
 });
 ```
 
@@ -1271,9 +1335,11 @@ Generate a scoped client token for a document upload session.
 **Example**
 
 ```ts
+import { DocumentUploadClientTokenPermission } from "@highnote-oss/nodejs-sdk";
+
 const token = await client.clientTokens.createForDocumentUpload({
   documentUploadSessionId: "dus_...",
-  permissions: ["MANAGE_DOCUMENT_UPLOAD_SESSION"],
+  permissions: [DocumentUploadClientTokenPermission.MANAGE_DOCUMENT_UPLOAD_SESSION],
 });
 ```
 
@@ -1293,9 +1359,11 @@ Generate a scoped client token for a payment card.
 **Example**
 
 ```ts
+import { PaymentCardClientTokenPermission } from "@highnote-oss/nodejs-sdk";
+
 const token = await client.clientTokens.createForPaymentCard({
   paymentCardId: "pc_...",
-  permissions: ["READ_RESTRICTED_DETAILS"],
+  permissions: [PaymentCardClientTokenPermission.READ_RESTRICTED_DETAILS],
 });
 ```
 
@@ -1314,8 +1382,12 @@ Generate a scoped client token for payment method tokenization.
 **Example**
 
 ```ts
+import { GeneratePaymentMethodTokenizationClientTokenPermission } from "@highnote-oss/nodejs-sdk";
+
 const token = await client.clientTokens.createForTokenization({
-  permissions: ["TOKENIZE_PAYMENT_METHOD"],
+  permissions: [
+    GeneratePaymentMethodTokenizationClientTokenPermission.TOKENIZE_PAYMENT_METHOD,
+  ],
 });
 ```
 
@@ -1565,13 +1637,14 @@ Initiate a customer card transaction dispute.
 
 ```ts
 import {
+  Iso4217Alpha3SupportedCurrency,
   PaymentCardDisputeCategoryType,
   PaymentCardDisputeCustomerClaimType,
 } from "@highnote-oss/nodejs-sdk";
 
 const dispute = await client.disputes.initiate({
   cardTransactionEventId: "te_...",
-  amount: { value: "50.00", currencyCode: "USD" },
+  amount: { value: "50.00", currencyCode: Iso4217Alpha3SupportedCurrency.USD },
   category: PaymentCardDisputeCategoryType.FRAUD,
   customerClaimType: PaymentCardDisputeCustomerClaimType.VERBAL,
   customerContact: {
@@ -1670,6 +1743,8 @@ Add a non-verified external US financial bank account.
 **Example**
 
 ```ts
+import { BankAccountType } from "@highnote-oss/nodejs-sdk";
+
 const account = await client.externalAccounts.addNonVerified({
   accountHolderId: "ah_...",
   routingNumber: "091000019",
@@ -1699,11 +1774,13 @@ Add an external bank account verified through Finicity.
 **Example**
 
 ```ts
+import { BankAccountType } from "@highnote-oss/nodejs-sdk";
+
 const account = await client.externalAccounts.addVerifiedThroughFinicity({
   accountHolderId: "ah_...",
   name: "My Checking",
   bankAccountType: BankAccountType.CHECKING,
-  externalToken: { customerId: "cust_..." },
+  externalToken: { customerId: "cust_...", receiptId: "rcpt_..." },
 });
 ```
 
@@ -1918,6 +1995,8 @@ approval, and financial account issuance in a single call.
 **Example**
 
 ```ts
+import { ProvisionAccountHolderAction } from "@highnote-oss/nodejs-sdk";
+
 const provisioning = await client.provisioning.create({
   accountHolderId: "ah_...",
   idempotencyKey: "uuid-v4",
@@ -1997,9 +2076,11 @@ Create an amount limit spend rule.
 **Example**
 
 ```ts
+import { Iso4217Alpha3SupportedCurrency } from "@highnote-oss/nodejs-sdk";
+
 const rule = await client.spendRules.createAmountLimit({
   name: "Max $500",
-  maximumAmount: { value: "500.00", currencyCode: "USD" },
+  maximumAmount: { value: "500.00", currencyCode: Iso4217Alpha3SupportedCurrency.USD },
 });
 ```
 
@@ -2035,9 +2116,11 @@ Create a merchant category spend rule (allow/block by MCC).
 **Example**
 
 ```ts
+import { MerchantCategory } from "@highnote-oss/nodejs-sdk";
+
 const rule = await client.spendRules.createMerchantCategory({
   name: "Block ATM",
-  blocked: ["6011"],
+  blocked: [MerchantCategory.AUTOMATED_CASH_DISBURSE],
 });
 ```
 
@@ -2131,12 +2214,12 @@ Initiate a transfer between two financial accounts.
 **Example**
 
 ```ts
-import { TransferPurpose } from "@highnote-oss/nodejs-sdk";
+import { Iso4217Alpha3SupportedCurrency, TransferPurpose } from "@highnote-oss/nodejs-sdk";
 
 const transfer = await client.transfers.initiateBetweenAccounts({
   fromFinancialAccountId: "fa_source",
   toFinancialAccountId: "fa_target",
-  amount: { value: "100.00", currencyCode: "USD" },
+  amount: { value: "100.00", currencyCode: Iso4217Alpha3SupportedCurrency.USD },
   purpose: TransferPurpose.GENERAL,
 });
 ```

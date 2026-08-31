@@ -29,9 +29,11 @@ export class ClientTokensResource {
    * Generate a scoped client token for a payment card.
    *
    * ```ts
+   * import { PaymentCardClientTokenPermission } from "@highnote-oss/nodejs-sdk";
+   *
    * const token = await client.clientTokens.createForPaymentCard({
    *   paymentCardId: "pc_...",
-   *   permissions: ["READ_RESTRICTED_DETAILS"],
+   *   permissions: [PaymentCardClientTokenPermission.READ_RESTRICTED_DETAILS],
    * });
    * ```
    */
@@ -65,8 +67,12 @@ export class ClientTokensResource {
    * Generate a scoped client token for payment method tokenization.
    *
    * ```ts
+   * import { GeneratePaymentMethodTokenizationClientTokenPermission } from "@highnote-oss/nodejs-sdk";
+   *
    * const token = await client.clientTokens.createForTokenization({
-   *   permissions: ["TOKENIZE_PAYMENT_METHOD"],
+   *   permissions: [
+   *     GeneratePaymentMethodTokenizationClientTokenPermission.TOKENIZE_PAYMENT_METHOD,
+   *   ],
    * });
    * ```
    */
@@ -100,9 +106,11 @@ export class ClientTokensResource {
    * Generate a scoped client token for a document upload session.
    *
    * ```ts
+   * import { DocumentUploadClientTokenPermission } from "@highnote-oss/nodejs-sdk";
+   *
    * const token = await client.clientTokens.createForDocumentUpload({
    *   documentUploadSessionId: "dus_...",
-   *   permissions: ["MANAGE_DOCUMENT_UPLOAD_SESSION"],
+   *   permissions: [DocumentUploadClientTokenPermission.MANAGE_DOCUMENT_UPLOAD_SESSION],
    * });
    * ```
    */

@@ -38,13 +38,14 @@ export class DisputesResource {
    *
    * ```ts
    * import {
+   *   Iso4217Alpha3SupportedCurrency,
    *   PaymentCardDisputeCategoryType,
    *   PaymentCardDisputeCustomerClaimType,
    * } from "@highnote-oss/nodejs-sdk";
    *
    * const dispute = await client.disputes.initiate({
    *   cardTransactionEventId: "te_...",
-   *   amount: { value: "50.00", currencyCode: "USD" },
+   *   amount: { value: "50.00", currencyCode: Iso4217Alpha3SupportedCurrency.USD },
    *   category: PaymentCardDisputeCategoryType.FRAUD,
    *   customerClaimType: PaymentCardDisputeCustomerClaimType.VERBAL,
    *   customerContact: {

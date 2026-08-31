@@ -106,10 +106,13 @@ export class CardProductsResource {
    * The optional `filterBy` accepts Highnote's search-query language:
    *
    * ```ts
-   * for await (const fa of client.cardProducts.listFinancialAccounts(
-   *   cardProductId,
-   *   { filterBy: { searchQueryLanguage: { query: "", version: "VERSION_1" } } },
-   * )) {
+   * import { SearchQueryLanguageVersion } from "@highnote-oss/nodejs-sdk";
+   *
+   * for await (const fa of client.cardProducts.listFinancialAccounts(cardProductId, {
+   *   filterBy: {
+   *     searchQueryLanguage: { query: "", version: SearchQueryLanguageVersion.VERSION_1 },
+   *   },
+   * })) {
    *   console.log(fa.name, fa.features?.map((f) => f.__typename));
    * }
    * ```

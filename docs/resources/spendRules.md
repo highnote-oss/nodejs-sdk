@@ -55,9 +55,11 @@ Create an amount limit spend rule.
 **Example**
 
 ```ts
+import { Iso4217Alpha3SupportedCurrency } from "@highnote-oss/nodejs-sdk";
+
 const rule = await client.spendRules.createAmountLimit({
   name: "Max $500",
-  maximumAmount: { value: "500.00", currencyCode: "USD" },
+  maximumAmount: { value: "500.00", currencyCode: Iso4217Alpha3SupportedCurrency.USD },
 });
 ```
 
@@ -93,9 +95,11 @@ Create a merchant category spend rule (allow/block by MCC).
 **Example**
 
 ```ts
+import { MerchantCategory } from "@highnote-oss/nodejs-sdk";
+
 const rule = await client.spendRules.createMerchantCategory({
   name: "Block ATM",
-  blocked: ["6011"],
+  blocked: [MerchantCategory.AUTOMATED_CASH_DISBURSE],
 });
 ```
 

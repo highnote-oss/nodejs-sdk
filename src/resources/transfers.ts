@@ -28,12 +28,12 @@ export class TransfersResource {
    * Initiate a transfer between two financial accounts.
    *
    * ```ts
-   * import { TransferPurpose } from "@highnote-oss/nodejs-sdk";
+   * import { Iso4217Alpha3SupportedCurrency, TransferPurpose } from "@highnote-oss/nodejs-sdk";
    *
    * const transfer = await client.transfers.initiateBetweenAccounts({
    *   fromFinancialAccountId: "fa_source",
    *   toFinancialAccountId: "fa_target",
-   *   amount: { value: "100.00", currencyCode: "USD" },
+   *   amount: { value: "100.00", currencyCode: Iso4217Alpha3SupportedCurrency.USD },
    *   purpose: TransferPurpose.GENERAL,
    * });
    * ```

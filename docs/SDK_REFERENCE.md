@@ -795,10 +795,13 @@ Pass no options to iterate every account on the product.
 **Example**
 
 ```ts
-for await (const fa of client.cardProducts.listFinancialAccounts(
-  cardProductId,
-  { filterBy: { searchQueryLanguage: { query: "", version: "VERSION_1" } } },
-)) {
+import { SearchQueryLanguageVersion } from "@highnote-oss/nodejs-sdk";
+
+for await (const fa of client.cardProducts.listFinancialAccounts(cardProductId, {
+  filterBy: {
+    searchQueryLanguage: { query: "", version: SearchQueryLanguageVersion.VERSION_1 },
+  },
+})) {
   console.log(fa.name, fa.features?.map((f) => f.__typename));
 }
 ```
@@ -1271,9 +1274,11 @@ Generate a scoped client token for a document upload session.
 **Example**
 
 ```ts
+import { DocumentUploadClientTokenPermission } from "@highnote-oss/nodejs-sdk";
+
 const token = await client.clientTokens.createForDocumentUpload({
   documentUploadSessionId: "dus_...",
-  permissions: ["MANAGE_DOCUMENT_UPLOAD_SESSION"],
+  permissions: [DocumentUploadClientTokenPermission.MANAGE_DOCUMENT_UPLOAD_SESSION],
 });
 ```
 
@@ -1293,9 +1298,11 @@ Generate a scoped client token for a payment card.
 **Example**
 
 ```ts
+import { PaymentCardClientTokenPermission } from "@highnote-oss/nodejs-sdk";
+
 const token = await client.clientTokens.createForPaymentCard({
   paymentCardId: "pc_...",
-  permissions: ["READ_RESTRICTED_DETAILS"],
+  permissions: [PaymentCardClientTokenPermission.READ_RESTRICTED_DETAILS],
 });
 ```
 
@@ -1314,8 +1321,12 @@ Generate a scoped client token for payment method tokenization.
 **Example**
 
 ```ts
+import { GeneratePaymentMethodTokenizationClientTokenPermission } from "@highnote-oss/nodejs-sdk";
+
 const token = await client.clientTokens.createForTokenization({
-  permissions: ["TOKENIZE_PAYMENT_METHOD"],
+  permissions: [
+    GeneratePaymentMethodTokenizationClientTokenPermission.TOKENIZE_PAYMENT_METHOD,
+  ],
 });
 ```
 
@@ -1565,13 +1576,14 @@ Initiate a customer card transaction dispute.
 
 ```ts
 import {
+  Iso4217Alpha3SupportedCurrency,
   PaymentCardDisputeCategoryType,
   PaymentCardDisputeCustomerClaimType,
 } from "@highnote-oss/nodejs-sdk";
 
 const dispute = await client.disputes.initiate({
   cardTransactionEventId: "te_...",
-  amount: { value: "50.00", currencyCode: "USD" },
+  amount: { value: "50.00", currencyCode: Iso4217Alpha3SupportedCurrency.USD },
   category: PaymentCardDisputeCategoryType.FRAUD,
   customerClaimType: PaymentCardDisputeCustomerClaimType.VERBAL,
   customerContact: {
@@ -1918,6 +1930,8 @@ approval, and financial account issuance in a single call.
 **Example**
 
 ```ts
+import { ProvisionAccountHolderAction } from "@highnote-oss/nodejs-sdk";
+
 const provisioning = await client.provisioning.create({
   accountHolderId: "ah_...",
   idempotencyKey: "uuid-v4",
@@ -1997,9 +2011,11 @@ Create an amount limit spend rule.
 **Example**
 
 ```ts
+import { Iso4217Alpha3SupportedCurrency } from "@highnote-oss/nodejs-sdk";
+
 const rule = await client.spendRules.createAmountLimit({
   name: "Max $500",
-  maximumAmount: { value: "500.00", currencyCode: "USD" },
+  maximumAmount: { value: "500.00", currencyCode: Iso4217Alpha3SupportedCurrency.USD },
 });
 ```
 
@@ -2035,9 +2051,11 @@ Create a merchant category spend rule (allow/block by MCC).
 **Example**
 
 ```ts
+import { MerchantCategory } from "@highnote-oss/nodejs-sdk";
+
 const rule = await client.spendRules.createMerchantCategory({
   name: "Block ATM",
-  blocked: ["6011"],
+  blocked: [MerchantCategory.AUTOMATED_CASH_DISBURSE],
 });
 ```
 
@@ -2131,12 +2149,12 @@ Initiate a transfer between two financial accounts.
 **Example**
 
 ```ts
-import { TransferPurpose } from "@highnote-oss/nodejs-sdk";
+import { Iso4217Alpha3SupportedCurrency, TransferPurpose } from "@highnote-oss/nodejs-sdk";
 
 const transfer = await client.transfers.initiateBetweenAccounts({
   fromFinancialAccountId: "fa_source",
   toFinancialAccountId: "fa_target",
-  amount: { value: "100.00", currencyCode: "USD" },
+  amount: { value: "100.00", currencyCode: Iso4217Alpha3SupportedCurrency.USD },
   purpose: TransferPurpose.GENERAL,
 });
 ```

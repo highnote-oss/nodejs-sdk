@@ -35,6 +35,8 @@ approval, and financial account issuance in a single call.
 **Example**
 
 ```ts
+import { ProvisionAccountHolderAction } from "@highnote-oss/nodejs-sdk";
+
 const provisioning = await client.provisioning.create({
   accountHolderId: "ah_...",
   idempotencyKey: "uuid-v4",

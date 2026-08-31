@@ -95,14 +95,19 @@ update mutations.
 
 ```ts
 const holder = await client.accountHolders.createMinimalUSBusiness({
-  businessProfile: { ... },
+  idempotencyKey: crypto.randomUUID(),
+  businessProfile: { name: { ... }, businessType: ..., phoneNumber: { ... } },
+  primaryAuthorizedPerson: { ... },
 });
 ```
 
 #### `createUSBusiness(input)`
 
-Create a US business account holder with the full profile and onboarding details
-(authorized persons, ultimate beneficial owners, credit risk attributes).
+Create a US business account holder with the full profile and onboarding details.
+
+Ultimate beneficial owners and credit risk attributes are nested **inside**
+`businessProfile`; the authorized person is the top-level, single-valued
+`primaryAuthorizedPerson`.
 
 **Parameters**
 
@@ -197,9 +202,14 @@ Create a US business account holder with the full profile and onboarding details
 
 ```ts
 const holder = await client.accountHolders.createUSBusiness({
-  businessProfile: { ... },
-  authorizedPersons: [...],
-  ultimateBeneficialOwners: [...],
+  businessProfile: {
+    name: { ... },
+    businessType: ...,
+    phoneNumber: { ... },
+    ultimateBeneficialOwners: [...],
+    businessCreditRiskAttributes: { ... },
+  },
+  primaryAuthorizedPerson: { ... },
 });
 ```
 

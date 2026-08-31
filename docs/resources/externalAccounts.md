@@ -19,6 +19,8 @@ Add a non-verified external US financial bank account.
 **Example**
 
 ```ts
+import { BankAccountType } from "@highnote-oss/nodejs-sdk";
+
 const account = await client.externalAccounts.addNonVerified({
   accountHolderId: "ah_...",
   routingNumber: "091000019",
@@ -48,11 +50,13 @@ Add an external bank account verified through Finicity.
 **Example**
 
 ```ts
+import { BankAccountType } from "@highnote-oss/nodejs-sdk";
+
 const account = await client.externalAccounts.addVerifiedThroughFinicity({
   accountHolderId: "ah_...",
   name: "My Checking",
   bankAccountType: BankAccountType.CHECKING,
-  externalToken: { customerId: "cust_..." },
+  externalToken: { customerId: "cust_...", receiptId: "rcpt_..." },
 });
 ```
 

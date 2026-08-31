@@ -54,18 +54,30 @@ Schedule a one-time ACH transfer for a future date.
 **Example**
 
 ```ts
+import { Iso4217Alpha3SupportedCurrency } from "@highnote-oss/nodejs-sdk";
+
 const scheduled = await client.ach.createOneTimeTransfer({
-  financialAccountId: "fa_...",
-  externalAccountId: "ea_...",
-  amount: { value: 5000, currencyCode: "USD" },
-  purpose: AchTransferPurpose.WITHDRAWAL,
-  scheduledDate: "2026-06-01",
+  fromFinancialAccountId: "fa_...",
+  toFinancialAccountId: "eba_...",
+  descriptor: { companyEntryDescription: "PAYMENT", individualName: "Jane Doe" },
+  transferAmountStrategy: {
+    transferAmount: { value: 5000, currencyCode: Iso4217Alpha3SupportedCurrency.USD },
+  },
+  transferDateStrategy: { transferDate: "2026-06-01" },
+  transferAgreementConsent: {
+    consentTimestamp: new Date().toISOString(),
+    authorizedPersonId: "ah_...",
+    template: { consentTemplateId: "ct_...", consentTemplateVersion: "1" },
+  },
 });
 ```
 
 #### `createRecurringTransfer(input)`
 
 Schedule a recurring ACH transfer (e.g., payroll, monthly deposits).
+
+`frequency` is a `RecurringAchTransferFrequencyCode`; `MONTHLY` is currently
+the only supported value.
 
 **Parameters**
 
@@ -103,18 +115,35 @@ Schedule a recurring ACH transfer (e.g., payroll, monthly deposits).
 **Example**
 
 ```ts
+import {
+  Iso4217Alpha3SupportedCurrency,
+  RecurringAchTransferFrequencyCode,
+} from "@highnote-oss/nodejs-sdk";
+
 const recurring = await client.ach.createRecurringTransfer({
-  financialAccountId: "fa_...",
-  externalAccountId: "ea_...",
-  amount: { value: 100000, currencyCode: "USD" },
-  purpose: AchTransferPurpose.PAYROLL,
-  schedule: { frequency: "BIWEEKLY", startDate: "2026-06-01" },
+  fromFinancialAccountId: "fa_...",
+  toFinancialAccountId: "eba_...",
+  frequency: RecurringAchTransferFrequencyCode.MONTHLY,
+  descriptor: { companyEntryDescription: "PAYROLL", individualName: "Jane Doe" },
+  transferAmountStrategy: {
+    transferAmount: { value: 100000, currencyCode: Iso4217Alpha3SupportedCurrency.USD },
+  },
+  transferDayStrategy: { transferDayOfMonth: 1 },
+  transferAgreementConsent: {
+    consentTimestamp: new Date().toISOString(),
+    authorizedPersonId: "ah_...",
+    template: { consentTemplateId: "ct_...", consentTemplateVersion: "1" },
+  },
 });
 ```
 
 #### `initiateTransfer(input)`
 
 Initiate an ACH transfer to or from an external bank account.
+
+Exactly one of `fromFinancialAccountId` / `toFinancialAccountId` references an
+external bank account and the other a Highnote `FinancialAccount`. The example
+below pulls funds from an external account into a Highnote account.
 
 **Parameters**
 
@@ -192,10 +221,20 @@ Initiate an ACH transfer to or from an external bank account.
 **Example**
 
 ```ts
+import { AchTransferPurpose, Iso4217Alpha3SupportedCurrency } from "@highnote-oss/nodejs-sdk";
+
 const transfer = await client.ach.initiateTransfer({
-  financialAccountId: "fa_...",
-  externalAccountId: "ea_...",
-  amount: { value: 10000, currencyCode: "USD" },
+  idempotencyKey: crypto.randomUUID(),
+  fromFinancialAccountId: "eba_...",
+  toFinancialAccountId: "fa_...",
+  amount: { value: 10000, currencyCode: Iso4217Alpha3SupportedCurrency.USD },
   purpose: AchTransferPurpose.DEPOSIT,
+  companyEntryDescription: "DEPOSIT",
+  individualName: "Jane Doe",
+  transferAgreementConsent: {
+    consentTimestamp: new Date().toISOString(),
+    authorizedPersonId: "ah_...",
+    template: { consentTemplateId: "ct_...", consentTemplateVersion: "1" },
+  },
 });
 ```

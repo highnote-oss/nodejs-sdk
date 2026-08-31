@@ -75,11 +75,13 @@ export class ExternalAccountsResource {
    * Add an external bank account verified through Finicity.
    *
    * ```ts
+   * import { BankAccountType } from "@highnote-oss/nodejs-sdk";
+   *
    * const account = await client.externalAccounts.addVerifiedThroughFinicity({
    *   accountHolderId: "ah_...",
    *   name: "My Checking",
    *   bankAccountType: BankAccountType.CHECKING,
-   *   externalToken: { customerId: "cust_..." },
+   *   externalToken: { customerId: "cust_...", receiptId: "rcpt_..." },
    * });
    * ```
    */
@@ -109,6 +111,8 @@ export class ExternalAccountsResource {
    * Add a non-verified external US financial bank account.
    *
    * ```ts
+   * import { BankAccountType } from "@highnote-oss/nodejs-sdk";
+   *
    * const account = await client.externalAccounts.addNonVerified({
    *   accountHolderId: "ah_...",
    *   routingNumber: "091000019",

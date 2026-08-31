@@ -299,7 +299,8 @@ const order = await client.cards.orderPhysical({
 #### `orderPhysicalWithValidatedAddress(input)`
 
 Order a physical card using a validated address token.
-Call `client.addresses.validate()` first to get the token ID.
+Call `client.addresses.validate()` first and pass the resulting token id as
+`deliveryDetails.validatedAddressId`.
 
 **Parameters**
 
@@ -381,11 +382,22 @@ Call `client.addresses.validate()` first to get the token ID.
 **Example**
 
 ```ts
-const { token } = await client.addresses.validate({ address });
+const validation = await client.addresses.validate({
+  address,
+  idempotencyKey: crypto.randomUUID(),
+});
+if (validation.outcome?.__typename !== "AddressValidatedResult") {
+  throw new Error("Address could not be validated");
+}
+
 const order = await client.cards.orderPhysicalWithValidatedAddress({
   paymentCardId: "pc_...",
+  idempotencyKey: crypto.randomUUID(),
   cardPersonalization: { textLines: { line1: "JANE DOE" } },
-  validatedAddressToken: token,
+  deliveryDetails: {
+    name: { givenName: "Jane", familyName: "Doe" },
+    validatedAddressId: validation.outcome.token!.id,
+  },
 });
 ```
 

@@ -26,6 +26,10 @@ update mutations.
   A business identification document is not required for SOLE_PROPRIETORSHIP.
 
   Highnote recommends passing an identification document when available to streamline the onboarding and future product approval processes.
+- `input.businessProfile.jurisdiction` (BusinessJurisdictionInput, optional) — Jurisdiction details for the business, such as the country and region of
+  incorporation. The United States is the only country of incorporation
+  currently supported. Note: this is only recorded if supplied here; it will
+  not be derived from address.
 - `input.businessProfile.legalAddress` (AddressInput, optional) — The address supplied for the business' registration.
   Supplying the address associated with the business primary SOS filing location is recommended.
 
@@ -60,13 +64,34 @@ update mutations.
 - `input.primaryAuthorizedPerson.email` (string, optional) — The authorized person's e-mail address.
 
   **Note:** Highnote does not verify the e-mail address.
-- `input.primaryAuthorizedPerson.homeAddress` (AddressInput, optional) — The authorized person's U.S. physical address.
+- `input.primaryAuthorizedPerson.homeAddress` (AddressInput, optional) — The authorized person's physical address, inside or outside the United States.
 
   Provide either `homeAddress` or `homeAddressToken`, but not both.
-- `input.primaryAuthorizedPerson.homeAddressToken` (string, optional) — A token representing the authorized person's U.S. physical address.
+- `input.primaryAuthorizedPerson.homeAddressToken` (string, optional) — A token representing the authorized person's physical address.
 
   Provide either `homeAddress` or `homeAddressToken`, but not both.
-- `input.primaryAuthorizedPerson.identificationDocument` (UsIdentificationDocumentInput, optional) — The identification document used to verify the authorized person.
+- `input.primaryAuthorizedPerson.identificationDocument` (UsIdentificationDocumentInput, optional) — The identification document used to verify the authorized person, as a US
+  Social Security Number.
+
+  Provide at most one of `identificationDocument` or
+  `identityVerificationDocument`.
+
+  A person residing in the United States, or with no country of residence
+  stated, must be identified by a social security number supplied through
+  `identificationDocument`.
+- `input.primaryAuthorizedPerson.identityVerificationDocument` (PersonIdentificationDocumentInput, optional) — The identification document used to verify the authorized person: a passport
+  or a country-specific national identification document.
+
+  Provide at most one of `identificationDocument` or
+  `identityVerificationDocument`.
+
+  A person residing in the United States, or with no country of residence
+  stated, must be identified by a social security number supplied through
+  `identificationDocument`.
+- `input.primaryAuthorizedPerson.jurisdiction` (PersonJurisdictionInput, optional) — Jurisdiction details for the person, such as country of residence. When
+  omitted, the country of residence is taken from the home address. A home
+  address supplied as a token yields no country, so state the residence here
+  in that case.
 - `input.primaryAuthorizedPerson.name.familyName` (string, **required**) — Part of a personal name that identifies a family, tribe, or community.
 
   **Minimum length:** 2 characters
@@ -127,6 +152,10 @@ Create a US business account holder with the full profile and onboarding details
   A business identification document is not required for SOLE_PROPRIETORSHIP.
 
   Highnote recommends passing an identification document when available to streamline the onboarding and future product approval processes.
+- `input.businessProfile.jurisdiction` (BusinessJurisdictionInput, optional) — Jurisdiction details for the business, such as the country and region of
+  incorporation. The United States is the only country of incorporation
+  currently supported. Note: this is only recorded if supplied here; it will
+  not be derived from address.
 - `input.businessProfile.legalAddress` (AddressInput, optional) — The address supplied for the business' registration.
   Supplying the address associated with the business primary SOS filing location is recommended.
 
@@ -140,7 +169,7 @@ Create a US business account holder with the full profile and onboarding details
   **Minimum length:** 1 character
   **Maximum length:** 255 characters
 - `input.businessProfile.phoneNumber.countryCode` (string, **required**) — The assigned country code for the number.
-- `input.businessProfile.phoneNumber.extension` (string, optional) — A number representing a specific phone on the same number as the main line.
+- `input.businessProfile.phoneNumber.extension` (string, optional) — The extension for this phone number, used to reach a specific line on the same main number.
 - `input.businessProfile.phoneNumber.label` (PhoneLabel, **required**) — A classification for the type of the device the phone number is attached or how the phone number is used (e.g. home or work)
 - `input.businessProfile.phoneNumber.number` (string, **required**) — The phone number in a country specific format.
 - `input.businessProfile.ultimateBeneficialOwners` (UsUltimateBeneficialOwnerInput[], optional) — Ultimate beneficial owners of business information
@@ -157,15 +186,34 @@ Create a US business account holder with the full profile and onboarding details
 - `input.primaryAuthorizedPerson.email` (string, **required**) — The authorized person's e-mail address.
 
   **Note:** Highnote does not verify the e-mail address.
-- `input.primaryAuthorizedPerson.homeAddress` (AddressInput, optional) — The authorized person's U.S. physical address.
+- `input.primaryAuthorizedPerson.homeAddress` (AddressInput, optional) — The authorized person's physical address, inside or outside the United States.
 
   Exactly one of `homeAddress` or `homeAddressToken` must be provided.
-- `input.primaryAuthorizedPerson.homeAddressToken` (string, optional) — A token representing the authorized person's U.S. physical address.
+- `input.primaryAuthorizedPerson.homeAddressToken` (string, optional) — A token representing the authorized person's physical address.
 
   Exactly one of `homeAddress` or `homeAddressToken` must be provided.
-- `input.primaryAuthorizedPerson.identificationDocument.socialSecurityNumber.countryCodeAlpha3` (string, **required**) — The three character country code of the issuing country.
-- `input.primaryAuthorizedPerson.identificationDocument.socialSecurityNumber.number` (string, **required**) — The full tax identification number.
-- `input.primaryAuthorizedPerson.identificationDocument.socialSecurityNumber.taxIdentificationNumberType` (TaxIdentificationNumberType, optional) — The type of tax identification number.
+- `input.primaryAuthorizedPerson.identificationDocument` (UsIdentificationDocumentInput, optional) — The identification document used to verify the authorized person, as a US
+  Social Security Number.
+
+  Provide exactly one of `identificationDocument` or
+  `identityVerificationDocument`.
+
+  A person residing in the United States, or with no country of residence
+  stated, must be identified by a social security number supplied through
+  `identificationDocument`.
+- `input.primaryAuthorizedPerson.identityVerificationDocument` (PersonIdentificationDocumentInput, optional) — The identification document used to verify the authorized person: a passport
+  or a country-specific national identification document.
+
+  Provide exactly one of `identificationDocument` or
+  `identityVerificationDocument`.
+
+  A person residing in the United States, or with no country of residence
+  stated, must be identified by a social security number supplied through
+  `identificationDocument`.
+- `input.primaryAuthorizedPerson.jurisdiction` (PersonJurisdictionInput, optional) — Jurisdiction details for the person, such as country of residence. When
+  omitted, the country of residence is taken from the home address. A home
+  address supplied as a token yields no country, so state the residence here
+  in that case.
 - `input.primaryAuthorizedPerson.name.familyName` (string, **required**) — Part of a personal name that identifies a family, tribe, or community.
 
   **Minimum length:** 2 characters
@@ -185,7 +233,7 @@ Create a US business account holder with the full profile and onboarding details
 - `input.primaryAuthorizedPerson.name.title` (string, optional) — One or more words used before the person's name (e.g. Mx., Dr.).
 - `input.primaryAuthorizedPerson.percentageOwnership` (number, optional) — Percentage ownership of this authorized person in business if any.
 - `input.primaryAuthorizedPerson.phoneNumber.countryCode` (string, **required**) — The assigned country code for the number.
-- `input.primaryAuthorizedPerson.phoneNumber.extension` (string, optional) — A number representing a specific phone on the same number as the main line.
+- `input.primaryAuthorizedPerson.phoneNumber.extension` (string, optional) — The extension for this phone number, used to reach a specific line on the same main number.
 - `input.primaryAuthorizedPerson.phoneNumber.label` (PhoneLabel, **required**) — A classification for the type of the device the phone number is attached or how the phone number is used (e.g. home or work)
 - `input.primaryAuthorizedPerson.phoneNumber.number` (string, **required**) — The phone number in a country specific format.
 
@@ -216,7 +264,11 @@ Create a US person account holder.
 
   Exactly one of `billingAddress` or `billingAddressToken` must be provided.
 - `input.personAccountHolder.dateOfBirth` (string, **required**) — Date of birth in YYYY-MM-DD format.
-  **Minimum age:** 10 years. **Maximum age:** 100 years, in place to combat fraud and potential elder financial abuse.
+
+  This field has no enforced minimum age at creation (a 99-year maximum-age check still applies, as a
+  platform-wide sanity check independent of your program's configured range). Identity verification
+  enforces your program's configured minimum and maximum age instead — Highnote sets the default range
+  to 18–99 years. Contact your Highnote representative to request a different range for your program.
 - `input.personAccountHolder.email` (string, optional) — The account holder's e-mail address.
 
   **Note:** Highnote does not verify the e-mail address.
@@ -224,7 +276,11 @@ Create a US person account holder.
   **Maximum length:** 255 characters.
 
   The validation for the `externalId` uses the following regex pattern `^([a-zA-Z\d[\s][_][=][,][-][.][^;]])+$`.
-- `input.personAccountHolder.identificationDocument` (UsIdentificationDocumentInput, optional) — The identification documents used to verify the account holder.
+- `input.personAccountHolder.identificationDocument` (UsIdentificationDocumentInput, optional) — The identification document used to verify the account holder, as a US
+  Social Security Number.
+
+  Provide at most one of `identificationDocument` or
+  `identityVerificationDocument`.
 - `input.personAccountHolder.name.familyName` (string, **required**) — Part of a personal name that identifies a family, tribe, or community.
 
   **Minimum length:** 2 characters

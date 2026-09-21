@@ -26,13 +26,13 @@ Schedule a one-time ACH transfer for a future date.
 
 - `input.descriptor.companyEntryDescription` (string, **required**) — Company entered value for the type of ACH.
 
-  It can be at most 10 characters. The characters should be alphanumeric.
+  It can be up to 10 alphanumeric characters, including spaces.
 - `input.descriptor.individualIdentificationNumber` (string, optional) — Receiver’s identification number set by the bank initiating the ACH entry.
 
-  This can be at most 15 characters. The characters should be alphanumeric.
+  This can be up to 15 alphanumeric characters, including spaces.
 - `input.descriptor.individualName` (string, **required**) — Receiver’s individual name set by the bank initiating the ACH entry.
 
-  This could be a person or a business. It can be at most 22 characters. The characters should be alphanumeric.
+  This could be a person or a business. It can be up to 22 alphanumeric characters, including spaces.
 - `input.fromFinancialAccountId` (string, **required**) — The ID of the `FinancialAccount` the funds will be coming from.
 
   Exactly one of `fromFinancialAccountId` and `toFinancialAccountId` will reference an external account id and the other will reference a Highnote account.
@@ -71,13 +71,13 @@ Schedule a recurring ACH transfer (e.g., payroll, monthly deposits).
 
 - `input.descriptor.companyEntryDescription` (string, **required**) — Company entered value for the type of ACH.
 
-  It can be at most 10 characters. The characters should be alphanumeric.
+  It can be up to 10 alphanumeric characters, including spaces.
 - `input.descriptor.individualIdentificationNumber` (string, optional) — Receiver’s identification number set by the bank initiating the ACH entry.
 
-  This can be at most 15 characters. The characters should be alphanumeric.
+  This can be up to 15 alphanumeric characters, including spaces.
 - `input.descriptor.individualName` (string, **required**) — Receiver’s individual name set by the bank initiating the ACH entry.
 
-  This could be a person or a business. It can be at most 22 characters. The characters should be alphanumeric.
+  This could be a person or a business. It can be up to 22 alphanumeric characters, including spaces.
 - `input.frequency` (RecurringAchTransferFrequencyCode, **required**) — The frequency of the scheduled payment
 - `input.fromFinancialAccountId` (string, **required**) — The financial account id sending the funds.
 
@@ -139,7 +139,7 @@ Initiate an ACH transfer to or from an external bank account.
 - `input.companyEntryDescription` (string, **required**) — Provides the receiving financial institution with information about the nature or purpose of the transaction.
   Examples include "ACCTVERIFY". "PAYROLL", "PAYMENT", etc.
 
-  Maximum length: 10 characters. The characters should be alphanumeric.
+  Maximum length: 10 alphanumeric characters, including spaces.
 - `input.fromFinancialAccountId` (string, **required**) — The financial account to send funds from.
 
   This must be a verified external financial account (`ExternalFinancialBankAccount`) id when pulling funds
@@ -155,13 +155,13 @@ Initiate an ACH transfer to or from an external bank account.
   This value is required. Maximum length: 255 characters.
 - `input.individualIdentificationNumber` (string, optional) — Receiver’s identification number. This could be a person or a business.
 
-  Maximum length: 15 characters. The characters should be alphanumeric.
+  Maximum length: 15 alphanumeric characters, including spaces.
 - `input.individualName` (string, **required**) — Receiver’s individual name. This could be a person or a business.
 
-  Maximum length: 22 characters. The characters should be alphanumeric.
+  Maximum length: 22 alphanumeric characters, including spaces.
 - `input.paymentRelatedInformation` (string, optional) — Contains payment-related information provided by the originator of the transaction.
   It can include free-form text, structured data, or codes. The field supports alphanumeric characters,
-  including the following symbols: ! " & ' ( ) \* + , - . / : ; ? = % ~ @ [ ] { } \\ | < > # $.
+  spaces, and the following symbols: ! " & ' ( ) \* + , - . / : ; ? = % ~ @ [ ] \_ { } \\ | < > # $.
 
   **Example:** RMR\*IV\*0123456789\*\*999.99\\.
 

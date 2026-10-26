@@ -42,6 +42,10 @@ update mutations.
   A business identification document is not required for SOLE_PROPRIETORSHIP.
 
   Highnote recommends passing an identification document when available to streamline the onboarding and future product approval processes.
+- `input.businessProfile.jurisdiction` (BusinessJurisdictionInput, optional) — Jurisdiction details for the business, such as the country and region of
+  incorporation. The United States is the only country of incorporation
+  currently supported. Note: this is only recorded if supplied here; it will
+  not be derived from address.
 - `input.businessProfile.legalAddress` (AddressInput, optional) — The address supplied for the business' registration.
   Supplying the address associated with the business primary SOS filing location is recommended.
 
@@ -76,13 +80,36 @@ update mutations.
 - `input.primaryAuthorizedPerson.email` (string, optional) — The authorized person's e-mail address.
 
   **Note:** Highnote does not verify the e-mail address.
-- `input.primaryAuthorizedPerson.homeAddress` (AddressInput, optional) — The authorized person's U.S. physical address.
+- `input.primaryAuthorizedPerson.homeAddress` (AddressInput, optional) — The authorized person's physical address, inside or outside the United States.
 
   Provide either `homeAddress` or `homeAddressToken`, but not both.
-- `input.primaryAuthorizedPerson.homeAddressToken` (string, optional) — A token representing the authorized person's U.S. physical address.
+- `input.primaryAuthorizedPerson.homeAddressToken` (string, optional) — A token representing the authorized person's physical address.
 
   Provide either `homeAddress` or `homeAddressToken`, but not both.
-- `input.primaryAuthorizedPerson.identificationDocument` (UsIdentificationDocumentInput, optional) — The identification document used to verify the authorized person.
+- `input.primaryAuthorizedPerson.identificationDocument` (UsIdentificationDocumentInput, optional) — The identification document used to verify the authorized person, as a US
+  Social Security Number.
+
+  Provide at most one of `identificationDocument` or
+  `identityVerificationDocument`.
+
+  A person residing in the United States, or with no country of residence
+  stated, must be identified by a social security number supplied through
+  `identificationDocument`. An Individual Taxpayer Identification Number is
+  accepted only for an account holder, not for this role.
+- `input.primaryAuthorizedPerson.identityVerificationDocument` (PersonIdentificationDocumentInput, optional) — The identification document used to verify the authorized person: a passport
+  or a country-specific national identification document.
+
+  Provide at most one of `identificationDocument` or
+  `identityVerificationDocument`.
+
+  A person residing in the United States, or with no country of residence
+  stated, must be identified by a social security number supplied through
+  `identificationDocument`. An Individual Taxpayer Identification Number is
+  accepted only for an account holder, not for this role.
+- `input.primaryAuthorizedPerson.jurisdiction` (PersonJurisdictionInput, optional) — Jurisdiction details for the person, such as country of residence. When
+  omitted, the country of residence is taken from the home address. A home
+  address supplied as a token yields no country, so state the residence here
+  in that case.
 - `input.primaryAuthorizedPerson.name.familyName` (string, **required**) — Part of a personal name that identifies a family, tribe, or community.
 
   **Minimum length:** 2 characters
@@ -143,6 +170,10 @@ Create a US business account holder with the full profile and onboarding details
   A business identification document is not required for SOLE_PROPRIETORSHIP.
 
   Highnote recommends passing an identification document when available to streamline the onboarding and future product approval processes.
+- `input.businessProfile.jurisdiction` (BusinessJurisdictionInput, optional) — Jurisdiction details for the business, such as the country and region of
+  incorporation. The United States is the only country of incorporation
+  currently supported. Note: this is only recorded if supplied here; it will
+  not be derived from address.
 - `input.businessProfile.legalAddress` (AddressInput, optional) — The address supplied for the business' registration.
   Supplying the address associated with the business primary SOS filing location is recommended.
 
@@ -156,7 +187,7 @@ Create a US business account holder with the full profile and onboarding details
   **Minimum length:** 1 character
   **Maximum length:** 255 characters
 - `input.businessProfile.phoneNumber.countryCode` (string, **required**) — The assigned country code for the number.
-- `input.businessProfile.phoneNumber.extension` (string, optional) — A number representing a specific phone on the same number as the main line.
+- `input.businessProfile.phoneNumber.extension` (string, optional) — The extension for this phone number, used to reach a specific line on the same main number.
 - `input.businessProfile.phoneNumber.label` (PhoneLabel, **required**) — A classification for the type of the device the phone number is attached or how the phone number is used (e.g. home or work)
 - `input.businessProfile.phoneNumber.number` (string, **required**) — The phone number in a country specific format.
 - `input.businessProfile.ultimateBeneficialOwners` (UsUltimateBeneficialOwnerInput[], optional) — Ultimate beneficial owners of business information
@@ -173,15 +204,36 @@ Create a US business account holder with the full profile and onboarding details
 - `input.primaryAuthorizedPerson.email` (string, **required**) — The authorized person's e-mail address.
 
   **Note:** Highnote does not verify the e-mail address.
-- `input.primaryAuthorizedPerson.homeAddress` (AddressInput, optional) — The authorized person's U.S. physical address.
+- `input.primaryAuthorizedPerson.homeAddress` (AddressInput, optional) — The authorized person's physical address, inside or outside the United States.
 
   Exactly one of `homeAddress` or `homeAddressToken` must be provided.
-- `input.primaryAuthorizedPerson.homeAddressToken` (string, optional) — A token representing the authorized person's U.S. physical address.
+- `input.primaryAuthorizedPerson.homeAddressToken` (string, optional) — A token representing the authorized person's physical address.
 
   Exactly one of `homeAddress` or `homeAddressToken` must be provided.
-- `input.primaryAuthorizedPerson.identificationDocument.socialSecurityNumber.countryCodeAlpha3` (string, **required**) — The three character country code of the issuing country.
-- `input.primaryAuthorizedPerson.identificationDocument.socialSecurityNumber.number` (string, **required**) — The full tax identification number.
-- `input.primaryAuthorizedPerson.identificationDocument.socialSecurityNumber.taxIdentificationNumberType` (TaxIdentificationNumberType, optional) — The type of tax identification number.
+- `input.primaryAuthorizedPerson.identificationDocument` (UsIdentificationDocumentInput, optional) — The identification document used to verify the authorized person, as a US
+  Social Security Number.
+
+  Provide exactly one of `identificationDocument` or
+  `identityVerificationDocument`.
+
+  A person residing in the United States, or with no country of residence
+  stated, must be identified by a social security number supplied through
+  `identificationDocument`. An Individual Taxpayer Identification Number is
+  accepted only for an account holder, not for this role.
+- `input.primaryAuthorizedPerson.identityVerificationDocument` (PersonIdentificationDocumentInput, optional) — The identification document used to verify the authorized person: a passport
+  or a country-specific national identification document.
+
+  Provide exactly one of `identificationDocument` or
+  `identityVerificationDocument`.
+
+  A person residing in the United States, or with no country of residence
+  stated, must be identified by a social security number supplied through
+  `identificationDocument`. An Individual Taxpayer Identification Number is
+  accepted only for an account holder, not for this role.
+- `input.primaryAuthorizedPerson.jurisdiction` (PersonJurisdictionInput, optional) — Jurisdiction details for the person, such as country of residence. When
+  omitted, the country of residence is taken from the home address. A home
+  address supplied as a token yields no country, so state the residence here
+  in that case.
 - `input.primaryAuthorizedPerson.name.familyName` (string, **required**) — Part of a personal name that identifies a family, tribe, or community.
 
   **Minimum length:** 2 characters
@@ -201,7 +253,7 @@ Create a US business account holder with the full profile and onboarding details
 - `input.primaryAuthorizedPerson.name.title` (string, optional) — One or more words used before the person's name (e.g. Mx., Dr.).
 - `input.primaryAuthorizedPerson.percentageOwnership` (number, optional) — Percentage ownership of this authorized person in business if any.
 - `input.primaryAuthorizedPerson.phoneNumber.countryCode` (string, **required**) — The assigned country code for the number.
-- `input.primaryAuthorizedPerson.phoneNumber.extension` (string, optional) — A number representing a specific phone on the same number as the main line.
+- `input.primaryAuthorizedPerson.phoneNumber.extension` (string, optional) — The extension for this phone number, used to reach a specific line on the same main number.
 - `input.primaryAuthorizedPerson.phoneNumber.label` (PhoneLabel, **required**) — A classification for the type of the device the phone number is attached or how the phone number is used (e.g. home or work)
 - `input.primaryAuthorizedPerson.phoneNumber.number` (string, **required**) — The phone number in a country specific format.
 
@@ -232,7 +284,11 @@ Create a US person account holder.
 
   Exactly one of `billingAddress` or `billingAddressToken` must be provided.
 - `input.personAccountHolder.dateOfBirth` (string, **required**) — Date of birth in YYYY-MM-DD format.
-  **Minimum age:** 10 years. **Maximum age:** 100 years, in place to combat fraud and potential elder financial abuse.
+
+  This field has no enforced minimum age at creation (a 99-year maximum-age check still applies, as a
+  platform-wide sanity check independent of your program's configured range). Identity verification
+  enforces your program's configured minimum and maximum age instead — Highnote sets the default range
+  to 18–99 years. Contact your Highnote representative to request a different range for your program.
 - `input.personAccountHolder.email` (string, optional) — The account holder's e-mail address.
 
   **Note:** Highnote does not verify the e-mail address.
@@ -240,7 +296,33 @@ Create a US person account holder.
   **Maximum length:** 255 characters.
 
   The validation for the `externalId` uses the following regex pattern `^([a-zA-Z\d[\s][_][=][,][-][.][^;]])+$`.
-- `input.personAccountHolder.identificationDocument` (UsIdentificationDocumentInput, optional) — The identification documents used to verify the account holder.
+- `input.personAccountHolder.identificationDocument` (UsIdentificationDocumentInput, optional) — The identification document used to verify the account holder, as a US
+  Social Security Number.
+
+  Provide at most one of `identificationDocument` or
+  `identityVerificationDocument`.
+
+  A person residing in the United States, or with no country of residence
+  stated, must be identified by a US taxpayer identifier: a social security
+  number supplied through `identificationDocument`, or, for a person who holds
+  none, an Individual Taxpayer Identification Number supplied through
+  `identityVerificationDocument` as a `nationalIdentificationDocument`. See
+  `NationalIdentificationNumberType` for the conditions on the latter.
+- `input.personAccountHolder.identityVerificationDocument` (PersonIdentificationDocumentInput, optional) — The identification document used to verify the account holder. Only an
+  Individual Taxpayer Identification Number is accepted: a
+  `nationalIdentificationDocument` whose `nationalIdentificationNumberType` is
+  `INDIVIDUAL_TAXPAYER_IDENTIFICATION_NUMBER`. A passport or any other national
+  identification document is refused.
+
+  Provide at most one of `identificationDocument` or
+  `identityVerificationDocument`.
+
+  A person residing in the United States, or with no country of residence
+  stated, must be identified by a US taxpayer identifier: a social security
+  number supplied through `identificationDocument`, or, for a person who holds
+  none, an Individual Taxpayer Identification Number supplied through
+  `identityVerificationDocument` as a `nationalIdentificationDocument`. See
+  `NationalIdentificationNumberType` for the conditions on the latter.
 - `input.personAccountHolder.name.familyName` (string, **required**) — Part of a personal name that identifies a family, tribe, or community.
 
   **Minimum length:** 2 characters
@@ -435,13 +517,13 @@ Schedule a one-time ACH transfer for a future date.
 
 - `input.descriptor.companyEntryDescription` (string, **required**) — Company entered value for the type of ACH.
 
-  It can be at most 10 characters. The characters should be alphanumeric.
+  It can be up to 10 alphanumeric characters, including spaces.
 - `input.descriptor.individualIdentificationNumber` (string, optional) — Receiver’s identification number set by the bank initiating the ACH entry.
 
-  This can be at most 15 characters. The characters should be alphanumeric.
+  This can be up to 15 alphanumeric characters, including spaces.
 - `input.descriptor.individualName` (string, **required**) — Receiver’s individual name set by the bank initiating the ACH entry.
 
-  This could be a person or a business. It can be at most 22 characters. The characters should be alphanumeric.
+  This could be a person or a business. It can be up to 22 alphanumeric characters, including spaces.
 - `input.fromFinancialAccountId` (string, **required**) — The ID of the `FinancialAccount` the funds will be coming from.
 
   Exactly one of `fromFinancialAccountId` and `toFinancialAccountId` will reference an external account id and the other will reference a Highnote account.
@@ -480,13 +562,13 @@ Schedule a recurring ACH transfer (e.g., payroll, monthly deposits).
 
 - `input.descriptor.companyEntryDescription` (string, **required**) — Company entered value for the type of ACH.
 
-  It can be at most 10 characters. The characters should be alphanumeric.
+  It can be up to 10 alphanumeric characters, including spaces.
 - `input.descriptor.individualIdentificationNumber` (string, optional) — Receiver’s identification number set by the bank initiating the ACH entry.
 
-  This can be at most 15 characters. The characters should be alphanumeric.
+  This can be up to 15 alphanumeric characters, including spaces.
 - `input.descriptor.individualName` (string, **required**) — Receiver’s individual name set by the bank initiating the ACH entry.
 
-  This could be a person or a business. It can be at most 22 characters. The characters should be alphanumeric.
+  This could be a person or a business. It can be up to 22 alphanumeric characters, including spaces.
 - `input.frequency` (RecurringAchTransferFrequencyCode, **required**) — The frequency of the scheduled payment
 - `input.fromFinancialAccountId` (string, **required**) — The financial account id sending the funds.
 
@@ -548,7 +630,7 @@ Initiate an ACH transfer to or from an external bank account.
 - `input.companyEntryDescription` (string, **required**) — Provides the receiving financial institution with information about the nature or purpose of the transaction.
   Examples include "ACCTVERIFY". "PAYROLL", "PAYMENT", etc.
 
-  Maximum length: 10 characters. The characters should be alphanumeric.
+  Maximum length: 10 alphanumeric characters, including spaces.
 - `input.fromFinancialAccountId` (string, **required**) — The financial account to send funds from.
 
   This must be a verified external financial account (`ExternalFinancialBankAccount`) id when pulling funds
@@ -564,13 +646,13 @@ Initiate an ACH transfer to or from an external bank account.
   This value is required. Maximum length: 255 characters.
 - `input.individualIdentificationNumber` (string, optional) — Receiver’s identification number. This could be a person or a business.
 
-  Maximum length: 15 characters. The characters should be alphanumeric.
+  Maximum length: 15 alphanumeric characters, including spaces.
 - `input.individualName` (string, **required**) — Receiver’s individual name. This could be a person or a business.
 
-  Maximum length: 22 characters. The characters should be alphanumeric.
+  Maximum length: 22 alphanumeric characters, including spaces.
 - `input.paymentRelatedInformation` (string, optional) — Contains payment-related information provided by the originator of the transaction.
   It can include free-form text, structured data, or codes. The field supports alphanumeric characters,
-  including the following symbols: ! " & ' ( ) \* + , - . / : ; ? = % ~ @ [ ] { } \\ | < > # $.
+  spaces, and the following symbols: ! " & ' ( ) \* + , - . / : ; ? = % ~ @ [ ] \_ { } \\ | < > # $.
 
   **Example:** RMR\*IV\*0123456789\*\*999.99\\.
 
@@ -633,8 +715,33 @@ Returns an AddressValidationResult with an outcome union:
   The validation for the `locality` uses the following regex pattern `^['\p{L}]+(?:[ \p{L},'-:])*$`.
 
   It checks to ensure it begins with a single quote or any letter, followed by whitespace, commas, single quote, any letter, or character in this set '()*+,-./0123456789: .
-- `input.address.postalCode` (string, **required**) — The postal code of the address.  The value can include 5 numbers only or a hyphen - and 4 numbers
-- `input.address.region` (string, **required**) — A region for the address based on the two letter state [IS0 3166 standard](https://en.wikipedia.org/wiki/ISO_3166-2:US), including districts and outlying areas.
+- `input.address.postalCode` (string, **required**) — The postal code of the address, in the postal format of the address's
+  country. A United States ZIP code, for example, is five digits, optionally
+  followed by a hyphen and four more ("94107" or "94107-1234").
+- `input.address.region` (string, optional) — The state, province, or other principal subdivision of the address, given as
+  the subdivision portion of its
+  [ISO 3166-2](https://en.wikipedia.org/wiki/ISO_3166-2) code: the part after
+  the hyphen, without the country prefix. For example, provide "CA" for
+  California (US-CA), "ON" for Ontario (CA-ON), or "NSW" for New South Wales
+  (AU-NSW). For United States addresses this is the
+  [two-letter state code](https://en.wikipedia.org/wiki/ISO_3166-2:US),
+  including districts and outlying areas.
+
+  Required for United States addresses and for most other supported countries.
+  Omit it for those whose addresses are written without a subdivision, such as
+  the United Kingdom and Israel.
+
+  Omitting it where it is required is rejected, and the error names the
+  `region` field: a United States or Canadian address submitted without one is
+  refused. Creating or updating an account holder reports this as a
+  `NON_NULL_INPUT_REQUIRED` error; ordering a physical card reports it as a
+  `NON_EMPTY_INPUT_REQUIRED` error. An empty string counts as omitting it.
+  A value that is present but blank, such as a single space, is rejected with a
+  `NON_EMPTY_INPUT_REQUIRED` error.
+
+  A value that is stated but is not the subdivision code is rejected with an
+  `INVALID_STATE` error, such as "California" in place of "CA" or "Ontario" in
+  place of "ON".
 - `input.address.streetAddress` (string, **required**) — The number and street of the address.
 
   The validation for the `address` uses the following regex pattern `^\s*\S+(?:\s+\S+){1,3}`.
@@ -684,6 +791,8 @@ Create a card product application for an account holder.
 - `input.accountHolderId` (string, **required**) — The ID of the account holder applicant.
 - `input.applicationConfiguration` (ApplicationConfigurationInput, optional) — Optional application-level configuration provided by the applicant at the start of the application,
   such as billing cycle preferences.
+- `input.bankProcessingAttributes` (BankProcessingAttributesInput, optional) — Sponsor bank details for the application, such as the bank's customer ID for the
+  account holder.
 - `input.cardHolderAgreementConsent.consentIpAddress` (IpAddressInput, optional) — The `IPAddress` of the consenting party when they accepted the agreement.
 - `input.cardHolderAgreementConsent.consentTimestamp` (string, **required**) — The date and time, in ISO 8601 format, marking when the primary authorized person or person card holder accepted card holder agreement.
 
@@ -1002,7 +1111,7 @@ Order a physical card for an existing payment card.
   For example, `Jane` will be stored as `JANE`.
 
   Minimum length is 1 and maximum length is 23. Valid characters are all alphanumeric characters, `,`,
-  `.`, `'`, `&`, `-`, `\`, `$`, and space. The regex used to validate is `^[0-9A-Za-z \&\-\,\./\'\$]*$`.
+  `.`, `'`, `&`, `-`, `/`, `$`, and space. The regex used to validate is `^[0-9A-Za-z \&\-\,\./\'\$]*$`.
 - `input.cardPersonalization.textLines.line2` (string, optional) — Second line.
 
   The value provided will be stored and returned fully capitalized.
@@ -1010,7 +1119,7 @@ Order a physical card for an existing payment card.
   For example, `Jane` will be stored as `JANE`.
 
   Minimum length is 1 and maximum length is 23. Valid characters are all alphanumeric characters, `,`,
-  `.`, `'`, `&`, `-`, `\`, `$`, and space. The regex used to validate is `^[0-9A-Za-z \&\-\,\./\'\$]*$`.
+  `.`, `'`, `&`, `-`, `/`, `$`, and space. The regex used to validate is `^[0-9A-Za-z \&\-\,\./\'\$]*$`.
 - `input.cardPersonalization.textLines.line3` (string, optional) — Third line.
 
   The value provided will be stored and returned fully capitalized.
@@ -1018,7 +1127,7 @@ Order a physical card for an existing payment card.
   For example, `Jane` will be stored as `JANE`.
 
   Minimum length is 1 and maximum length is 23. Valid characters are all alphanumeric characters, `,`,
-  `.`, `'`, `&`, `-`, `\`, `$`, and space. The regex used to validate is `^[0-9A-Za-z \&\-\,\./\'\$]*$`.
+  `.`, `'`, `&`, `-`, `/`, `$`, and space. The regex used to validate is `^[0-9A-Za-z \&\-\,\./\'\$]*$`.
 - `input.courier` (PaymentCardShipmentCourierInput, optional) — Courier information.
 - `input.deliveryDetails.additionalInformation` (AdditionalRecipientInformationInput, optional) — Additional information about the recipient required for international card shipping.
 - `input.deliveryDetails.address.countryCodeAlpha3` (string, **required**) — The [three letter country code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) where the address resides.
@@ -1032,8 +1141,33 @@ Order a physical card for an existing payment card.
   The validation for the `locality` uses the following regex pattern `^['\p{L}]+(?:[ \p{L},'-:])*$`.
 
   It checks to ensure it begins with a single quote or any letter, followed by whitespace, commas, single quote, any letter, or character in this set '()*+,-./0123456789: .
-- `input.deliveryDetails.address.postalCode` (string, **required**) — The postal code of the address.  The value can include 5 numbers only or a hyphen - and 4 numbers
-- `input.deliveryDetails.address.region` (string, **required**) — A region for the address based on the two letter state [IS0 3166 standard](https://en.wikipedia.org/wiki/ISO_3166-2:US), including districts and outlying areas.
+- `input.deliveryDetails.address.postalCode` (string, **required**) — The postal code of the address, in the postal format of the address's
+  country. A United States ZIP code, for example, is five digits, optionally
+  followed by a hyphen and four more ("94107" or "94107-1234").
+- `input.deliveryDetails.address.region` (string, optional) — The state, province, or other principal subdivision of the address, given as
+  the subdivision portion of its
+  [ISO 3166-2](https://en.wikipedia.org/wiki/ISO_3166-2) code: the part after
+  the hyphen, without the country prefix. For example, provide "CA" for
+  California (US-CA), "ON" for Ontario (CA-ON), or "NSW" for New South Wales
+  (AU-NSW). For United States addresses this is the
+  [two-letter state code](https://en.wikipedia.org/wiki/ISO_3166-2:US),
+  including districts and outlying areas.
+
+  Required for United States addresses and for most other supported countries.
+  Omit it for those whose addresses are written without a subdivision, such as
+  the United Kingdom and Israel.
+
+  Omitting it where it is required is rejected, and the error names the
+  `region` field: a United States or Canadian address submitted without one is
+  refused. Creating or updating an account holder reports this as a
+  `NON_NULL_INPUT_REQUIRED` error; ordering a physical card reports it as a
+  `NON_EMPTY_INPUT_REQUIRED` error. An empty string counts as omitting it.
+  A value that is present but blank, such as a single space, is rejected with a
+  `NON_EMPTY_INPUT_REQUIRED` error.
+
+  A value that is stated but is not the subdivision code is rejected with an
+  `INVALID_STATE` error, such as "California" in place of "CA" or "Ontario" in
+  place of "ON".
 - `input.deliveryDetails.address.streetAddress` (string, **required**) — The number and street of the address.
 
   The validation for the `address` uses the following regex pattern `^\s*\S+(?:\s+\S+){1,3}`.
@@ -1115,7 +1249,7 @@ Call `client.addresses.validate()` first to get the token ID.
   For example, `Jane` will be stored as `JANE`.
 
   Minimum length is 1 and maximum length is 23. Valid characters are all alphanumeric characters, `,`,
-  `.`, `'`, `&`, `-`, `\`, `$`, and space. The regex used to validate is `^[0-9A-Za-z \&\-\,\./\'\$]*$`.
+  `.`, `'`, `&`, `-`, `/`, `$`, and space. The regex used to validate is `^[0-9A-Za-z \&\-\,\./\'\$]*$`.
 - `input.cardPersonalization.textLines.line2` (string, optional) — Second line.
 
   The value provided will be stored and returned fully capitalized.
@@ -1123,7 +1257,7 @@ Call `client.addresses.validate()` first to get the token ID.
   For example, `Jane` will be stored as `JANE`.
 
   Minimum length is 1 and maximum length is 23. Valid characters are all alphanumeric characters, `,`,
-  `.`, `'`, `&`, `-`, `\`, `$`, and space. The regex used to validate is `^[0-9A-Za-z \&\-\,\./\'\$]*$`.
+  `.`, `'`, `&`, `-`, `/`, `$`, and space. The regex used to validate is `^[0-9A-Za-z \&\-\,\./\'\$]*$`.
 - `input.cardPersonalization.textLines.line3` (string, optional) — Third line.
 
   The value provided will be stored and returned fully capitalized.
@@ -1131,7 +1265,7 @@ Call `client.addresses.validate()` first to get the token ID.
   For example, `Jane` will be stored as `JANE`.
 
   Minimum length is 1 and maximum length is 23. Valid characters are all alphanumeric characters, `,`,
-  `.`, `'`, `&`, `-`, `\`, `$`, and space. The regex used to validate is `^[0-9A-Za-z \&\-\,\./\'\$]*$`.
+  `.`, `'`, `&`, `-`, `/`, `$`, and space. The regex used to validate is `^[0-9A-Za-z \&\-\,\./\'\$]*$`.
 - `input.courier` (PaymentCardShipmentCourierInput, optional) — Courier information.
 - `input.deliveryDetails.companyName` (string, optional) — The company to whom the shipment should be delivered.
 - `input.deliveryDetails.name.familyName` (string, **required**) — Part of a personal name that identifies a family, tribe, or community.
@@ -2562,6 +2696,7 @@ closed.
 - `ACTIVE_PAYMENT_CARD`
 - `ACTIVE_SCRA`
 - `NO_EXTERNAL_FINANCIAL_ACCOUNT`
+- `OPEN_CARD_TRANSACTION_DISPUTE`
 - `OPEN_LINE_OF_CREDIT`
 - `PAYROLL_ADVANCE_PAYABLE`
 - `PENDING_AUTHORIZATION`
@@ -2694,6 +2829,33 @@ Represents the direction funds are moving in an accounting context.
 - `CREDIT`
 - `DEBIT`
 
+### `AccountReceivableCollectionSchedule`
+
+Cadence on which collection is attempted during the effective window.
+
+- `DAILY`
+- `MONTHLY`
+- `ONE_TIME`
+
+### `AccountReceivableStatus`
+
+Lifecycle status of an `AccountReceivable`.
+
+- `ACTIVE`
+- `CANCELLED`
+- `COMPLETED`
+- `PENDING`
+- `WRITTEN_OFF`
+
+### `AccountReceivableType`
+
+Classification of a receivable.
+
+- `CASH_ADVANCE`
+- `INVOICE`
+- `ONE_TIME_FEE`
+- `RECURRING_FEE`
+
 ### `AccountRelationshipStatus`
 
 The status of an account relationship.
@@ -2727,7 +2889,10 @@ The hold type of an ACH.
 
 The purpose of the `AchTransfer`.
 
+- `ACCOUNT_RECEIVABLE`
+- `BOOK_TRANSFER`
 - `DEPOSIT`
+- `INTRA_BANK_ACH_TRANSFER`
 - `MERCHANT_DISBURSEMENT`
 - `MERCHANT_PAYOUT`
 - `MERCHANT_PUSH_PAYMENT_FUNDING`
@@ -2942,14 +3107,6 @@ The Card Processing Network that will process a payment
 - `PULSE`
 - `VISA`
 
-### `AcquiringMerchantType`
-
-The classification of a `Merchant`.
-
-- `CONNECTED_SUB`
-- `DIRECT`
-- `MANAGED_SUB`
-
 ### `AcquiringPaymentCardBrand`
 
 The brand which the payment card belongs to.
@@ -2982,9 +3139,33 @@ Enum representing the different ways that a payment has been initiated.
 
 Acquiring provider
 
+- `CFSB`
 - `CRB`
 - `HIGHNOTE`
 - `PAYROC`
+- `SVB`
+
+### `AcquiringThreeDSecureAuthenticationStatus`
+
+Readable outcome of a 3-D Secure authentication, derived from the issuer ACS transaction
+status (EMV 3DS `transStatus`). Prefer this over the raw code for flow control; the exact wire
+letter is available on `AcquiringThreeDSecureSession.authenticationStatusCode`.
+
+- `ATTEMPTED`
+- `AUTHENTICATED`
+- `CHALLENGE_REQUIRED`
+- `DECOUPLED_CHALLENGE`
+- `NOT_AUTHENTICATED`
+- `REJECTED`
+- `UNAVAILABLE`
+- `UNKNOWN`
+
+### `AcquiringThreeDSecureDataExchangeStatus`
+
+The outcome of a 3DSecure Data Exchange Request.
+
+- `FAILED`
+- `SUCCESS`
 
 ### `AddressComponent`
 
@@ -3083,6 +3264,16 @@ Methods for advertising a business.
 - `WORD_OF_MOUTH`
 - `YELLOW_PAGES`
 
+### `AlternatePaymentMethod`
+
+The alternate method by which a cardholder paid for a transaction.
+
+- `BANK_TRANSFER`
+- `CASH`
+- `CHECK`
+- `OTHER`
+- `OTHER_CARD`
+
 ### `ApplicableRuleUserType`
 
 The applicable rule user type for which a rule will be evaluated.
@@ -3165,6 +3356,13 @@ High-level authorized user application states.
 - `DENIED`
 - `IN_REVIEW`
 - `PENDING`
+
+### `AvailableCreditAdjustmentMode`
+
+How the amount of an Instant Credit activation is interpreted.
+
+- `INCREMENT`
+- `SET`
 
 ### `AvsResponseCode`
 
@@ -3252,6 +3450,14 @@ The type of identifying information which has been modified in a `BusinessAccoun
 - `EMPLOYER_IDENTIFICATION_NUMBER`
 - `LEGAL_BUSINESS_NAME`
 
+### `BusinessAccountPurpose`
+
+The role a financial account plays for a business.
+
+- `NEGATIVE_BALANCE_FUNDING`
+- `PAYOUT`
+- `PERIODIC_FEE`
+
 ### `BusinessAddressType`
 
 Roles a business address may fill. Exactly one address per `Business` is the
@@ -3260,6 +3466,13 @@ LEGAL address; BILLING and SHIPPING are optional additional roles.
 - `BILLING`
 - `LEGAL`
 - `SHIPPING`
+
+### `BusinessApplicationUnderwritingDecision`
+
+The manual underwriting decision applied to a business `ProductApplication`.
+
+- `APPROVE`
+- `DENY`
 
 ### `BusinessAssociatedPersonIdentityUpdateType`
 
@@ -3335,6 +3548,20 @@ Describes conditions on how the business operates.
 - `PHYSICAL_GOODS_SOLD`
 - `SEASONAL_BUSINESS`
 
+### `BusinessRelationshipStatus`
+
+The status of a business relationship.
+
+- `ACTIVE`
+- `INACTIVE`
+
+### `BusinessRelationshipType`
+
+The type of a business relationship.
+
+- `CUSTOMER`
+- `PARTNER`
+
 ### `BusinessStructure`
 
 Business Type.
@@ -3386,6 +3613,14 @@ The type of card art document
 - `PHYSICAL_FRONT_OF_CARD`
 - `VIRTUAL_FRONT_OF_CARD`
 - `VIRTUAL_THREE_DS_VERIFICATION_LOGO`
+
+### `CardAuthenticationContactType`
+
+The kind of contact bound to a `PaymentCard` or a `FinancialAccount`. One contact of each
+kind can be in force at the same time, and each kind is bound and revoked separately.
+
+- `EMAIL_AND_PHONE`
+- `POSTAL_ADDRESS`
 
 ### `CardDataInputCapability`
 
@@ -3477,6 +3712,38 @@ The category of a dispute.
 - `INVALID_AUTHORIZATION`
 - `PROCESSING_ERROR`
 
+### `CardPaymentDisputeOutcome`
+
+The final outcome of a dispute, set when the dispute concludes. Distinct from
+`CardPaymentDisputeStatus`, which is the dispute's lifecycle state.
+
+- `LOST`
+- `PARTIALLY_WON`
+- `WON`
+
+### `CardPaymentDisputeRole`
+
+A participant role in a card payment dispute.
+
+- `ACQUIRER`
+- `ISSUER`
+- `MERCHANT`
+- `NETWORK`
+
+### `CardPaymentDisputesSortByType`
+
+Ordering for the `CardPaymentDispute` result set. Defaults to newest-first by
+create date. Every ordering is applied down to a unique tiebreaker, so a page
+never repeats or skips a dispute. Changing the sort requires restarting
+pagination (do not reuse an existing cursor).
+
+- `CREATED_AT_ASC`
+- `CREATED_AT_DESC`
+- `RESPONSE_DUE_AT_ASC`
+- `RESPONSE_DUE_AT_DESC`
+- `UPDATED_AT_ASC`
+- `UPDATED_AT_DESC`
+
 ### `CardPaymentDisputeStageDecisionChoice`
 
 A decision choice available on a dispute stage action.
@@ -3505,6 +3772,30 @@ The processing status of an evidence file.
 - `REJECTED`
 - `SUBMITTED`
 
+### `CardPaymentDisputeStageEvidenceType`
+
+The type of evidence submitted for a dispute.
+
+- `AUTHORIZATION_LOG`
+- `AVS_OR_CVV_RESPONSE`
+- `CARDHOLDER_COMMUNICATION`
+- `CARDHOLDER_IDENTIFICATION`
+- `CARDHOLDER_SIGNATURE`
+- `CONTRACT`
+- `CORRESPONDENCE`
+- `INVOICE`
+- `OTHER_EVIDENCE`
+- `PHOTO_EVIDENCE`
+- `PRIOR_TRANSACTION_RECORD`
+- `PROOF_OF_DELIVERY`
+- `PROOF_OF_REFUND`
+- `SERVICE_RECORD`
+- `SHIPPING_DOCUMENTATION`
+- `SIGNED_ORDER_FORM`
+- `SYSTEM_ACCESS_LOG`
+- `TERMS_AND_CONDITIONS`
+- `TRANSACTION_RECEIPT`
+
 ### `CardPaymentDisputeStageStatus`
 
 The lifecycle status of an individual dispute stage.
@@ -3513,6 +3804,8 @@ The lifecycle status of an individual dispute stage.
 - `EXPIRED`
 - `IN_PROGRESS`
 - `PENDING`
+- `SUBMITTED`
+- `WITHDRAWN`
 
 ### `CardPaymentDisputeStatus`
 
@@ -3626,6 +3919,35 @@ Physical Card Profile Vendor Status
 - `PENDING`
 - `READY_FOR_REVIEW`
 
+### `CardRangeNetwork`
+
+A network a payment card's range participates in.
+
+- `ACCEL`
+- `AFFN`
+- `AMERICAN_EXPRESS`
+- `CIRRUS`
+- `CIRRUS_EU_DUAL_MESSAGE`
+- `COOP`
+- `CULIANCE_NETWORK`
+- `DISCOVER`
+- `ELECTRONIC_BENEFITS_TRANSFER`
+- `MAESTRO`
+- `MAESTRO_EU_DUAL_MESSAGE`
+- `MASTERCARD_CREDIT`
+- `MASTERCARD_CREDIT_SINGLE_MESSAGE`
+- `MASTERCARD_DEBIT`
+- `MASTERCARD_DEBIT_SINGLE_MESSAGE`
+- `MASTERCARD_PRIVATE`
+- `MONEYPASS_SURCHARGE_FREE`
+- `NYCE`
+- `PLUS`
+- `PULSE`
+- `STAR`
+- `VISA`
+- `VISA_DIRECT`
+- `VISA_INTERLINK`
+
 ### `CardTransactionProcessingType`
 
 The transaction processing type for a card event
@@ -3681,6 +4003,48 @@ The verification status to simulate for a checkbook user.
 
 - `REJECTED`
 - `VERIFIED`
+
+### `CheckDepositDocumentType`
+
+The type of `CheckDeposit` document.
+
+- `CHECK_DEPOSIT_BACK_IMAGE`
+- `CHECK_DEPOSIT_FRONT_IMAGE`
+
+### `CheckDepositFailureReason`
+
+The reason a `CheckDeposit` failed.
+
+- `ACCOUNT_NOT_FOUND`
+- `AMOUNT_MISMATCH`
+- `CHECK_NUMBER_INVALID`
+- `DEPOSITS_NOT_ENABLED`
+- `DUPLICATE`
+- `IMAGE_ANALYSIS_FAILURE`
+- `INVALID_ACCOUNT_TYPE`
+- `MAX_DEPOSIT_AMOUNT_EXCEEDED`
+- `MAX_ITEM_AMOUNT_EXCEEDED`
+- `MAX_ITEMS_PER_DAY_EXCEEDED`
+- `NOT_SPECIFIED`
+- `PAYER_ACCOUNT_NUMBER_INVALID`
+- `PAYER_ROUTING_NUMBER_INVALID`
+- `POSTING_EXCEPTION`
+- `UNKNOWN`
+
+### `CheckDepositStatus`
+
+The status of a `CheckDeposit`.
+
+- `BATCHED`
+- `CANCELED`
+- `COMPLETED`
+- `CREATED`
+- `HOLD`
+- `PENDING`
+- `PROCESSING`
+- `REJECTED`
+- `RETURNED`
+- `SUBMITTING`
 
 ### `CheckPaymentDocumentType`
 
@@ -3800,6 +4164,23 @@ Determines whether transactions are approved or declined in the case of a timeou
 
 - `APPROVE`
 - `DECLINE`
+
+### `ComplianceScreeningCapabilityDeclineReason`
+
+The reason a compliance screening capability is in a non-`ENABLED` state
+(`ADDITIONAL_VERIFICATION_REQUIRED` or `ADDITIONAL_DATA_REQUIRED`). A reason is given where
+there is one to give.
+
+- `NAME_VERIFICATION_MISMATCH`
+- `NO_SCREENABLE_NAME`
+
+### `ComplianceScreeningPaymentInstrumentCapabilityStatus`
+
+The possible statuses of the `ComplianceScreeningPaymentInstrumentCapabilityStatus`
+
+- `ADDITIONAL_DATA_REQUIRED`
+- `ADDITIONAL_VERIFICATION_REQUIRED`
+- `ENABLED`
 
 ### `ComputeRegion`
 
@@ -4122,6 +4503,39 @@ Digital Wallet Provider
 - `GOOGLE_PAY`
 - `SAMSUNG_PAY`
 
+### `DigitalWalletProvisioningDeclineReason`
+
+Reason codes reported by a digital wallet provider during token provisioning that can be configured to force a provisioning decline.
+
+- `ACCOUNT_CARD_TOO_NEW`
+- `HIGH_RISK`
+- `LOW_ACCOUNT_SCORE`
+- `LOW_DEVICE_SCORE`
+- `SUSPICIOUS_ACTIVITY`
+- `TOO_MANY_RECENT_ATTEMPTS`
+
+### `DigitalWalletTokenProvisioningDeclineReason`
+
+Why a request to provision a `CardDigitalWalletToken` was declined, grouped by who can act on it.
+
+- `ACCOUNT_BALANCE_BELOW_MINIMUM`
+- `CARD_DETAILS_MISMATCH`
+- `CARD_NOT_ELIGIBLE`
+- `DECLINED_BY_PROVISIONING_CONTROL`
+- `RECENT_DECLINED_TRANSACTIONS`
+- `TOKENIZATION_LIMIT_REACHED`
+- `TOO_MANY_FAILED_ATTEMPTS`
+- `WALLET_PROVIDER_DECLINED`
+
+### `DigitalWalletTokenProvisioningStatus`
+
+The outcome of a request to provision a `CardDigitalWalletToken`.
+
+- `APPROVED`
+- `DENIED`
+- `PENDING_VERIFICATION`
+- `REQUESTED`
+
 ### `DigitalWalletTokenStatus`
 
 The status of a `CardDigitalWalletToken`.
@@ -4225,6 +4639,47 @@ The event type for the `DisbursementTransferEvent`.
 - `DISBURSEMENT_PLATFORM_FEE`
 - `UNSPECIFIED`
 
+### `DisputeQuestionnaireField`
+
+Identifies a field of a dispute questionnaire.
+
+Used by a stage's questionnaire action to list the fields still requested from the
+merchant. Each value corresponds to the like-named field of the questionnaire.
+
+- `ACTUAL_GOODS_RECEIVED`
+- `ALTERNATE_PAYMENT_AMOUNT`
+- `ALTERNATE_PAYMENT_DATE`
+- `ALTERNATE_PAYMENT_METHOD`
+- `ALTERNATE_PAYMENT_PROOF`
+- `CANCELLATION_CONFIRMATION`
+- `CANCELLATION_DATE`
+- `CANCELLATION_METHOD`
+- `CONTRACT_TERMS`
+- `CUSTOMER_CANCELLED`
+- `CUSTOMER_CONTACT_DATE`
+- `CUSTOMER_CONTACTED_MERCHANT`
+- `EXPECTED_DELIVERY_DATE`
+- `MERCHANDISE_RECEIVED_DATE`
+- `MERCHANDISE_RETURNED_DATE`
+- `MERCHANT_ADVERTISED_CLAIM`
+- `NOT_AS_DESCRIBED_EXPLANATION`
+- `PRODUCT_DESCRIPTION`
+- `REFUND_REQUEST_DATE`
+- `RETURN_ATTEMPTED`
+- `RETURN_METHOD`
+- `SHIPPING_ADDRESS`
+- `SHIPPING_TRACKING_NUMBER`
+- `STORE_CREDIT_OFFERED`
+
+### `DisputeStatus`
+
+A dispute's high-level lifecycle status. This tracks where the dispute is in its life, not
+who won: each dispute type carries its own result.
+
+- `CLOSED`
+- `EXPIRED`
+- `UNDER_REVIEW`
+
 ### `DistanceUnit`
 
 A unit of distance measurement.
@@ -4255,6 +4710,7 @@ Document types that can be uploaded for identity verification.
 - `CABLE_BILL`
 - `CERTIFICATE_OF_CITIZENSHIP`
 - `CERTIFICATE_OF_GOOD_STANDING`
+- `CERTIFICATE_OF_REINSTATEMENT`
 - `CERTIFICATE_OF_RELEASE_OR_DISCHARGE_FROM_ACTIVE_DUTY`
 - `COURT_ORDER_FOR_LEGAL_NAME_CHANGE`
 - `DIGITAL_BACKGROUND`
@@ -4273,6 +4729,7 @@ Document types that can be uploaded for identity verification.
 - `IRS_ISSUED_FEDERAL_TAX_RETURN`
 - `IRS_ISSUED_STATE_TAX_RETURN`
 - `IRS_ISSUED_TAX_RETURN`
+- `IRS_LETTER_147C`
 - `LEASE_AGREEMENT`
 - `LIFE_INSURANCE`
 - `MARRIAGE_CERTIFICATE`
@@ -4370,6 +4827,14 @@ The types of employment status.
 - `SELF_EMPLOYED`
 - `STUDENT`
 - `UNEMPLOYED`
+
+### `EndCustomerAddressType`
+
+The role an address plays for an `EndCustomer`.
+
+- `BILLING`
+- `HOME`
+- `SHIPPING`
 
 ### `ExternalBankAccountDetailClientTokenPermission`
 
@@ -4504,6 +4969,53 @@ The type of an `ExternalMoneyMovementTransaction`.
 - `PAYOUT`
 - `PLATFORM_FEE`
 
+### `FedNowTransferFailureReason`
+
+Reasons a `FedNowTransfer` may have failed.
+
+- `ACCOUNT_CLOSED`
+- `ACCOUNT_FROZEN`
+- `ACCOUNT_IDENTIFIER_STALE`
+- `ACCOUNT_NOT_ACTIVE`
+- `ACCOUNT_NOT_FOUND`
+- `AMOUNT_LIMIT_EXCEEDED`
+- `AMOUNT_MINIMUM_NOT_MET`
+- `CONFIGURATION_ERROR`
+- `CURRENCY_MISMATCH`
+- `DAILY_LIMIT_EXCEEDED`
+- `DESTINATION_BANK_NOT_ACTIVE`
+- `DO_NOT_HONOR`
+- `INSUFFICIENT_FUNDS`
+- `INVALID_ACCOUNT_NUMBER`
+- `INVALID_AMOUNT`
+- `INVALID_CARD_NUMBER`
+- `INVALID_FIELD_DATA`
+- `NETWORK_ERROR`
+- `NETWORK_NOT_SUPPORTED`
+- `NON_TRANSACTION_ACCOUNT`
+- `PROVIDER_NETWORK_DISABLED`
+- `PROVIDER_NOT_SUPPORTED`
+- `REQUIRED_FIELD_MISSING`
+- `RISK_DECLINE`
+- `SAME_ACCOUNTS`
+- `TIMEOUT`
+- `TRANSFER_NOT_PERMITTED`
+- `TRANSFER_REFUSED`
+- `UNSPECIFIED`
+
+### `FedNowTransferStatus`
+
+The status of a `FedNowTransfer`.
+
+- `CANCELLED`
+- `COMPLETED`
+- `FAILED`
+- `HOLD`
+- `INITIATED`
+- `PENDING`
+- `PROCESSING`
+- `RECEIVED`
+
 ### `FeeChargeConditionDuration`
 
 The possible Fee Charge Condition accumulation durations.
@@ -4611,12 +5123,14 @@ The possible fee types that can be charged.
 - `ATM_WITHDRAWAL_OUT_OF_NETWORK_INTERNATIONAL_FEE`
 - `CASH_BACK_OTC_FEE`
 - `CASH_BACK_POS_FEE`
+- `DIGITAL_WALLET_TRANSFER_FEE`
 - `EXPEDITED_PHYSICAL_CARD_FEE`
 - `FOREIGN_EXCHANGE_FEE`
 - `INSTALLMENT_FEE`
 - `INTERNATIONAL_TRANSACTION_FEE`
 - `LATE_PAYMENT_FEE`
 - `MONTHLY_ACCOUNT_ANNIVERSARY_FEE`
+- `PHYSICAL_CARD_ISSUE_FEE`
 - `PHYSICAL_CARD_REISSUE_FEE`
 - `RETURN_PAYMENT_FEE`
 - `VIRTUAL_CARD_REISSUE_FEE`
@@ -4639,12 +5153,14 @@ The possible fee types that can be charged.
 - `ATM_WITHDRAWAL_OUT_OF_NETWORK_INTERNATIONAL_FEE`
 - `CASH_BACK_OTC_FEE`
 - `CASH_BACK_POS_FEE`
+- `DIGITAL_WALLET_TRANSFER_FEE`
 - `EXPEDITED_PHYSICAL_CARD_FEE`
 - `FOREIGN_EXCHANGE_FEE`
 - `INSTALLMENT_FEE`
 - `INTERNATIONAL_TRANSACTION_FEE`
 - `LATE_PAYMENT_FEE`
 - `MONTHLY_ACCOUNT_ANNIVERSARY_FEE`
+- `PHYSICAL_CARD_ISSUE_FEE`
 - `PHYSICAL_CARD_REISSUE_FEE`
 - `RETURN_PAYMENT_FEE`
 - `VIRTUAL_CARD_REISSUE_FEE`
@@ -4671,6 +5187,7 @@ Financial Account Activity Types to return
 
 - `ACCOUNT_HOLDER_FEE`
 - `EXTERNALLY_INITIATED_ACH`
+- `INSTANT_NETWORK_TRANSFER`
 - `INTEGRATOR_INITIATED_ACH`
 - `INTERNAL_TRANSFER`
 - `PAYMENT_CARD`
@@ -4772,10 +5289,13 @@ Possible features of the Financial Accounts
 - `AUTHORIZED_USER`
 - `CARD_FUNDING_ACCOUNT`
 - `CREDIT_PAYMENT_CARD`
+- `CRYPTO_FUNDING`
+- `CRYPTO_RECEIVING`
 - `DEBIT_PAYMENT_CARD`
 - `DIRECT_DEPOSIT`
 - `INCOME_ACCOUNT`
 - `JUST_IN_TIME_FUNDING`
+- `MERCHANT_FUNDING`
 - `MERCHANT_SETTLEMENT`
 - `NEGATIVE_BALANCE_RESERVE`
 - `ON_DEMAND_FUNDING`
@@ -4902,6 +5422,35 @@ A specific product type represented by an api endpoint.
 - `APPROXIMATE_BALANCE`
 - `CURRENT_BALANCE`
 
+### `FlexibleCredentialCardReissueScope`
+
+Which member `PaymentCard`s of a `FlexibleCredential` a reissue applies to.
+
+- `ALL_MEMBER_CARDS`
+- `TARGETED`
+
+### `FlexibleCredentialInstantCreditActivationStatus`
+
+The status of an Instant Credit activation.
+
+- `COMPLETE`
+- `FAILED`
+- `PENDING`
+
+### `FlexibleCredentialStatus`
+
+The lifecycle status of a `FlexibleCredential`.
+
+- `ACTIVE`
+- `CLOSED`
+
+### `FlexibleCredentialStrategyStatus`
+
+The lifecycle status of a `FlexibleCredentialStrategy`.
+
+- `ACTIVE`
+- `INACTIVE`
+
 ### `FormFactorType`
 
 Type of form factor
@@ -4957,6 +5506,68 @@ Reasons for which identity verification documents may be requested.
 - `ACCOUNT_HOLDER_UPDATE`
 - `CIP_VERIFICATION`
 
+### `IdentityVerificationResultCode`
+
+The outcome of an individual identity or KYB check. Covers person KYC attributes
+(name, date of birth, SSN, address, phone, and an email fraud-history warning) and
+business KYB checks (business name, FEIN, Secretary of State filing, authorized
+representative).
+
+- `ADDRESS_MATCH`
+- `ADDRESS_MISMATCH`
+- `ADDRESS_WARNING`
+- `BUSINESS_NAME_MATCH`
+- `BUSINESS_NAME_MISMATCH`
+- `BUSINESS_VERIFICATION_SCORE_FAILED`
+- `BUSINESS_VERIFICATION_SCORE_PASSED`
+- `DENIED_KYC`
+- `DOB_MATCH`
+- `DOB_MISKEY`
+- `DOB_MISMATCH`
+- `EMAIL_WARNING`
+- `FEIN_DOCUMENT_REQUIRED`
+- `FEIN_MATCH`
+- `FEIN_MISMATCH`
+- `KYC_FRAUD_PASS`
+- `KYC_WARNING`
+- `NAME_MATCH`
+- `NAME_MISMATCH`
+- `PHONE_MATCH`
+- `PHONE_MISMATCH`
+- `REPRESENTATIVE_MATCH`
+- `REPRESENTATIVE_MISMATCH`
+- `SOS_ACTIVE`
+- `SOS_INACTIVE`
+- `SOS_MATCH`
+- `SOS_MISMATCH`
+- `SOS_UNKNOWN`
+- `SSN_MATCH`
+- `SSN_MISKEY`
+- `SSN_MISMATCH`
+- `SSN_MULTI_IDENTITY`
+- `SSN_WARNING`
+
+### `IdentityVerificationStatus`
+
+High-level identity verification states.
+
+- `DENIED`
+- `PASSED`
+- `PENDING`
+
+### `IdentityVerificationStatusReason`
+
+The specific reason for the current identity verification status.
+
+- `DENIED`
+- `DOCUMENT_UPLOAD_REQUIRED`
+- `IDENTITY_UPDATE_REQUESTED`
+- `IN_REVIEW`
+- `KBA_REQUIRED`
+- `PASSED`
+- `PENDING`
+- `REVIEW_REQUIRED`
+
 ### `InitiateSecureDepositClientTokenPermission`
 
 Permissions for a `SecureDeposit` Client Token
@@ -4977,6 +5588,30 @@ Possible status values for an `InstallmentAgreement`
 The frequency at which installment payments occur.
 
 - `MONTHLY`
+
+### `InstantCreditDurationUnits`
+
+The unit of time an `InstantCreditDurationInput` magnitude is expressed in.
+
+- `DAYS`
+- `HOURS`
+- `MINUTES`
+- `SECONDS`
+
+### `InstantNetworkTransferCapabilityDeclineReason`
+
+The reason an `InstantNetworkTransfer` payment instrument capability is in a
+non-`ENABLED` (`DISABLED` or `REQUIRES_REVIEW`) state. The list is empty when the
+capability `status` is `ENABLED`.
+
+- `ADDRESS_VERIFICATION_MISMATCH`
+- `BIN_REGION_NOT_SUPPORTED`
+- `CASE_DECISIONED_BY_OPS`
+- `NAME_VERIFICATION_MISMATCH`
+- `NO_MONEY_TRANSFER_CAPABILITY`
+- `NOT_DEBIT_OR_PREPAID`
+- `VERIFICATION_DECLINED`
+- `VERIFICATION_HELD_FOR_REVIEW`
 
 ### `InstantNetworkTransferDestinationPaymentInstrumentCapabilityStatus`
 
@@ -5047,6 +5682,7 @@ Reasons an `InstantNetworkTransfer` may have failed.
 - `HIGHNOTE_ACCOUNT_FEATURE_NOT_ENABLED`
 - `IDEMPOTENCY_KEY_NOT_PROVIDED`
 - `INSUFFICIENT_FUNDS`
+- `INSUFFICIENT_IDENTITY_DATA_TO_SCREEN`
 - `INTER_FINANCIAL_ACCOUNT_TRANSFER_RULES_NOT_PASSED`
 - `INTERNAL_SERVER_ERROR`
 - `INVALID_AUTHORIZATION_EXPIRATION`
@@ -5058,6 +5694,7 @@ Reasons an `InstantNetworkTransfer` may have failed.
 - `JIT_FEATURE_NOT_ENABLED`
 - `MERCHANT_FUNDING_FEATURE_NOT_ENABLED`
 - `MERCHANT_SETTLEMENT_FEATURE_NOT_ENABLED`
+- `NETWORK_UNAVAILABLE`
 - `NOT_AN_ORGANIZATION_OWNED_ACCOUNT`
 - `NOT_ENOUGH_BALANCE_TO_REDUCE_CREDIT_LIMIT`
 - `ODF_FEATURE_NOT_ENABLED`
@@ -5117,6 +5754,8 @@ The status of a `InstantNetworkTransfer`.
 
 - `COMPLETED`
 - `FAILED`
+- `ON_HOLD_AWAITING_NETWORK`
+- `ON_HOLD_AWAITING_RESOLUTION`
 - `PENDING`
 
 ### `InstantSettlementTransactionEventType`
@@ -6000,6 +6639,7 @@ The possible values of a Ledger's name, based on the type of activity a ledger t
 
 - `ACCOUNT_CHARGE_OFF`
 - `ACCOUNT_HOLDER_CREDIT_LIMIT`
+- `ACCOUNT_HOLDER_FEE_HOLD`
 - `ACCOUNT_HOLDER_PAYMENT_PAYABLE`
 - `ACCOUNT_HOLDER_PAYMENT_RECEIVABLE`
 - `ACCOUNT_HOLDER_PSEUDO_LIMIT`
@@ -6018,6 +6658,7 @@ The possible values of a Ledger's name, based on the type of activity a ledger t
 - `CARD_RECEIVABLE`
 - `CARD_TRANSACTION_CREDIT_HOLD`
 - `CASH`
+- `CASH_ADVANCE_FUNDED`
 - `CASH_ADVANCE_OUTSTANDING`
 - `CASH_ADVANCE_PAYABLE`
 - `CASH_ADVANCE_PRINCIPAL`
@@ -6025,7 +6666,9 @@ The possible values of a Ledger's name, based on the type of activity a ledger t
 - `CASH_ADVANCE_REPAID`
 - `CASH_EXPENSE`
 - `CHARGE_OFF_EXPENSE`
+- `CHECK_DEPOSIT_RECEIVABLE`
 - `CHECK_PAYABLE`
+- `CHECK_PENDING_DEPOSIT`
 - `CHECK_PROCESSING`
 - `CHECK_SETTLEMENT_DEPOSIT`
 - `CLEARED`
@@ -6053,6 +6696,9 @@ The possible values of a Ledger's name, based on the type of activity a ledger t
 - `FEE_PAYABLE`
 - `FEE_RECEIVABLE`
 - `FUND_IN_HOLD`
+- `INSTANT_FUND_AVAILABLE_CASH`
+- `INSTANT_FUND_CASH`
+- `INSTANT_FUND_HOLD`
 - `INTERCHANGE_FEE_PRECISION_ADJUSTMENT`
 - `INTERCHANGE_REVENUE`
 - `NETWORK_CREDIT_RECEIVABLE`
@@ -6061,6 +6707,8 @@ The possible values of a Ledger's name, based on the type of activity a ledger t
 - `NETWORK_RECEIVABLE`
 - `OUTSTANDING_BALANCE_PAYABLE`
 - `OUTSTANDING_BALANCE_RECEIVABLE`
+- `OUTSTANDING_RESERVE_PAYABLE`
+- `OUTSTANDING_RESERVE_RECEIVABLE`
 - `PAYMENT_CHARGEBACK_FEE_PAYABLE`
 - `PAYMENT_INTERCHANGE_FEE_PAYABLE`
 - `PAYMENT_NETWORK_FEE_PAYABLE`
@@ -6090,6 +6738,10 @@ The possible values of a Ledger's name, based on the type of activity a ledger t
 - `REFUND_AUTHORIZATION`
 - `REFUND_HOLD`
 - `RESERVE`
+- `RESERVE_CASH`
+- `RESERVE_HOLD`
+- `RESERVE_LIABILITY`
+- `RESERVE_REQUIREMENT`
 - `REWARDS_POINTS`
 - `RISK_HOLD`
 - `RTP_DEBIT_PAYABLE`
@@ -6142,6 +6794,37 @@ Validation result for Mastercard's Accountholder Authentication Value.
 - `AAV_NOT_VALIDATED`
 - `AAV_PASSED_VALIDATION`
 - `INVALID_AAV`
+
+### `MastercardAdjustedAmountReason`
+
+The reason for miscellaneous charges incurred after a Mastercard vehicle was returned.
+
+- `DELIVERY_CHARGES`
+- `DROP_OFF_CHARGES`
+- `EXTRA_HOURS`
+- `MULTIPLE_CHARGES`
+- `PARKING_EXPENSES`
+- `VIOLATIONS`
+
+### `MastercardCustomIdentifierType`
+
+The type of custom information provided for a Mastercard transaction.
+
+- `CUSTOMER_ORDER`
+- `CUSTOMER_PURCHASE_ORDER`
+- `FOLIO_NUMBER`
+- `INVOICE_OR_ACCOUNT_NUMBER_FOR_BILL_PAYMENTS`
+- `OTHER`
+- `PAYMENT_REFERENCE_NUMBER`
+- `PURCHASE_IDENTIFICATION`
+- `RECORD_LOCATOR`
+- `RENTAL_AGREEMENT`
+- `RESERVATION_NUMBER`
+- `SUPPLIER_INVOICE`
+- `SUPPLIER_ORDER`
+- `TICKET_NUMBER`
+- `TRACKING_NUMBER`
+- `TRANSACTION_IDENTIFICATION`
 
 ### `MastercardFleetCreditOrDebitIndicator`
 
@@ -6826,6 +7509,69 @@ Mastercard Fleet fuel unit of measure
 - `NOT_APPLICABLE`
 - `POUNDS`
 
+### `MastercardRentalRateFrequency`
+
+The frequency of a Mastercard car rental rate.
+
+- `DAILY`
+- `MONTHLY`
+- `WEEKLY`
+
+### `MastercardServiceFeeType`
+
+The type of service fee that was applied to a Mastercard transaction.
+
+- `BAGGAGE_FEE`
+- `BUNDLED_SERVICE_FEE`
+- `CARBON_OFFSET_FEE`
+- `CARGO_FEE`
+- `CHANGE_FEE`
+- `FREQUENT_FLYER_FEE`
+- `GIFT_CARD_FEE`
+- `GROUND_TRANSPORT_FEE`
+- `IN_FLIGHT_ENTERTAINMENT_FEE`
+- `LOUNGE_FEE`
+- `MEAL_BEVERAGE_FEE`
+- `MEDICAL_FEE`
+- `OTHER_FEE`
+- `PASSENGER_ASSIST_FEE`
+- `PET_FEE`
+- `SEAT_FEE`
+- `SERVICE_FEE`
+- `STANDBY_FEE`
+- `STORE_FEE`
+- `TRAVEL_SERVICE_FEE`
+- `UNACCOMPANIED_TRAVEL_FEE`
+- `UPGRADE_FEE`
+- `WIFI_FEE`
+
+### `MastercardTaxCollected`
+
+Whether tax was collected on a Mastercard purchase.
+
+- `COLLECTED`
+- `NOT_COLLECTED`
+- `TAX_EXEMPT`
+
+### `MastercardTaxType`
+
+The type of tax that was applied to a Mastercard transaction.
+
+- `CITY_SALES_TAX`
+- `ENERGY_TAX`
+- `GOODS_AND_SERVICES_TAX`
+- `HARMONIZED_SALES_TAX`
+- `LOCAL_SALES_TAX`
+- `MUNICIPAL_SALES_TAX`
+- `NATIONAL_SALES_TAX`
+- `OCCUPANCY_TAX`
+- `OTHER_TAX`
+- `PROVINCIAL_SALES_TAX`
+- `QUEBEC_SALES_TAX`
+- `ROOM_TAX`
+- `STATE_SALES_TAX`
+- `VALUE_ADDED_TAX`
+
 ### `MastercardThreeDSecureCardholderAuthentication`
 
 Information about the 3DSecure Cardholder Authentication.
@@ -6852,6 +7598,7 @@ Information about the collection capabilities of the Universal Cardholder Authen
 The list of human friendly merchant category codes (MCC) according to [ISO-18245](https://en.wikipedia.org/wiki/ISO_18245).
 
 - `A1_RENT_A_CAR`
+- `AB_ACCOMMO`
 - `AB_HOTEL`
 - `AC_HOTELS`
 - `AC_REFRIGERATION_REPAIR`
@@ -7050,6 +7797,7 @@ The list of human friendly merchant category codes (MCC) according to [ISO-18245
 - `CHAMPAGNE_PRODUCERS`
 - `CHARITABLE_AND_SOCIAL_SERVICE_ORGANIZATIONS_FUNDRAISING`
 - `CHATEAU_ELAN_WINERY_AND_RESORT`
+- `CHATERAISE_HOTEL_GROUP`
 - `CHEMICALS_AND_ALLIED_PRODUCTS`
 - `CHILD_CARE_SERVICES`
 - `CHILDRENS_AND_INFANTS_WEAR_STORES`
@@ -7417,6 +8165,7 @@ The list of human friendly merchant category codes (MCC) according to [ISO-18245
 - `MARRIOTT_EXECUTIVE_APARTMENTS`
 - `MASONRY_STONEWORK_AND_PLASTER`
 - `MASSAGE_PARLORS`
+- `MASTERCARD_INITIATED_REWARD`
 - `MASTERS_ECONOMY_INNS`
 - `MEDICAL_AND_DENTAL_LABS`
 - `MEDICAL_DENTAL_OPHTHALMIC_AND_HOSPITAL_EQUIPMENT_AND_SUPPLIES`
@@ -7485,6 +8234,7 @@ The list of human friendly merchant category codes (MCC) according to [ISO-18245
 - `NICKELODEON_FAMILY_SUITES_BY_HOLIDAY_INN`
 - `NIGERIA_AIR`
 - `NOAHS_HOTEL_MELBOURNE`
+- `NOGUCHIKANKO_GROUP`
 - `NON_FI_MONEY_ORDERS`
 - `NON_FI_STORED_VALUE_CARD_PURCHASE_LOAD`
 - `NONDURABLE_GOODS`
@@ -7528,6 +8278,8 @@ The list of human friendly merchant category codes (MCC) according to [ISO-18245
 - `PAWN_SHOPS`
 - `PAYLESS_CAR_RENTAL`
 - `PAYMENT_SERVICE_PROVIDER_MONEY_TRANSFER`
+- `PAYMENT_TRANSACTION_FINANCIAL_INSTITUTION`
+- `PAYMENT_TRANSACTION_MERCHANT`
 - `PBA_AIRLINE`
 - `PEABODY_HOTELS`
 - `PENINSULA_HOTELS`
@@ -7624,6 +8376,7 @@ The list of human friendly merchant category codes (MCC) according to [ISO-18245
 - `SCANDIC_HOTELS`
 - `SCANDINAVIAN_AIRLINE_SYSTEM`
 - `SCENIC_AIRLINES`
+- `SCOOT`
 - `SEA_PINES_RESORT`
 - `SECRETARIAL_SUPPORT_SERVICES`
 - `SECURITY_BROKERS_DEALERS`
@@ -7816,6 +8569,16 @@ The list of human friendly merchant category codes (MCC) according to [ISO-18245
 - `YUTORELO`
 - `ZAMBIA_AIRWAYS`
 
+### `MerchantScreeningStatus`
+
+The merchant risk screening status of an acquiring `ProductApplication`.
+
+- `APPROVED`
+- `DENIED`
+- `IN_REVIEW`
+- `NOT_APPLICABLE`
+- `PENDING`
+
 ### `MerchantStatus`
 
 The lifecycle status of a `Merchant`.
@@ -7824,6 +8587,31 @@ The lifecycle status of a `Merchant`.
 - `PENDING`
 - `SUSPENDED`
 - `TERMINATED`
+
+### `MoneyMovementCapability`
+
+The different types of supported money movement capabilities.
+
+- `ACH`
+- `FED_NOW`
+- `MASTERCARD_AFT`
+- `MASTERCARD_OCT`
+- `US_RTP`
+- `VISA_AFT`
+- `VISA_OCT`
+
+### `MoneyMovementLicense`
+
+The different types of money movement licenses.
+
+- `ELECTRONIC_MONEY_LICENSE`
+- `MONEY_SERVICES_BUSINESS_REGISTRATION`
+- `MONEY_TRANSMITTER_LICENSE`
+- `OTHER`
+- `PREPAID_ACCESS_LICENSE`
+- `STATE_BANKING_LICENSE`
+- `THIRD_PARTY_SENDER_REGISTRATION`
+- `VIRTUAL_CURRENCY_LICENSE`
 
 ### `Month`
 
@@ -7853,6 +8641,18 @@ National identification number types.
 - `SOCIAL_INSURANCE_NUMBER`
 - `SOCIAL_SECURITY_NUMBER`
 
+### `NetworkMoneyMovementEligibilityStatus`
+
+The possible card network eligibility statuses for a type of money movement.
+
+These statuses describe what the card network permits. Highnote's own
+requirements still apply when a transfer is made, so a transfer on an
+`ELIGIBLE` instrument can still be declined.
+
+- `ELIGIBLE`
+- `NOT_ELIGIBLE`
+- `UNKNOWN`
+
 ### `NonOriginatedAchTransferStatus`
 
 The status of a `NonOriginatedAchTransfer`.
@@ -7862,6 +8662,14 @@ The status of a `NonOriginatedAchTransfer`.
 - `PROCESSED`
 - `RECEIVED`
 - `RETURNED`
+
+### `NonOriginatedWireTransferStatus`
+
+The status of a wire Highnote receives.
+
+- `COMPLETED`
+- `FAILED`
+- `RECEIVED`
 
 ### `NormalBalance`
 
@@ -7927,6 +8735,10 @@ The Notification Events that can be triggered in the Highnote platform.
 - `BUSINESS_ULTIMATE_BENEFICIAL_OWNER_IDENTITY_DOCUMENTS_REQUESTED`
 - `BUSINESS_ULTIMATE_BENEFICIAL_OWNER_IDENTITY_UPDATED`
 - `CARD_DIGITAL_WALLET_TOKEN_ACTIVATED`
+- `CARD_DIGITAL_WALLET_TOKEN_PROVISIONING_APPROVED`
+- `CARD_DIGITAL_WALLET_TOKEN_PROVISIONING_DENIED`
+- `CARD_DIGITAL_WALLET_TOKEN_PROVISIONING_PENDING_VERIFICATION`
+- `CARD_DIGITAL_WALLET_TOKEN_PROVISIONING_REQUESTED`
 - `CARD_DIGITAL_WALLET_TOKEN_SUSPENDED`
 - `CARD_DIGITAL_WALLET_TOKEN_TERMINATED`
 - `CARD_PAYMENT_AUTHORIZATION_DECLINED_EVENT`
@@ -7940,6 +8752,18 @@ The Notification Events that can be triggered in the Highnote platform.
 - `CARD_PAYMENT_CLEARING_FAILED_EVENT`
 - `CARD_PAYMENT_DISBURSED_EVENT`
 - `CARD_PAYMENT_DISPUTE_ACTION_REQUIRED`
+- `CARD_PAYMENT_DISPUTE_ARBITRATION_UPDATED`
+- `CARD_PAYMENT_DISPUTE_FIRST_CHARGEBACK_UPDATED`
+- `CARD_PAYMENT_DISPUTE_PRE_ARBITRATION_RESPONSE_UPDATED`
+- `CARD_PAYMENT_DISPUTE_PRE_ARBITRATION_UPDATED`
+- `CARD_PAYMENT_DISPUTE_REPRESENTMENT_UPDATED`
+- `CARD_PAYMENT_DISPUTE_STATUS_CLOSED`
+- `CARD_PAYMENT_DISPUTE_STATUS_IN_REVIEW`
+- `CARD_PAYMENT_DISPUTE_STATUS_INITIATED`
+- `CARD_PAYMENT_DISPUTE_STATUS_ISSUER_ACCEPTED`
+- `CARD_PAYMENT_DISPUTE_STATUS_MERCHANT_ACCEPTED`
+- `CARD_PAYMENT_DISPUTE_STATUS_TIMED_OUT`
+- `CARD_PAYMENT_DISPUTE_STATUS_WITHDRAWN`
 - `CARD_PAYMENT_INCREMENTAL_AUTHORIZATION_DECLINED_EVENT`
 - `CARD_PAYMENT_INCREMENTAL_AUTHORIZED_EVENT`
 - `CARD_PAYMENT_PARTIAL_REVERSED_EVENT`
@@ -8001,6 +8825,7 @@ The Notification Events that can be triggered in the Highnote platform.
 - `FINANCIAL_ACCOUNT_ATTRIBUTE_REMOVED_DELINQUENT_SUSPENDED`
 - `FINANCIAL_ACCOUNT_ATTRIBUTE_REMOVED_PROGRAM_OWNER_INITIATED_SUSPENSION`
 - `FINANCIAL_ACCOUNT_STATEMENT_READY`
+- `FLEXIBLE_CREDENTIAL_INSTANT_CREDIT_ACTIVATION_STATUS_CHANGED`
 - `INSTANT_NETWORK_TRANSFER_COMPLETED_EVENT`
 - `INSTANT_NETWORK_TRANSFER_FAILED_EVENT`
 - `INSTANT_NETWORK_TRANSFER_INITIATED_EVENT`
@@ -8013,15 +8838,24 @@ The Notification Events that can be triggered in the Highnote platform.
 - `INTERNAL_TRANSFER_FROM_PAYMENT_CARD_FINANCIAL_ACCOUNT_TO_FUNDING_FINANCIAL_ACCOUNT_COMPLETED`
 - `INTERNAL_TRANSFER_FROM_PAYMENT_CARD_FINANCIAL_ACCOUNT_TO_FUNDING_FINANCIAL_ACCOUNT_FAILED`
 - `INTERNAL_TRANSFER_FROM_PAYMENT_CARD_FINANCIAL_ACCOUNT_TO_FUNDING_FINANCIAL_ACCOUNT_PENDING`
+- `LINK_VERIFIED_EXTERNAL_BANK_ACCOUNT_EXPIRED`
 - `LINK_VERIFIED_EXTERNAL_BANK_ACCOUNT_FAILED`
+- `LINK_VERIFIED_EXTERNAL_BANK_ACCOUNT_VERIFICATION_REQUIRED`
 - `NON_ORIGINATED_ACH_TRANSFER_FAILED`
 - `NON_ORIGINATED_ACH_TRANSFER_PROCESSED`
 - `NON_ORIGINATED_ACH_TRANSFER_RECEIVED`
 - `NON_ORIGINATED_ACH_TRANSFER_RETURNED`
+- `NON_ORIGINATED_FED_NOW_TRANSFER_COMPLETED_EVENT`
+- `NON_ORIGINATED_FED_NOW_TRANSFER_FAILED_EVENT`
+- `NON_ORIGINATED_FED_NOW_TRANSFER_PROCESSING_EVENT`
+- `NON_ORIGINATED_FED_NOW_TRANSFER_RECEIVED_EVENT`
 - `NON_ORIGINATED_RTP_TRANSFER_COMPLETED_EVENT`
 - `NON_ORIGINATED_RTP_TRANSFER_FAILED_EVENT`
 - `NON_ORIGINATED_RTP_TRANSFER_PROCESSING_EVENT`
 - `NON_ORIGINATED_RTP_TRANSFER_RECEIVED_EVENT`
+- `NON_ORIGINATED_WIRE_TRANSFER_COMPLETED_EVENT`
+- `NON_ORIGINATED_WIRE_TRANSFER_FAILED_EVENT`
+- `NON_ORIGINATED_WIRE_TRANSFER_RECEIVED_EVENT`
 - `NOTIFICATION_ACTIVATION`
 - `ORIGINATED_ACH_TRANSFER_CANCELED`
 - `ORIGINATED_ACH_TRANSFER_FAILED`
@@ -8030,6 +8864,11 @@ The Notification Events that can be triggered in the Highnote platform.
 - `ORIGINATED_ACH_TRANSFER_PROCESSED`
 - `ORIGINATED_ACH_TRANSFER_PROCESSING`
 - `ORIGINATED_ACH_TRANSFER_RETURNED`
+- `ORIGINATED_FED_NOW_TRANSFER_COMPLETED_EVENT`
+- `ORIGINATED_FED_NOW_TRANSFER_FAILED_EVENT`
+- `ORIGINATED_FED_NOW_TRANSFER_INITIATED_EVENT`
+- `ORIGINATED_FED_NOW_TRANSFER_PENDING_EVENT`
+- `ORIGINATED_FED_NOW_TRANSFER_PROCESSING_EVENT`
 - `ORIGINATED_RTP_TRANSFER_COMPLETED_EVENT`
 - `ORIGINATED_RTP_TRANSFER_FAILED_EVENT`
 - `ORIGINATED_RTP_TRANSFER_INITIATED_EVENT`
@@ -8049,6 +8888,7 @@ The Notification Events that can be triggered in the Highnote platform.
 - `PAYMENT_CARD_ISSUED`
 - `PAYMENT_CARD_SUSPENDED`
 - `PAYMENT_CARD_TRANSACTION_CHARGEBACK_PROVISIONAL_CREDIT_ISSUED`
+- `PAYMENT_CARD_TRANSACTION_CHARGEBACK_PROVISIONAL_CREDIT_RETAINED_ISSUER_LIABLE`
 - `PAYMENT_CARD_TRANSACTION_CHARGEBACK_PROVISIONAL_CREDIT_REVOKED`
 - `PAYMENT_CARD_TRANSACTION_DISPUTE_CASE_STATUS_CANCELLED`
 - `PAYMENT_CARD_TRANSACTION_DISPUTE_CASE_STATUS_CASE_CARDHOLDER_LOST`
@@ -8059,6 +8899,8 @@ The Notification Events that can be triggered in the Highnote platform.
 - `PAYMENT_CARD_TRANSACTION_DISPUTE_CREDIT_ISSUED`
 - `PAYMENT_CARD_TRANSACTION_DISPUTE_CREDIT_REVERSED`
 - `PAYMENT_CARD_TRANSACTION_DISPUTE_PROVISIONAL_CREDIT_ISSUED`
+- `PAYMENT_CARD_TRANSACTION_DISPUTE_PROVISIONAL_CREDIT_RETAINED_ISSUER_LIABLE`
+- `PAYMENT_CARD_TRANSACTION_DISPUTE_PROVISIONAL_CREDIT_RETAINED_ISSUER_LIABLE_PARTIAL`
 - `PAYMENT_CARD_TRANSACTION_DISPUTE_PROVISIONAL_CREDIT_REVOKED`
 - `PAYMENT_CARD_TRANSACTION_DISPUTE_PROVISIONAL_CREDIT_WON`
 - `PAYMENT_CARD_UNSUSPENDED`
@@ -8077,6 +8919,13 @@ The Notification Events that can be triggered in the Highnote platform.
 - `PHYSICAL_PAYMENT_CARD_GROUP_ORDER_SHIPPED`
 - `PHYSICAL_PAYMENT_CARD_SHIP_FAILED`
 - `PHYSICAL_PAYMENT_CARD_SHIPPED`
+- `PROCESSING_CAPABILITY_ACTIVATED`
+- `PRODUCT_APPLICATION_APPROVED`
+- `PRODUCT_APPLICATION_CLOSED`
+- `PRODUCT_APPLICATION_DENIED`
+- `PRODUCT_APPLICATION_DOCUMENT_UPLOAD_REQUESTED`
+- `PRODUCT_APPLICATION_IN_REVIEW`
+- `PRODUCT_APPLICATION_PENDING`
 - `PROVISION_ACCOUNT_HOLDER_COMPLETED`
 - `PROVISION_ACCOUNT_HOLDER_CREATE_APPLICATION_COMPLETED`
 - `PROVISION_ACCOUNT_HOLDER_CREATE_APPLICATION_ERROR`
@@ -8123,6 +8972,7 @@ The Notification Events that can be triggered in the Highnote platform.
 - `UNIFIED_FUNDS_TRANSFER_FAILED_EVENT`
 - `UNIFIED_FUNDS_TRANSFER_INITIATED_EVENT`
 - `UPCOMING_STATEMENT_DUE_DATE`
+- `WIRE_TRANSFER_COMPLETED_EVENT`
 
 ### `NotificationTargetStatus`
 
@@ -8268,6 +9118,7 @@ The type of an organization business relationship.
 Available report types that apply to `Organizations` and that can be passed into
 `initiateOrganizationReport`.
 
+- `ACCOUNT_LEDGER_BALANCE`
 - `ACH_EVENT_ACTIVITY`
 - `CARD_INTERCHANGE_ACTIVITY`
 - `CARD_TRANSACTION_ACTIVITY`
@@ -8326,8 +9177,10 @@ The possible bank names.
 - `CELTIC`
 - `CFSB`
 - `CROSS_RIVER`
+- `EMPRISE_BANK`
 - `FINWISE_BANK`
 - `HIGHNOTE`
+- `HUNTINGTON_BANK`
 - `SUTTON`
 - `SVB_BANK`
 - `TRANSPECOS_BANK`
@@ -8458,9 +9311,13 @@ The credit status of the chargeback.
 - `PROVISIONAL_CREDIT_ISSUED`
 - `PROVISIONAL_CREDIT_PARTIALLY_WON`
 - `PROVISIONAL_CREDIT_PENDING_ISSUE`
+- `PROVISIONAL_CREDIT_PENDING_ISSUER_LIABLE_PARTIAL`
 - `PROVISIONAL_CREDIT_PENDING_PARTIAL_WIN`
+- `PROVISIONAL_CREDIT_PENDING_RETENTION_ISSUER_LIABLE`
 - `PROVISIONAL_CREDIT_PENDING_REVOCATION`
 - `PROVISIONAL_CREDIT_PENDING_WIN`
+- `PROVISIONAL_CREDIT_RETAINED_ISSUER_LIABLE`
+- `PROVISIONAL_CREDIT_RETAINED_ISSUER_LIABLE_PARTIAL`
 - `PROVISIONAL_CREDIT_REVOKED`
 - `PROVISIONAL_CREDIT_WON`
 
@@ -8517,6 +9374,16 @@ Permissions for a PaymentCard Client Token
 - `READ_FULFILLMENT_DETAILS`
 - `READ_RESTRICTED_DETAILS`
 - `SET_PAYMENT_CARD_PIN`
+
+### `PaymentCardDesignation`
+
+The possible designations of a payment card.
+
+- `BUSINESS`
+- `COMMERCIAL`
+- `CONSUMER`
+- `GOVERNMENT`
+- `UNKNOWN`
 
 ### `PaymentCardDigitalWalletDeviceType`
 
@@ -8581,6 +9448,16 @@ Possible Payment Card EMV types.
 - `CONTACTLESS`
 - `NONE`
 
+### `PaymentCardFundingSource`
+
+The possible funding sources of a payment card.
+
+- `CHARGE`
+- `CREDIT`
+- `DEBIT`
+- `DEFERRED_DEBIT`
+- `PREPAID`
+
 ### `PaymentCardGroupOrderStatus`
 
 Group order status.
@@ -8592,6 +9469,16 @@ Group order status.
 - `SENT_TO_PRINTER`
 - `SHIP_FAILED`
 - `SHIPPED`
+
+### `PaymentCardInterchangeRegulation`
+
+Whether a payment card's range is subject to regulated debit interchange
+under the Durbin Amendment, and which regulated rate applies.
+
+- `BASE_REGULATED`
+- `NOT_REGULATED`
+- `REGULATED_WITH_FRAUD_ADJUSTMENT`
+- `UNKNOWN`
 
 ### `PaymentCardNetwork`
 
@@ -8676,6 +9563,14 @@ Payment Card Suspension Flags are used to denote the type of suspension on a `Pa
 - `ISSUER_INITIATED_SUSPENSION`
 - `PROGRAM_OWNER_INITIATED_SUSPENSION`
 
+### `PaymentCardTokenIndicator`
+
+Whether a payment card's range holds payment tokens rather than card numbers.
+
+- `NOT_TOKEN_RANGE`
+- `TOKEN_RANGE`
+- `UNKNOWN`
+
 ### `PaymentCreditTransactionRefundReason`
 
 The reason why the `PaymentTransaction` was refunded to the original payment method
@@ -8726,6 +9621,13 @@ Possible values for the `PaymentTransactionAddressCodeResponseCode` enum.
 - `SKIPPED`
 - `UNKNOWN`
 
+### `PaymentTransactionHoldReason`
+
+The reason a `PaymentTransaction` is in a held state.
+
+- `AWAITING_PROCESSOR_NETWORK_RESPONSE`
+- `PENDING_INTERNAL_RESOLUTION`
+
 ### `PaymentTransactionLifecycleStepStatus`
 
 The status of a `PaymentTransactionLifecycleStep`
@@ -8750,41 +9652,68 @@ Possible values for the `PaymentTransactionCardCodeResponseCode` enum.
 
 Possible response codes from the processor for a payment transaction.
 
+- `AML_REQUIREMENT_NOT_MET`
 - `APPROVED`
+- `APPROVED_FOR_PARTIAL_AMOUNT`
 - `AUTHENTICATION_REQUIRED`
 - `BAD_CVC3_DCVV`
 - `BAD_CVV`
 - `BAD_CVV2`
 - `BLOCKED_CARD`
+- `BLOCKED_FIRST_USE`
+- `CANNOT_VERIFY_PIN`
+- `CASH_BACK_LIMIT_EXCEEDED`
+- `CASH_SERVICE_NOT_AVAILABLE`
+- `CHECK_ALREADY_POSTED`
 - `CHIP_CARD_ARQC_VALIDATION_FAILURE`
 - `CLOSED_ACCOUNT`
+- `COMPLIANCE_VERIFICATION_FAILED`
+- `CRYPTOGRAPHIC_PIN_ERROR`
 - `DO_NOT_HONOR`
 - `EXCEEDS_APPROVAL_AMOUNT_LIMIT`
 - `EXCEEDS_WITHDRAWAL_FREQUENCY_LIMIT`
 - `EXPIRED_CARD`
+- `FRAUD_SECURITY`
 - `INACTIVE_CARD`
 - `INCORRECT_EXPIRATION_DATE`
+- `INCORRECT_PIN`
 - `INSTANT_NETWORK_PULL_CAPABILITY_NOT_ENABLED`
 - `INSTANT_NETWORK_PUSH_CAPABILITY_NOT_ENABLED`
 - `INSUFFICIENT_FUNDS`
 - `INVALID_AUTHORIZATION_EXPIRATION`
 - `INVALID_CARD_NUMBER`
+- `INVALID_ISSUER`
 - `INVALID_MERCHANT`
+- `INVALID_MERCHANT_CATEGORY_CODE`
 - `INVALID_PAYMENT_CREDENTIAL`
 - `INVALID_TRACK_DATA`
 - `INVALID_TRANSACTION`
+- `LIFE_CYCLE_DECLINE`
+- `NO_CHECKING_ACCOUNT`
+- `NO_CREDIT_ACCOUNT`
+- `NO_INVESTMENT_ACCOUNT`
+- `NO_SAVING_ACCOUNT`
+- `NO_UNIVERSAL_ACCOUNT`
+- `PIN_TRIES_EXCEEDED`
+- `POLICY_DECLINE`
+- `PRE_AUTHORIZATION_EXPIRED`
 - `PROCESSOR_NETWORK_INTERNAL_ERROR`
 - `PROCESSOR_NETWORK_NOT_AVAILABLE`
 - `PROCESSOR_NETWORK_TIMED_OUT`
 - `RE_ENTER_TRANSACTION`
 - `RESTRICTED_LOCATION`
+- `RISK_DECLINE`
 - `SPECIAL_CONDITION_NO_PICK_UP`
+- `SURCHARGE_NOT_PERMITTED`
 - `SUSPENDED_CARD`
 - `TERMINATED_CARD`
 - `TRANSACTION_NOT_PERMITTED`
 - `TRANSACTION_NOT_SUPPORTED`
 - `UNACTIVATED_CARD`
 - `UNKNOWN`
+- `VALID_ACCOUNT_AMOUNT_NOT_SUPPORTED`
+- `VELOCITY_LIMIT_EXCEEDED`
+- `VIOLATION_OF_LAW`
 
 ### `PaymentTransactionSecurityCodeResponseCode`
 
@@ -8864,7 +9793,7 @@ the format of a physical card
 
 ### `PhysicalCardPersonalizationLineType`
 
-The line type for the physical card profile
+The type of text on a personalization line of the physical card profile. Line types describe the intended card design. The text printed on a card is the text supplied with the physical card order.
 
 - `ACCOUNT_HOLDER_NAME`
 - `BUSINESS_NAME`
@@ -8960,6 +9889,26 @@ A condition for the point of service category, which serves as acceptable input 
 - `TELLER`
 - `VENDING`
 
+### `PosPanEntryMode`
+
+The method used to capture the primary account number (PAN) at the point of service.
+
+- `CHIP_FALLBACK_MAGNETIC_STRIPE`
+- `CHIP_FALLBACK_MANUAL`
+- `CONTACTLESS_CHIP`
+- `INTEGRATED_CIRCUIT_CARD`
+- `MAGNETIC_STRIPE`
+- `MANUAL`
+
+### `PosPinEntryMode`
+
+The PIN entry capability and method used at the device.
+
+- `NO_PIN_ENTRY_CAPABILITY`
+- `PIN_ENTRY_CAPABLE`
+- `PIN_PAD_INOPERATIVE`
+- `PIN_VERIFIED_BY_TERMINAL`
+
 ### `PostalCodeResponseCode`
 
 Code representing the result of AVS postal code verification
@@ -8970,12 +9919,6 @@ Code representing the result of AVS postal code verification
 - `NOT_PROVIDED`
 - `ZIP5_MATCH`
 - `ZIP9_MATCH`
-
-### `PricingConfigurationAttachmentEntityType`
-
-The type of entity a `PricingConfiguration` can be attached to.
-
-- `MERCHANT`
 
 ### `PricingPlanStatus`
 
@@ -9041,12 +9984,41 @@ The status of an `ProductApplicationWorkflow`
 The type of `ProductApplicationWorkflow`
 
 - `BUSINESS_RULE_VALIDATION`
+- `BUSINESS_UNDERWRITING`
 - `CREATE_VPA_BUYER`
 - `CREDIT_UNDERWRITING`
 - `EXTERNAL_BANK_ONBOARDING`
 - `IDENTITY`
 - `OFFER_MANAGEMENT`
 - `RISK`
+- `TERMINATED_MERCHANT_SCREENING`
+
+### `ProductCancellationMethod`
+
+The method by which a cancellation was requested.
+
+- `EMAIL`
+- `IN_PERSON`
+- `MAIL`
+- `OTHER`
+- `PHONE`
+- `WEBSITE`
+
+### `ProductLineOfBusiness`
+
+A line of business a product operates in.
+
+- `ACQUIRING`
+- `ISSUANCE`
+- `MONEY_MOVEMENT`
+
+### `ProductReturnMethod`
+
+The method by which goods were returned to the merchant.
+
+- `IN_PERSON`
+- `MAIL_OR_COURIER`
+- `OTHER`
 
 ### `ProvisionAccountHolderAction`
 
@@ -9135,6 +10107,7 @@ Represents the current status of a Report.
 
 All available report types.
 
+- `ACCOUNT_LEDGER_BALANCE`
 - `ACH_EVENT_ACTIVITY`
 - `CARD_INTERCHANGE_ACTIVITY`
 - `CARD_TRANSACTION_ACTIVITY`
@@ -9163,16 +10136,36 @@ A status representing the state of the `RequestedIdentityUpdate`
 The types of identity updates requested.
 
 - `BILLING_ADDRESS`
+- `COUNTRY_OF_CITIZENSHIP`
+- `COUNTRY_OF_INCORPORATION`
+- `COUNTRY_OF_RESIDENCE`
 - `DATE_OF_BIRTH`
 - `EMAIL`
 - `EMPLOYER_IDENTIFICATION_NUMBER`
 - `FULL_LEGAL_NAME`
 - `HOME_ADDRESS`
+- `JURISDICTION`
 - `LEGAL_BUSINESS_NAME`
+- `NATIONAL_IDENTIFICATION_NUMBER`
 - `NEW_ULTIMATE_BENEFICIAL_OWNER`
 - `OWNERSHIP_PERCENTAGE`
+- `PASSPORT_NUMBER`
 - `PHONE`
+- `REGION_OF_INCORPORATION`
 - `SOCIAL_SECURITY_NUMBER`
+
+### `ReserveCollectionMethod`
+
+The manner in which the reserve is collected
+
+- `FIXED_AMOUNT`
+- `PERCENTAGE`
+
+### `ReserveType`
+
+The type of financial reserve
+
+- `RISK`
 
 ### `ReviewWorkflowEventStatus`
 
@@ -9208,12 +10201,18 @@ Additional details regarding a `FAILED` reward points transfer.
 
 - `ACCOUNT_CLOSED`
 - `ACCOUNT_CURRENCY_MISMATCH`
+- `ACCOUNT_NOT_ACTIVE`
 - `ACCOUNT_NOT_FOUND`
 - `ACCOUNTS_DO_NOT_BELONG_TO_SAME_PRODUCT`
+- `INSUFFICIENT_FUNDING_ACCOUNT_BALANCE`
 - `INSUFFICIENT_FUNDS`
+- `INVALID_ACCOUNT_ID`
 - `PREPAID_CARD_FEATURE_NOT_ENABLED`
 - `REDEMPTION_CONFIGURATION_ID_NOT_PROVIDED`
+- `REDEMPTION_CONFIGURATION_ID_OR_POINT_VALUE_REQUIRED`
+- `REDEMPTION_CONFIGURATION_NOT_FOUND`
 - `REWARD_POINT_FEATURE_NOT_ENABLED`
+- `TRANSFER_AMOUNT_NOT_POSITIVE`
 
 ### `RewardPointsTransferSource`
 
@@ -9261,16 +10260,32 @@ Reasons an `RtpTransfer` may have failed.
 
 - `ACCOUNT_CLOSED`
 - `ACCOUNT_FROZEN`
+- `ACCOUNT_IDENTIFIER_STALE`
 - `ACCOUNT_NOT_ACTIVE`
 - `ACCOUNT_NOT_FOUND`
+- `AMOUNT_LIMIT_EXCEEDED`
+- `AMOUNT_MINIMUM_NOT_MET`
 - `CONFIGURATION_ERROR`
 - `CURRENCY_MISMATCH`
+- `DAILY_LIMIT_EXCEEDED`
+- `DESTINATION_BANK_NOT_ACTIVE`
+- `DO_NOT_HONOR`
 - `INSUFFICIENT_FUNDS`
+- `INVALID_ACCOUNT_NUMBER`
 - `INVALID_AMOUNT`
+- `INVALID_CARD_NUMBER`
+- `INVALID_FIELD_DATA`
 - `NETWORK_ERROR`
 - `NETWORK_NOT_SUPPORTED`
+- `NON_TRANSACTION_ACCOUNT`
+- `PROVIDER_NETWORK_DISABLED`
+- `PROVIDER_NOT_SUPPORTED`
+- `REQUIRED_FIELD_MISSING`
+- `RISK_DECLINE`
+- `SAME_ACCOUNTS`
 - `TIMEOUT`
 - `TRANSFER_NOT_PERMITTED`
+- `TRANSFER_REFUSED`
 - `UNSPECIFIED`
 
 ### `RtpTransferStatus`
@@ -9370,6 +10385,40 @@ Possible status values for a `ServicemembersCivilReliefActConfiguration`.
 - `APPROVED`
 - `PENDING`
 - `REJECTED`
+
+### `SimulateCardPaymentDisputeNetworkReasonCode`
+
+The network reason for a simulated dispute. Each value corresponds to a card
+network reason code, which determines the dispute's category.
+
+- `MASTERCARD_AUTHORIZATION_NOT_OBTAINED`
+- `MASTERCARD_CARDHOLDER_DISPUTE`
+- `MASTERCARD_CARDHOLDER_DISPUTE_NOT_ELSEWHERE_CLASSIFIED`
+- `MASTERCARD_CHIP_LIABILITY_SHIFT_COUNTERFEIT`
+- `MASTERCARD_CHIP_LIABILITY_SHIFT_LOST_STOLEN_OR_NEVER_RECEIVED`
+- `MASTERCARD_GOODS_OR_SERVICES_NOT_PROVIDED`
+- `MASTERCARD_INSTALLMENT_BILLING_DISPUTE`
+- `MASTERCARD_NO_CARDHOLDER_AUTHORIZATION`
+- `MASTERCARD_POINT_OF_INTERACTION_ERROR`
+- `MASTERCARD_QUESTIONABLE_MERCHANT_ACTIVITY`
+- `VISA_CANCELLED_MERCHANDISE_SERVICES`
+- `VISA_CREDIT_NOT_PROCESSED`
+- `VISA_DUPLICATE_PROCESSING`
+- `VISA_INCORRECT_AMOUNT`
+- `VISA_LATE_PRESENTMENT`
+- `VISA_MERCHANDISE_SERVICES_NOT_RECEIVED`
+- `VISA_NO_AUTHORIZATION`
+- `VISA_NOT_AS_DESCRIBED_OR_DEFECTIVE`
+- `VISA_OTHER_FRAUD_CARD_ABSENT`
+- `VISA_PAID_BY_OTHER_MEANS`
+
+### `SimulatedWalletProvisioningOutcome`
+
+The outcome of a simulated `CardDigitalWalletToken` provisioning request.
+
+- `APPROVED`
+- `DENIED`
+- `PENDING_VERIFICATION`
 
 ### `SpendRuleRecommendation`
 
@@ -9476,6 +10525,7 @@ The filters used to scope the type of TransactionEvents returned.
 - `BALANCE_INQUIRY_EVENT`
 - `CLEARING_EVENT`
 - `ENHANCED_DATA_EVENT`
+- `FLEXIBLE_CREDENTIAL_ATTEMPT_EVENT`
 - `ISSUER_PRELIMINARY_AUTHORIZATION_EVENT`
 - `REVERSAL_EVENT`
 - `VERIFICATION_EVENT`
@@ -9544,6 +10594,7 @@ as to narrow searches down even further than `TransactionSearchType`.
 - `CARD_TRANSACTION`
 - `CHECK_PAYMENT`
 - `DISBURSEMENT`
+- `FED_NOW_TRANSFER`
 - `INSTANT_NETWORK_TRANSFER`
 - `INSTANT_SETTLEMENT_TRANSACTION`
 - `INTER_FINANCIAL_ACCOUNT_TRANSFER`
@@ -9601,6 +10652,7 @@ Specifies which party is charged the fee.
 
 Payment rail preferences.
 
+- `FED_NOW`
 - `INSTANT_NETWORK_TRANSFER`
 - `RTP`
 
@@ -9690,11 +10742,14 @@ Reasons an `UnifiedFundsTransfer` may have failed.
 
 - `ACCOUNT_CLOSED`
 - `ACCOUNT_FROZEN`
+- `ACCOUNT_IDENTIFIER_STALE`
 - `ACCOUNT_NOT_ACTIVE`
 - `ACCOUNT_NOT_FOUND`
 - `ACCOUNT_NOT_PROVIDED`
 - `ACCOUNTS_DO_NOT_BELONG_TO_SAME_PRODUCT`
 - `ACH_LOAD_NOT_ALLOWED_BY_PROGRAM`
+- `AMOUNT_LIMIT_EXCEEDED`
+- `AMOUNT_MINIMUM_NOT_MET`
 - `ANI_VERIFICATION_FAILED`
 - `BAD_CVC3_DCVV`
 - `BAD_CVV`
@@ -9710,14 +10765,17 @@ Reasons an `UnifiedFundsTransfer` may have failed.
 - `CHIP_CARD_ARQC_VALIDATION_FAILURE`
 - `COMMERCIAL_CREDIT_PAY_IN_FULL_FEATURE_NOT_ENABLED`
 - `COMPLIANCE_VERIFICATION_FAILED`
+- `CONFIGURATION_ERROR`
 - `CORPORATE_BANK_ACCOUNT_FEATURE_NOT_ENABLED`
 - `CREDIT_CARD_FEATURE_NOT_ENABLED`
 - `CREDIT_LIMIT_NOT_SET_ON_ACCOUNT`
 - `CRYPTO_FUNDING_ACCOUNT_FEATURE_NOT_ENABLED`
 - `CRYPTO_RECEIVING_ACCOUNT_FEATURE_NOT_ENABLED`
 - `CURRENCY_MISMATCH`
+- `DAILY_LIMIT_EXCEEDED`
 - `DDA_FEATURE_NOT_ENABLED`
 - `DEBIT_CARD_FEATURE_NOT_ENABLED`
+- `DESTINATION_BANK_NOT_ACTIVE`
 - `DISPUTE_CHARGEBACK_NOT_ENABLED`
 - `DISPUTE_CHARGEBACK_PROVISIONAL_CREDIT_NOT_ENABLED`
 - `DO_NOT_HONOR`
@@ -9734,8 +10792,10 @@ Reasons an `UnifiedFundsTransfer` may have failed.
 - `HIGHNOTE_ACCOUNT_FEATURE_NOT_ENABLED`
 - `IDEMPOTENCY_KEY_NOT_PROVIDED`
 - `INSUFFICIENT_FUNDS`
+- `INSUFFICIENT_IDENTITY_DATA_TO_SCREEN`
 - `INTER_FINANCIAL_ACCOUNT_TRANSFER_RULES_NOT_PASSED`
 - `INTERNAL_SERVER_ERROR`
+- `INVALID_ACCOUNT_NUMBER`
 - `INVALID_AMOUNT`
 - `INVALID_AUTHORIZATION_EXPIRATION`
 - `INVALID_CARD_NUMBER`
@@ -9748,18 +10808,22 @@ Reasons an `UnifiedFundsTransfer` may have failed.
 - `MERCHANT_SETTLEMENT_FEATURE_NOT_ENABLED`
 - `NETWORK_ERROR`
 - `NETWORK_NOT_SUPPORTED`
+- `NON_TRANSACTION_ACCOUNT`
 - `NOT_AN_ORGANIZATION_OWNED_ACCOUNT`
 - `NOT_ENOUGH_BALANCE_TO_REDUCE_CREDIT_LIMIT`
 - `ODF_FEATURE_NOT_ENABLED`
 - `ORGANIZATION_ID_NOT_PROVIDED`
 - `ORIGINATED_ACH_UNLOAD_NOT_SUPPORTED_ON_PRODUCT`
 - `PARTIAL_FUNDING_FEATURE_NOT_ENABLED`
+- `PAYMENT_RELATED_INFORMATION_INVALID`
 - `PAYROLL_ADVANCE_FEATURE_NOT_ENABLED`
 - `PAYROLL_EMPLOYER_ADVANCE_FEATURE_NOT_ENABLED`
 - `PRE_AUTHORIZATION_EXPIRED`
 - `PREPAID_CARD_FEATURE_NOT_ENABLED`
 - `PRODUCT_FUNDING_FEATURE_NOT_ENABLED`
 - `PRODUCT_SECURED_DEPOSIT_ACCOUNT_FEATURE_NOT_ENABLED`
+- `PROVIDER_NETWORK_DISABLED`
+- `PROVIDER_NOT_SUPPORTED`
 - `PSEUDO_BALANCE_NOT_ENABLED`
 - `PULL_PAYMENT_FAILED`
 - `PUSH_PAYMENT_FAILED`
@@ -9771,6 +10835,7 @@ Reasons an `UnifiedFundsTransfer` may have failed.
 - `RISK_DECLINE`
 - `SECURE_CARD_FEATURE_NOT_ENABLED`
 - `SECURED_DEPOSIT_ACCOUNT_FEATURE_NOT_ENABLED`
+- `SOURCE_AND_DESTINATION_ACCOUNTS_SAME`
 - `SPECIAL_CONDITION_NO_PICK_UP`
 - `SUSPENDED_CARD`
 - `TENANT_ID_NOT_PROVIDED`
@@ -9790,6 +10855,7 @@ Reasons an `UnifiedFundsTransfer` may have failed.
 - `TRANSFER_NOT_SUPPORTED`
 - `TRANSFER_NOT_SUPPORTED_ON_PRODUCT`
 - `TRANSFER_ORCHESTRATION_ID_NOT_PROVIDED`
+- `TRANSFER_REFUSED`
 - `UNACTIVATED_CARD`
 - `VALID_ACCOUNT_AMOUNT_NOT_SUPPORTED`
 
@@ -9864,6 +10930,7 @@ The level at which a cumulative rule will be evaluated.
 - `ACCOUNT_HOLDER`
 - `CARD`
 - `CARD_LINEAGE`
+- `EXTERNAL_BANK_ACCOUNT`
 - `PLATFORM`
 - `PRODUCT`
 
@@ -9881,6 +10948,13 @@ A enum of `VelocityRule` evaluation windows
 - `WEEKLY`
 - `YEARLY`
 
+### `VelocityWindowStartOfWeek`
+
+The day a `WEEKLY` velocity window starts when the `VelocityRule` has a `velocityWindowTimeZone`.
+
+- `MONDAY`
+- `SUNDAY`
+
 ### `VerifiedExternalBankAccountLinkExperienceFlow`
 
 The type of link experience.
@@ -9894,7 +10968,13 @@ The type of link experience.
 
 ### `VirtualCardPersonalizationType`
 
-The Personalization type for the virtual card profile
+How Highnote sets the cardholder name encoded in a card's Track 1 data. This is the name a receipt can show.
+
+A person's name is encoded as `LAST/FIRST`. The middle name (after a space) and the title (after a `.`) are added when the cardholder has them and the name still fits in 26 characters. A business or generic name is encoded as `NAME/`.
+
+The name is uppercased. `/` and `.` inside a name are removed, and any character other than `A` to `Z`, a digit, a space or `-` is replaced with a space. For example, `ñ` becomes a space. A name longer than 26 characters is cut off at 26 characters.
+
+The name is chosen when the card is issued and is stored with the card, whether the card is virtual or physical. It is written to Track 1 when a physical card is ordered. It does not use the physical card personalization lines.
 
 - `BUSINESS_AUTHORIZED_PERSON_NAME`
 - `BUSINESS_NAME`
@@ -9904,9 +10984,7 @@ The Personalization type for the virtual card profile
 
 ### `VisaAmountSignage`
 
-Visa Fleet line item amount type (credit/debit)
-
-Used for `visaShippingAmountSignage`, `visaDutyAmountSignage`, `visaShippingTaxAmountSignage`
+Whether a Visa amount is a charge or a refund on the invoice
 
 - `CREDIT`
 - `DEBIT`
@@ -9932,7 +11010,7 @@ Information about the Cardholder Authentication Verification Value (CAVV) for th
 
 ### `VisaDiscountTreatment`
 
-Visa Fleet discount treatment types
+Visa discount treatment types
 
 - `NO_DISCOUNT`
 - `POST_DISCOUNT`
@@ -10988,7 +12066,7 @@ All the Visa Fleet commodity codes.
 
 ### `VisaLineItemDetailIndicator`
 
-Visa Fleet line item detail indicator
+Visa line item detail indicator
 
 - `CREDIT`
 - `NORMAL`
@@ -11277,9 +12355,16 @@ Visa Fleet non fuel product codes
 - `WL_REAL_TIME_RECHARGE`
 - `WORK_ORDER`
 
+### `VisaPurchaseIdFormat`
+
+Visa purchase ID format
+
+- `INVOICE`
+- `ORDER`
+
 ### `VisaTaxTreatment`
 
-Visa Fleet tax treatment types
+Visa tax treatment types
 
 - `GIL`
 - `GLL`
@@ -11335,6 +12420,12 @@ Web push provisioning asset type
 - `CARD_TEMPLATES`
 - `NETWORK_CARD_ASSETS`
 
+### `WireFundsTransferType`
+
+Whether the wire pushes funds to the receiving party or pulls funds from it.
+
+- `PUSH`
+
 ### `WireStatusReasonCode`
 
 Additional details for wire transfer errors. This will only be relevant when the `WireTransferStatus` is FAILED.
@@ -11345,12 +12436,30 @@ Additional details for wire transfer errors. This will only be relevant when the
 - `CURRENCY_MISMATCH`
 - `PAYROLL_ADVANCE_FEATURE_NOT_ENABLED`
 
+### `WireTransferFailureReason`
+
+Reasons a wire may have failed.
+
+- `ACCOUNT_CLOSED`
+- `ACCOUNT_NOT_ACTIVE`
+- `ACCOUNT_NOT_FOUND`
+- `CURRENCY_MISMATCH`
+- `INSUFFICIENT_FUNDS`
+- `TRANSFER_NOT_PERMITTED`
+- `UNSPECIFIED`
+
 ### `WireTransferReviewDirection`
 
 The direction of the `WireTransferReview`.
 
 - `INCOMING`
 - `OUTGOING`
+
+### `WireTransferSign`
+
+The impact of the wire on the Highnote `FinancialAccount`.
+
+- `POSITIVE`
 
 ### `WireTransferStatus`
 
@@ -11386,6 +12495,14 @@ The possible types of `WireTransfer`.
 ### `AcceptAccountHolderCardProductApplicationOfferInput`
 
 The input to accept an extended `AccountHolderCardProductApplicationOffer` on an `AccountHolderCardProductApplication`
+
+### `AcceptAndFinalizeCardPaymentDisputeInput`
+
+Input for accepting and finalizing a `CardPaymentDispute`.
+
+### `AcceptAndFinalizeCardPaymentDisputePayload`
+
+Result of accepting and finalizing a `CardPaymentDispute`.
 
 ### `AcceptCounterOfferInput`
 
@@ -11574,6 +12691,18 @@ Type representing a verification attempt on an Account Holder. Not all attempts 
 
 Type representing one result on a verification.
 
+### `AccountPayableParty`
+
+The party that owes an `AccountReceivable`.
+
+### `AccountReceivable`
+
+An amount owed by a `payableParty` to a `receivableParty`, collected against `payableAccount` automatically — via settlement deduction, internal account transfer, or ACH debit — depending on the configured collection strategy.
+
+### `AccountReceivableParty`
+
+The party owed an `AccountReceivable`.
+
 ### `AccountRelationship`
 
 Represents a relationship between two financial accounts.
@@ -11685,7 +12814,8 @@ The AchExternallyInitiatedWithdrawalReceivedEvent event will be triggered when a
 ### `AchFromFinancialAccount`
 
 The financial account sending funds. This can be a Highnote `FinancialAccount`
-or a verified external financial account (`ExternalFinancialBankAccount`).
+or a verified or non-verified external financial account (`ExternalFinancialBankAccount`
+or `NonVerifiedExternalUSFinancialBankAccount`).
 
 ### `AchHoldAddedEvent`
 
@@ -11774,9 +12904,195 @@ Input for filtering by `AchTransferPurpose`.
 
 Input for filtering by `AchTransferType`.
 
+### `AcquiringEnhancedDataInput`
+
+Commercial card data for a payment, also called Level 2 and Level 3 data,
+supplied in the member for the network of the card being charged. Sending it can qualify a
+commercial card payment for a lower interchange rate.
+
+Enhanced data is available only to subscribers Highnote has enabled for it.
+If your organization is not enabled, a request that includes it is rejected with
+the `ENHANCED_DATA_NOT_ENABLED` user error code. Contact Highnote support to
+request enablement.
+
+Exactly one member must be set. Setting zero or multiple members surfaces as a
+top-level GraphQL validation error.
+
+On a capture, the Visa Level 2 fields sent in clearing combine the capture's
+enhanced data with the authorization's:
+- A field sent on the capture replaces the authorization's value for that
+  field.
+- `customerReferenceNumber`, `purchaseIdentifier`, `purchaseIdentifierFormat`
+  and `summaryCommodityCode` not sent on the capture are taken from the
+  authorization, on every capture.
+- `localTax`, `nationalTax` and `otherTax` not sent on the capture are taken
+  from the authorization only when the capture is a single capture of the full
+  authorized amount and the authorization was approved for the full amount
+  requested. A partial capture, each capture of a multiple-capture payment, and
+  a capture of a partially approved authorization carry only the tax sent on
+  that capture, because the authorization's tax describes the amount originally
+  requested.
+
+The Mastercard fields combine the same way:
+- A field sent on the capture replaces the authorization's value for that
+  field.
+- `customerCode` and `taxExempt` not sent on the capture are taken from the
+  authorization, on every capture.
+- `totalTax` not sent on the capture is taken from the authorization only on a
+  single capture of the full authorized amount, as for the Visa taxes above.
+
+So when the authorization sent `taxExempt: true` and the capture sends a
+`totalTax` other than `0`, also send `taxExempt: false` on the capture.
+Otherwise the payment stays marked tax exempt and is not submitted for the
+Commercial Data Rate.
+
 ### `AcquiringExternalCredentialOnFileInput`
 
 Input for specifying an externally stored credential on file.
+
+### `AcquiringMastercardEnhancedDataHeaderInput`
+
+The Mastercard Level 2 fields for a purchase.
+
+Highnote supplies the merchant's business type and tax identification number
+from the merchant's onboarding details, so they are not part of this input.
+
+Send at least one of `customerCode`, `totalTax`, or `taxExempt` set to `true`;
+a header with none of them is rejected with the `ENHANCED_DATA_INVALID` user
+error code.
+
+Omitting a field leaves it unset; send `0` to state an explicit zero.
+
+### `AcquiringMastercardEnhancedDataInput`
+
+Mastercard enhanced data: the Level 2 header.
+
+### `AcquiringMerchantMatchConfig`
+
+Successful result of `simulateCreateMerchantMatchConfig`.
+
+### `AcquiringThreeDSecureAuthentication`
+
+3DSecure authentication context attached to a `PaymentMethodToken`. Surfaces the two raw
+inputs a merchant needs to derive their own liability-shift decision per their risk model:
+the network-returned ECI and whether a CAVV was produced.
+
+Network-specific derivation rules (Visa `eci = "05"` / `"06"` → shift; Mastercard `"02"`
+or `"01"` + CAVV → shift; etc.) intentionally live with the merchant. Highnote does not
+expose `liabilityShifted` directly today because the network-specific carveouts
+(corporate-card subprograms, Mastercard attempts-server stand-ins, etc.) are merchant-policy
+decisions, not platform decisions. Additional derived fields can be added additively if a
+common merchant pattern emerges.
+
+Raw CAVV stays server-side on the `PaymentMethodToken` and is consumed by Highnote's
+authorization pipeline at submit time; this type exposes `cavvPresent` only.
+
+### `AcquiringThreeDSecureAuthenticationCredentialInput`
+
+Credential for `initiateAcquiringThreeDSecureAuthentication` — provide exactly one. `paymentMethodTokenId`
+is the token path; `paymentCardCredential` provides the card directly (the card together with its session token id).
+
+### `AcquiringThreeDSecureAuthenticationResult`
+
+The result of a 3-D Secure authentication — a frictionless lookup or a completed
+challenge. The outcome is not pre-judged here: inspect the token's
+`acquiringThreeDSecureAuthentication` (`eci`, `cavvPresent`) — a present CAVV
+indicates an authenticated result eligible for the liability shift.
+
+### `AcquiringThreeDSecureBrowserInfoInput`
+
+Details of the cardholder's browser, sent to the card issuer for its 3-D Secure risk
+assessment. Collect every field except `ipAddress` in the cardholder's browser with
+JavaScript. Highnote sets the remaining EMV 3-D Secure browser fields itself: the accept
+header is sent as `*/*` and Java is reported as disabled.
+
+### `AcquiringThreeDSecureChallengeCredentialInput`
+
+Credential for `completeAcquiringThreeDSecureAuthenticationChallenge` — provide exactly one.
+`paymentMethodTokenId` (token path) or `threeDSecureSessionToken` (session token from the challenge result).
+
+### `AcquiringThreeDSecureChallengeRequired`
+
+Returned when a step-up challenge is required to complete 3DSecure authentication.
+
+### `AcquiringThreeDSecureDataExchangeCredentialInput`
+
+Credential for `initiateAcquiringThreeDSecureDataExchange` — provide exactly one. `paymentMethodTokenId`
+is the token path; `paymentCard` provides the card directly.
+
+### `AcquiringThreeDSecureDataExchangeResult`
+
+Result of a 3DSecure Data Exchange Request. On `SUCCESS`, contains the Device Data
+Collection (DDC) JWT and URL required before calling
+`initiateAcquiringThreeDSecureAuthentication`.
+
+### `AcquiringThreeDSecurePaymentCardCredentialInput`
+
+3-D Secure card credential: the card, together with the `threeDSecureSessionToken` carrying prior-leg
+3DS state. The session token id is present once `initiateAcquiringThreeDSecureDataExchange` has minted
+it, or absent when authenticating directly with device data collection skipped.
+
+### `AcquiringThreeDSecurePaymentCardInput`
+
+3-D Secure card credential carrying only the fields 3-D Secure requires. The security code (CVV) is
+not part of 3-D Secure and is intentionally omitted; the expiry is sent to the directory server as the
+EMV cardExpiryDate.
+
+### `AcquiringThreeDSecureSession`
+
+The authentication result carried by an `AcquiringThreeDSecureSessionToken` when Highnote runs
+3-D Secure over the API. Fully populated on a
+completed authentication; partially populated at challenge time (, with `cavvPresent` `false` and
+`electronicCommerceIndicator` still null); or a failed outcome (`NOT_AUTHENTICATED` /
+`UNAVAILABLE` / `REJECTED`).
+
+As on the token-based flow, the raw CAVV stays server-side and is injected into the authorization
+when the session token is consumed; this type surfaces `cavvPresent` only.
+
+### `AcquiringThreeDSecureSessionToken`
+
+A minted single-use 3-D Secure session token for the direct-card flow. `token` is the value
+you pass as `credential.paymentCard.threeDSecureAuthenticationToken` on
+`authorizePaymentTransaction` / `chargePaymentTransaction` to consume
+the authentication exactly once (rejected on replay; server-to-server only). `session` carries the
+authentication result the token represents — which may be complete (CAVV/ECI present), still
+pending a challenge (`authenticationStatus = CHALLENGE_REQUIRED`), or failed (`NOT_AUTHENTICATED` /
+`UNAVAILABLE` / `REJECTED`) — so the client can inspect the outcome before use. At authorization
+Highnote retrieves the token and applies whatever it carries (e.g. the CAVV only when present).
+Returned inline; not a `Node` and not re-fetchable by id.
+
+### `AcquiringThreeDSecureTransactionContextInput`
+
+Context for a 3DSecure authentication transaction.
+
+### `AcquiringVisaEnhancedDataHeaderInput`
+
+The Visa Level 2 fields and the Level 3 summary fields.
+
+The Level 2 fields are `customerReferenceNumber`, `purchaseIdentifier`,
+`purchaseIdentifierFormat`, `localTax`, `nationalTax`, `otherTax` and
+`summaryCommodityCode`. The remaining fields, including the value added tax
+(VAT) fields, are stored with the payment and are not sent in Level 2
+clearing. The Level 3 summary fields, except `taxSignage`, are sent to Visa
+with the line items when the payment qualifies for Level 3.
+
+Omitting a field leaves it unset; send `0` to state an explicit zero.
+
+Shipping amounts and the ship-from postal code are not part of this input.
+
+### `AcquiringVisaEnhancedDataInput`
+
+Visa enhanced data: a header of Level 2 and Level 3 summary fields, and the
+Level 3 line items.
+
+### `AcquiringVisaEnhancedDataLineItemInput`
+
+One Visa Level 3 line item.
+
+Line items are sent to Visa in clearing when the payment qualifies for Level 3;
+otherwise the payment clears with Level 2 only.
+
+Omitting a field leaves it unset; send `0` to state an explicit zero.
 
 ### `ActivateCardProductCreditPlanInput`
 
@@ -11797,6 +13113,10 @@ The input to activate a `CollaborativeAuthorizationEndpoint`.
 ### `ActivateCollaborativeAuthorizationEndpointPayload`
 
 The return types when activating a `CollaborativeAuthorizationEndpoint`.
+
+### `ActivateFlexibleCredentialInstantCreditInput`
+
+Input for `activateFlexibleCredentialInstantCredit`.
 
 ### `ActivateInstallmentAgreementForTransactionEventInput`
 
@@ -11894,6 +13214,12 @@ Additional recipient information required for international card shipping destin
 
 ### `AdditionalTransactionData`
 
+### `AdditionalTransactionDataInput`
+
+Network specific enhanced (industry) data to attach to a simulated transaction.
+
+Exactly one of the industry-specific data types must be provided.
+
 ### `AddNonVerifiedExternalUsFinancialBankAccountInput`
 
 The information of the US bank account to be added to an account holder that can only be transferred to
@@ -11926,19 +13252,6 @@ Input to Provision a `PaymentCard` to a Google Pay Eligible Device via Push Prov
 ### `AddPaymentCardToGooglePayByDevicePushProvisioningMutation`
 
 ### `AddPaymentCardToGooglePayByDevicePushProvisioningMutationVariables`
-
-### `AddPricingConfigurationEntityInput`
-
-The entity to attach a `PricingConfiguration` to.
-
-### `AddPricingConfigurationInput`
-
-The input details for creating a `PricingConfiguration`.
-
-### `AddPricingConfigurationPayload`
-
-The result of creating a `PricingConfiguration`.
-Returns the newly created configuration or error details.
 
 ### `Address`
 
@@ -12086,6 +13399,11 @@ The range type for `Amount`.
 
 A strategy for allowing amount calculation. Only one of the strategies below should be requested.
 
+### `AnnualVolumeEstimateInput`
+
+An annual estimate of monetary volume and transaction count, used for
+underwriting projections.
+
 ### `ApiKey`
 
 Details of an API Key.
@@ -12166,6 +13484,19 @@ The input for approving a credit-based `AccountHolderCardProductApplication`.
 ### `ApproveCreditProductApplicationUnderwritingPayload`
 
 The response type for approving a credit-product `AccountHolderCardProductApplication`.
+
+### `AssignFinancialBankAccountInput`
+
+The financial account to assign.
+
+### `AssignFinancialBankAccountToBusinessInput`
+
+Input for `assignFinancialBankAccountToBusiness`.
+
+### `AssignFinancialBankAccountToBusinessPayload`
+
+The result of `assignFinancialBankAccountToBusiness`.
+Returns the `BusinessAccountConfiguration` or error details.
 
 ### `AssignPaymentCardToFinancialAccountInput`
 
@@ -12289,7 +13620,7 @@ The return types when attaching a spend control rule to a card product.
 
 ### `AttachSpendRuleToFinancialAccountInput`
 
-The details of the spend rule to attach to the Payment Card
+The details of the spend rule to attach to the `FinancialAccount`.
 
 ### `AttachSpendRuleToFinancialAccountPayload`
 
@@ -12427,6 +13758,14 @@ Input for authorizing a `NetworkToken`.
 
 Result of authorizing a `NetworkToken`.
 
+### `AuthorizePaymentCardForPosInput`
+
+Input for authorizing a `PaymentCard` for point of service.
+
+### `AuthorizePaymentCardForPosPayload`
+
+Result of authorizing a `PaymentCard` for point of service.
+
 ### `AuthorizePaymentCardInput`
 
 Input for authorizing a `PaymentCard`.
@@ -12442,6 +13781,18 @@ Input for authorizing a `PaymentMethodToken`.
 ### `AuthorizePaymentMethodTokenPayload`
 
 Result of authorizing a payment method token.
+
+### `AuthorizePaymentTransactionInput`
+
+Input for `authorizePaymentTransaction`.
+
+### `AuthorizePaymentTransactionPayload`
+
+Result of `authorizePaymentTransaction`.
+
+### `AvailableCreditAdjustmentInput`
+
+How to adjust the available credit when activating Instant Credit.
 
 ### `AvsResponseCodeFilterInput`
 
@@ -12462,6 +13813,18 @@ A notification event triggered when a balance update occurs, such as when funds 
 ### `BankDetails`
 
 The details about the backing bank.
+
+### `BankProcessingAttributes`
+
+Sponsor bank details provided by the applicant at the start of the application.
+
+### `BankProcessingAttributesInput`
+
+Sponsor bank details provided at the start of an application. Whether these are
+accepted depends on the program of the product being applied for: some programs
+require them, and other programs do not accept them. They are also not accepted
+when the product onboards the customer at the sponsor bank as part of the
+application, or on an authorized user's application.
 
 ### `BatchAdjustment`
 
@@ -12515,6 +13878,28 @@ An override of the default billing cycle type.
 
 An override of the default billing cycle type.
 
+### `BindCardAuthenticationContactAddressInput`
+
+The postal address to bind for authentication.
+
+This replaces the address contact in full: a value you leave out is not carried over from
+the address bound before, it is withdrawn.
+
+### `BindCardAuthenticationContactAddressPayload`
+
+The return types when calling `bindCardAuthenticationContactAddress`.
+
+### `BindCardAuthenticationContactChannelInput`
+
+The email address, the phone number, or both, to bind for authentication.
+
+This replaces the channel contact in full: a value you leave out is not carried over from
+the contact bound before, it is withdrawn. Send every channel you want in force, every time.
+
+### `BindCardAuthenticationContactChannelPayload`
+
+The return types when calling `bindCardAuthenticationContactChannel`.
+
 ### `BooleanFilterInput`
 
 Boolean value type
@@ -12522,6 +13907,11 @@ Boolean value type
 ### `Business`
 
 A `Business` including profile details such as name and address, and service details such as account holder and merchant details.
+
+### `BusinessAccountConfiguration`
+
+An assignment of a financial account to a business for a given purpose.
+At most one assignment is active per `(business, purpose)` pair.
 
 ### `BusinessAccountHolder`
 
@@ -12610,6 +14000,12 @@ Inputs for filtering `USBusinessAccountHolder`s by `USBusinessUltimateBeneficial
 An address associated with a `Business`. The role this address fills is
 identified by `addressType` (LEGAL, BILLING, or SHIPPING).
 
+### `BusinessAddressInput`
+
+An address associated with a business. The role this address fills is identified
+by `addressType`. Exactly one entry across the list must have `addressType=LEGAL`,
+and at most one entry may have each other value (BILLING, SHIPPING).
+
 ### `BusinessAuthorizedPerson`
 
 The details of a person authorized to act on behalf of a `Business`.
@@ -12642,6 +14038,14 @@ A type representing credit risk attributes.
 
 Input fields for business credit risk attributes.
 
+### `BusinessCustomerRelationship`
+
+Represents a business relationship with a customer.
+
+### `BusinessCustomerSupportInput`
+
+Customer support contact details for a `Business`.
+
 ### `BusinessDetail`
 
 Detailed information about the business
@@ -12654,6 +14058,10 @@ The edge type for a `Business`.
 
 Filter input for the `businesses` query.
 
+### `BusinessFlexibleCredentialsArgs`
+
+A `Business` including profile details such as name and address, and service details such as account holder and merchant details.
+
 ### `BusinessIdentificationDocument`
 
 `Business` identification document types.
@@ -12661,6 +14069,10 @@ Filter input for the `businesses` query.
 ### `BusinessJurisdiction`
 
 Jurisdiction details for a `Business`.
+
+### `BusinessJurisdictionInput`
+
+Input for jurisdiction details for a business.
 
 ### `BusinessMerchantDetails`
 
@@ -12686,9 +14098,21 @@ Describes start and end timestamp of returned response.
 
 Type representing common name fields of a business.
 
+### `BusinessNameInput`
+
+The business' legal name and Doing Business As name.
+
 ### `BusinessOwnershipInformation`
 
 Information about a business' ownership
+
+### `BusinessPartnerRelationship`
+
+Represents a business relationship with a partner.
+
+### `BusinessPersonInput`
+
+Input for a person associated with a `Business`.
 
 ### `BusinessPlanAttributeInput`
 
@@ -12755,6 +14179,30 @@ Information about the business.
 
 Profile for a `Business`.
 
+### `BusinessProfileInput`
+
+Details regarding the business such as legal name, address, and tax information
+
+### `BusinessRelationship`
+
+Represents all possible types of business relationships.
+
+### `BusinessRelationshipConnection`
+
+A paginated list of business relationships.
+
+### `BusinessRelationshipEdge`
+
+An edge in the business relationship connection.
+
+### `BusinessRelationshipFilterInput`
+
+Inputs for filtering business relationships.
+
+### `BusinessRelationshipParty`
+
+Represents the party in a business relationship.
+
 ### `BusinessService`
 
 A service a `Business` is set up for in the payments ecosystem.
@@ -12775,14 +14223,13 @@ The service-specific details for the `Business`, such as account holder and merc
 
 A `Business` including profile details such as name and address, and service details such as account holder and merchant details.
 
+### `BusinessServiceTargetInput`
+
+The business receiving the assignment.
+
 ### `BusinessUltimateBeneficialOwner`
 
 An ultimate beneficial owner of a business.
-
-Currently implemented only by `USBusinessUltimateBeneficialOwner`. The
-interface anticipates the international-Business migration (CRISP-13692
-follow-up) when non-US UBO types — backed by `Business` rather than
-`USBusinessAccountHolder` — are added as additional implementers.
 
 ### `BusinessUltimateBeneficialOwnerIdentityDocumentsRequestedEvent`
 
@@ -12791,6 +14238,10 @@ Indicates that identity verification documents have been requested for a `USBusi
 ### `BusinessUltimateBeneficialOwnerIdentityUpdatedEvent`
 
 Indicates that the identifying information of a `USBusinessUltimateBeneficialOwner` has been updated.
+
+### `BusinessUnderwritingResult`
+
+Result of the `BUSINESS_UNDERWRITING` `ProductApplicationWorkflow` step for a business application.
 
 ### `CancelledTransfer`
 
@@ -12854,11 +14305,36 @@ The percentage breakdown of how the business accepts card payments
 
 A secure upload link for a card art document upload session
 
+### `CardAuthenticationContact`
+
+A contact point bound to a `PaymentCard` or a `FinancialAccount` for use during
+authentication, independent of the account holder's identity record.
+
+Binding is append-only: each bind writes a new version that supersedes the one before it.
+Reading a card's or a financial account's contacts always returns the version in force.
+
+### `CardAuthenticationContactPurposeStatus`
+
+Whether a `CardAuthenticationContact` may be used for one purpose, and over what period.
+
+### `CardAuthenticationContactScope`
+
+What a contact is bound to. A contact scoped to a `FinancialAccount` applies to every
+card issued against it; one scoped to a `PaymentCard` applies to that card alone.
+
+### `CardAuthenticationContactScopeInput`
+
+What a contact is bound to. Supply exactly one field.
+
 ### `CardAuthorizationAndCaptureStep`
 
 Deprecated: Reference `CardAuthorizationStep` and `CardCaptureStep` instead of `CardAuthorizationAndCaptureStep`.
 
 Record of an acquiring `PaymentTransaction` authorization and capture step.
+
+### `CardAuthorizationPosStepSummary`
+
+Record of a `PaymentTransaction` authorizing an amount for point of service.
 
 ### `CardAuthorizationStep`
 
@@ -12879,6 +14355,10 @@ Record of an acquiring `PaymentTransaction` capturing an amount with a `PaymentM
 ### `CardCapturePaymentOrderSummary`
 
 Record of an `PaymentOrder` capturing an amount with a `PaymentMethod`.
+
+### `CardCapturePosStepSummary`
+
+Record of a `PaymentTransaction` capturing an amount for point of service.
 
 ### `CardCaptureStep`
 
@@ -12950,6 +14430,11 @@ The edge type for card digital wallet token.
 
 ### `CardDigitalWalletTokenEvent`
 
+### `CardDigitalWalletTokenProvisioningEvent`
+
+Triggered as a request to provision a `CardDigitalWalletToken` progresses from the initial
+request through to its outcome.
+
 ### `CardDigitalWalletTokenStateTransition`
 
 State transitions for a card digital wallet token.
@@ -12974,6 +14459,27 @@ The CardDigitalWalletTokenTerminatedEvent is triggered when a  `CardDigitalWalle
 
 The Card Digital Wallet Token verification method.
 
+### `CardDispute`
+
+Deprecated and pending removal: the unified dispute surface is not being pursued.
+Use the per-rail dispute types instead.
+
+A dispute on a card payment. It may be on the card issuer (cardholder) side or the acquirer
+(merchant) side; the side is reflected by which transaction is present in
+`caseDetails`. The dispute progresses through `stages` (chargeback → representment →
+pre-arbitration → arbitration), and the network case facts plus per-side detail live in
+`caseDetails`.
+
+### `CardEligibilityDetail`
+
+The eligibility details of a payment card.
+
+Fields with a fixed set of values, such as `designation` and the eligibility
+statuses, return `UNKNOWN` when the card network does not report a value.
+They are `null` only when the value could not be retrieved. Other fields,
+such as `currency`, are `null` when the card network does not report a
+value, and `fundingSources` and `networks` are empty lists.
+
 ### `CardFormFactorFilterInput`
 
 Input for filtering by `CardFormFactor`.
@@ -12990,6 +14496,10 @@ Used to represent cardHolder data.
 
 Used to represent cardHolder data.
 
+### `CardHolderNameInput`
+
+The name of a cardholder, in parts.
+
 ### `CardIncrementalAuthorizationStep`
 
 Record of an acquiring `PaymentTransaction` authorized some incremental amount.
@@ -12998,6 +14508,22 @@ Record of an acquiring `PaymentTransaction` authorized some incremental amount.
 
 Record of an acquiring `PaymentTransaction` authorized some incremental amount.
 
+### `CardNetworkMoneyMovementEligibility`
+
+The money movement eligibility the card network reports for a payment card.
+
+This reflects the card network's rules only. It is not Highnote's decision
+on whether a transfer will be accepted.
+
+### `CardNetworkTransferEligibility`
+
+The eligibility the card network reports for a payment card for a type of
+transfer, by region.
+
+The region is measured against the card's country of issuance, returned as
+`issuingCountry` on `CardEligibilityDetail`. Compare it with the country of
+the business initiating the transfer to determine which status applies.
+
 ### `CardPaymentArbitrationEvent`
 
 Represents an arbitration event for an acquiring `PaymentTransaction`.
@@ -13005,6 +14531,14 @@ Represents an arbitration event for an acquiring `PaymentTransaction`.
 ### `CardPaymentAuthorizationDeclinedEvent`
 
 Represents a synchronous card authorization declined payment event for an acquiring `PaymentTransaction`.
+
+### `CardPaymentAuthorizationDeclineSupersededEvent`
+
+Represents a declined card authorization attempt for an acquiring `PaymentTransaction` that a later authorization attempt replaced. This event records the replaced attempt and is not the outcome of the authorization. The outcome is reported by a separate event on the same `CardAuthorizationStep`.
+
+### `CardPaymentAuthorizationHeldEvent`
+
+Represents a card authorization held payment event for an acquiring `PaymentTransaction`. The transaction is in a held state pending final resolution and is expected to resolve to a final approved or reversed state without further cardholder action. See `holdReason` for the high-level category.
 
 ### `CardPaymentAuthorizedEvent`
 
@@ -13073,25 +14607,53 @@ Stage implementation for the first chargeback issued by the network.
 
 This is the first stage where the transaction is actively disputed with evidence.
 
+### `CardPaymentDisputeConnection`
+
+The connection type for `CardPaymentDispute`.
+
+### `CardPaymentDisputeEdge`
+
+The edge type for `CardPaymentDispute`.
+
+### `CardPaymentDisputeEvidenceUploadLink`
+
+A secure upload link for one `CardPaymentDispute` evidence file.
+
+### `CardPaymentDisputeEvidenceUploadSession`
+
+The evidence upload session opened for a `CardPaymentDispute`'s active stage.
+
 ### `CardPaymentDisputeNetworkReason`
 
 The network-defined reason for a dispute.
+
+### `CardPaymentDisputePreArbitrationResponseStage`
+
+Stage implementation for the pre-arbitration response.
+
+The responding party either partially accepts or contests the pre-arbitration.
+
+### `CardPaymentDisputePreArbitrationResponseStageActionsArgs`
+
+Stage implementation for the pre-arbitration response.
+
+The responding party either partially accepts or contests the pre-arbitration.
 
 ### `CardPaymentDisputePreArbitrationStage`
 
 Stage implementation for pre-arbitration.
 
-Pre-arbitration is an escalation after representment, where the issuer disputes
-the merchant's representment before formal arbitration. This is the last opportunity
-for the parties to resolve the dispute without network intervention.
+Pre-arbitration is an escalation before formal arbitration that either party
+(the issuer or the merchant) may initiate. It is the last opportunity for the
+parties to resolve the dispute without network intervention.
 
 ### `CardPaymentDisputePreArbitrationStageActionsArgs`
 
 Stage implementation for pre-arbitration.
 
-Pre-arbitration is an escalation after representment, where the issuer disputes
-the merchant's representment before formal arbitration. This is the last opportunity
-for the parties to resolve the dispute without network intervention.
+Pre-arbitration is an escalation before formal arbitration that either party
+(the issuer or the merchant) may initiate. It is the last opportunity for the
+parties to resolve the dispute without network intervention.
 
 ### `CardPaymentDisputeRepresentmentDetails`
 
@@ -13108,6 +14670,10 @@ Representment is the process of challenging a chargeback by submitting evidence.
 Stage implementation for the merchant's representment response.
 
 Representment is the process of challenging a chargeback by submitting evidence.
+
+### `CardPaymentDisputesFilterInput`
+
+Input for filtering an `Organization`'s `CardPaymentDispute` results.
 
 ### `CardPaymentDisputeStage`
 
@@ -13151,6 +14717,21 @@ Used when the action requires uploading documents or evidence files.
 ### `CardPaymentDisputeStageGlobalNoteEvidenceDetails`
 
 Details for evidence recorded as a global note on a dispute stage.
+
+### `CardPaymentDisputeStageQuestionnaireActionDetails`
+
+Used when a stage requires the merchant to answer dispute questionnaire fields.
+Lists the questionnaire fields still requested from the merchant for this stage.
+
+### `CardPaymentDisputeStatusFilterInput`
+
+Input to filter by `CardPaymentDisputeStatus`.
+
+### `CardPaymentDisputeTimeToExpireFilterInput`
+
+Filters `CardPaymentDispute` results by how many days away their response deadline
+is. `start` and `end` are both required, and a dispute matches if its deadline falls
+on or between them.
 
 ### `CardPaymentFirstChargebackEvent`
 
@@ -13501,6 +15082,14 @@ Input for charging a `NetworkToken`.
 
 Result of charging a `NetworkToken`.
 
+### `ChargePaymentCardForPosInput`
+
+Input for charging a `PaymentCard` for point of service.
+
+### `ChargePaymentCardForPosPayload`
+
+Result of charging a `PaymentCard` for point of service.
+
 ### `ChargePaymentCardInput`
 
 Input for charging a `PaymentCard`.
@@ -13529,9 +15118,44 @@ Result of charging an order.
 
 Input for charging an `PaymentOrder` via a `PaymentMethodToken`.
 
+### `ChargePaymentTransactionInput`
+
+Input for `chargePaymentTransaction`. Mirrors
+`AuthorizePaymentTransactionInput` — `chargePaymentTransaction` is one-step
+auth + capture.
+
+### `ChargePaymentTransactionPayload`
+
+Result of `chargePaymentTransaction`.
+
 ### `CheckCapableAccountFeature`
 
 Whether or not the `FinancialAccount` is capable of sending checks.
+
+### `CheckDeposit`
+
+A deposit of a paper check into a `FinancialAccount`, from images of the front and back of the check.
+
+### `CheckDepositDocumentUploadSession`
+
+A document upload session for the two images of a check to deposit.
+
+To deposit a check:
+
+1. Create the session with `createCheckDepositDocumentUploadSession`.
+2. Start it with `startDocumentUploadSession`.
+3. Call `createDocumentUploadLink` once with `documentType` `CHECK_DEPOSIT_FRONT_IMAGE` and once with `CHECK_DEPOSIT_BACK_IMAGE`, and upload each image to its `uploadUrl`.
+4. When both uploads are complete, call `initiateCheckDeposit` with the session ID.
+
+Upload each side once. A session can be used by one check deposit only.
+
+### `CheckInstrumentEligibilityDetailsInput`
+
+Input for `checkInstrumentEligibilityDetails`.
+
+### `CheckInstrumentEligibilityDetailsPayload`
+
+The return types of `checkInstrumentEligibilityDetails`.
 
 ### `CheckPayment`
 
@@ -13694,9 +15318,21 @@ Current account snapshot for a commercial revolving card
 
 Statement for commercial revolving card accounts
 
+### `CompleteAcquiringThreeDSecureAuthenticationChallengeInput`
+
+Input for `completeAcquiringThreeDSecureAuthenticationChallenge`.
+
+### `CompleteAcquiringThreeDSecureAuthenticationChallengePayload`
+
+The possible return types of `completeAcquiringThreeDSecureAuthenticationChallenge`.
+
 ### `CompletePhysicalCardGroupOrderInput`
 
 Input fields for completing a physical card group order.
+
+### `ComplianceScreeningPaymentInstrumentCapability`
+
+Records what compliance screening found at the most recent verification of this `PaymentInstrument` that recorded a screening outcome; `verificationPaymentTransaction` identifies which. The outcome is informational and does not change how the `PaymentInstrument` can be used.
 
 ### `ConditionalInterFinancialAccountTransferRule`
 
@@ -13776,6 +15412,20 @@ Current account snapshot for a consumer charge card
 
 Statement for consumer charge card accounts
 
+### `ConsumerDisputeQuestionnaire`
+
+The questionnaire for a consumer dispute. Every field is optional — an unanswered
+field is `null`, which for boolean fields is distinct from an explicit `false`. The
+fields requested for a stage are listed by that stage's questionnaire action
+(`requestedQuestions`).
+
+### `ConsumerDisputeQuestionnaireInput`
+
+Input mirror of `ConsumerDisputeQuestionnaire` used to submit answers. Each field
+carries the same meaning as the like-named output field; only the fields being
+answered need be provided, and for boolean fields an omitted value is distinct from
+an explicit `false`.
+
 ### `ConsumerPrepaidCardFinancialAccountStatement`
 
 Statement for consumer prepaid card accounts
@@ -13807,6 +15457,10 @@ Current account snapshot for a consumer revolving card
 ### `ConsumerRevolvingCardFinancialAccountStatementStatementEntriesArgs`
 
 Statement for consumer revolving card accounts
+
+### `Contract`
+
+An agreement between two parties
 
 ### `Coordinates`
 
@@ -13898,6 +15552,14 @@ Input fields for creating an Authorized User Card Product Application.
 
 Response type for creating an Authorized User Card Product Application.
 
+### `CreateBusinessInput`
+
+Input for creating a `Business`.
+
+### `CreateBusinessPayload`
+
+Response type for creating a `Business`.
+
 ### `CreateCardDataInputCapabilitySpendRuleInput`
 
 The details of the `CardDataInputCapabilitySpendRule` spend rule to create.
@@ -13905,6 +15567,12 @@ The details of the `CardDataInputCapabilitySpendRule` spend rule to create.
 ### `CreateCardDataInputCapabilitySpendRulePayload`
 
 The return types when creating a `CardDataInputCapabilitySpendRule`.
+
+### `CreateCardPaymentDisputeEvidenceUploadLinkInput`
+
+Input for minting a secure upload URL for one `CardPaymentDispute` evidence file.
+
+### `CreateCardPaymentDisputeEvidenceUploadLinkPayload`
 
 ### `CreateCardProductCreditPlanInput`
 
@@ -14383,6 +16051,14 @@ The details of the `VisaRiskScoreSpendRule` spend rule to create.
 
 The return types when creating a `VisaRiskScoreSpendRule`.
 
+### `CreateWalletInput`
+
+Input fields for creating a `Wallet`.
+
+### `CreateWalletPayload`
+
+Result of `createWallet`.
+
 ### `CreditAccountAgingCardProductConfiguration`
 
 The account aging configuration available on a `CardProduct`. For example, the number of days until a payment is due, and until an account is
@@ -14659,6 +16335,10 @@ Details about the source, model, and retrieval context for a specific credit sco
 
 Details about why a `CreditUnderwritingVerification` is in `IN_REVIEW` status.
 
+### `CryptoFundingFinancialAccountFeature`
+
+Whether or not the `FinancialAccount` supports crypto funding.
+
 ### `CryptoFundingFlowEvent`
 
 A lifecycle event emitted for a `CryptoFundingFlowTransfer`.
@@ -14682,6 +16362,10 @@ An event that occurs when a `CryptoFundingFlowTransfer` is first received from t
 ### `CryptoFundingFlowTransfer`
 
 A crypto funding flow movement. This represents the overall state of the transfer.
+
+### `CryptoReceivingFinancialAccountFeature`
+
+Whether or not the `FinancialAccount` supports crypto receiving.
 
 ### `CumulativeInterFinancialAccountTransferRule`
 
@@ -15025,7 +16709,7 @@ The return types when detaching a spend rule from a card product.
 
 ### `DetachSpendRuleFromFinancialAccountInput`
 
-The details of the spend rule to detach from the Payment Card.
+The details of the spend rule to detach from the `FinancialAccount`.
 
 ### `DetachSpendRuleFromFinancialAccountPayload`
 
@@ -15054,6 +16738,22 @@ The details of the `VelocityRule` to detach from the `FinancialAccount`
 ### `DetachVelocityRuleFromFinancialAccountPayload`
 
 The return types when detaching a `VelocityRule` from a `FinancialAccount`.
+
+### `DeviceReadPaymentCredentialsInput`
+
+Payment credentials captured by the device.
+
+### `DeviceReadPaymentDetailInput`
+
+Device read payment detail for this transaction.
+
+### `DeviceReadPaymentDetailSummary`
+
+Device read payment detail returned after a point of service transaction.
+
+### `DeviceReadPinDataInput`
+
+Encrypted PIN data collected from the cardholder at the device.
 
 ### `DigitalArtColors`
 
@@ -15157,9 +16857,28 @@ The return types when calling `disableAuthorizedUserFeature` on a `CardProduct`.
 
 ### `Dispute`
 
+A dispute raised against a transaction or a transfer. Each kind of dispute implements this
+interface with its own type, which carries the detail specific to it. The interface holds the
+fields common to every dispute.
+
 ### `DisputeChargebackCardProductFeature`
 
 Whether or not the `CardProduct` supports Disputes and feature configurations for Dispute and Chargeback restrictions.
+
+### `DisputeQuestionnaire`
+
+A dispute questionnaire for a single dispute stage; its concrete type depends on the
+dispute's category. Fraud and authorization disputes carry no questionnaire
+(document-only evidence), so a stage's `questionnaire` is `null` for those categories.
+
+### `DisputeQuestionnaireInput`
+
+Questionnaire answers to submit. Provide exactly one category variant, matching the
+dispute's category.
+
+### `DisputeStageAction`
+
+Represents an action that is available during a dispute stage.
 
 ### `DisputeStep`
 
@@ -15175,9 +16894,17 @@ A representation of size and unit of measurement of a distance.
 
 ### `DocumentCollectionAggregateEntity`
 
+Among authorized-person types only the non-US `BusinessAuthorizedPerson` is a member. The US
+`USBusinessAuthorizedPerson` is intentionally excluded: a US authorized person is represented only
+as a `DocumentCollectionOwnerEntity`, and its absence here is unchanged from before non-US support.
+
 ### `DocumentCollectionOwnerEntity`
 
 ### `DocumentCollectionPrimaryEntity`
+
+Among authorized-person types only the non-US `BusinessAuthorizedPerson` is a member. The US
+`USBusinessAuthorizedPerson` is intentionally excluded: a US authorized person is represented only
+as a `DocumentCollectionOwnerEntity`, and its absence here is unchanged from before non-US support.
 
 ### `DocumentRequest`
 
@@ -15231,6 +16958,19 @@ A movement of money within the Highnote platform.
 
 A movement of money within the Highnote platform.
 
+### `EligibilityInstrumentInput`
+
+Selects exactly one instrument to check. Setting zero or multiple members
+surfaces as a top-level GraphQL validation error.
+
+### `EligibilityPaymentCardBinInput`
+
+The `paymentCardBin` member of `EligibilityInstrumentInput`.
+
+### `EligibilityPaymentCardInput`
+
+The `paymentCard` member of `EligibilityInstrumentInput`.
+
 ### `EmbeddedDeviceInformation`
 
 Embedded Device information
@@ -15278,6 +17018,16 @@ The input to configure the On demand product feature.
 ### `EnableOnDemandFundingFeaturePayload`
 
 The return types when calling `enableOnDemandFundingFeature` on a `CardProduct`.
+
+### `EndCustomer`
+
+A customer of a subscriber's merchant, held by the acquiring customer vault. An
+`EndCustomer` is the party a reusable payment method is vaulted against, and the
+subject compliance screening runs on.
+
+### `EndCustomerAddress`
+
+An address held for an `EndCustomer`, tagged with the role it plays.
 
 ### `EndDocumentUploadSessionInput`
 
@@ -15459,6 +17209,13 @@ A transaction for an external money movement.
 
 External Physical Payment Card Order
 
+### `ExternalThreeDSecureAuthenticationInput`
+
+Externally-run 3-D Secure authentication result, passed through on a card (PAN)
+authorization when 3DS was performed off-platform. Highnote relays these values
+to the network as given and does not generate or verify them. Not applicable to
+network-token credentials, which carry their own token cryptogram.
+
 ### `ExternalTokenFinicityInput`
 
 The Finicity token that can be used to fetch bank account details of account holder.
@@ -15514,6 +17271,30 @@ The edge object for a `FeaturePermissionRevision`
 ### `FeaturePermissionRevisionsArgs`
 
 The `FeaturePermission` interface
+
+### `FedNowTransfer`
+
+An instant payment over the FedNow Service.
+
+### `FedNowTransferBankTransferDetails`
+
+Additional details for a `FedNowTransfer`.
+
+### `FedNowTransferDestination`
+
+The destination of the funds in a `FedNowTransfer`.
+
+### `FedNowTransferDestinationNode`
+
+The possible destination nodes for a `FedNowTransfer`.
+
+### `FedNowTransferSource`
+
+The source of the funds in a `FedNowTransfer`.
+
+### `FedNowTransferSourceNode`
+
+The possible source nodes for a `FedNowTransfer`.
 
 ### `FeeChargeActivity`
 
@@ -15571,6 +17352,10 @@ The edge type for a Fee Schedule.
 ### `FeeScheduleFilterInput`
 
 Inputs for filtering Fee Schedules.
+
+### `FeeScheduleStatusFilterInput`
+
+Inputs for filtering Fee Schedules by status.
 
 ### `FeeTransfer`
 
@@ -15731,6 +17516,10 @@ A financial account allows you to move money into the Highnote platform and move
 
 The current billing summary, including information on remaining latest closed statement balance, minimum payment, and payment due date, for this `FinancialAccount`
 
+### `FinancialAccountCardAuthenticationContactsArgs`
+
+A financial account allows you to move money into the Highnote platform and move funds to other accounts.
+
 ### `FinancialAccountCheckPaymentsArgs`
 
 A financial account allows you to move money into the Highnote platform and move funds to other accounts.
@@ -15788,6 +17577,10 @@ A financial account allows you to move money into the Highnote platform and move
 ### `FinancialAccountGlobalNotesArgs`
 
 A financial account allows you to move money into the Highnote platform and move funds to other accounts.
+
+### `FinancialAccountHolder`
+
+A holder of issuance financial accounts. Wraps an underlying `Business` with its own lifecycle. The issuance-side counterpart to acquiring's `Merchant`, `Payfac`, and `Iso`.
 
 ### `FinancialAccountIncomingScheduledTransfersArgs`
 
@@ -15977,6 +17770,14 @@ A financial account allows you to move money into the Highnote platform and move
 
 The financial event that the `LedgerEntry` results from.
 
+### `FinancialReserve`
+
+A financial reserve that is collected by taking a portion of every transaction processed
+
+### `FinancialReserveInput`
+
+A financial reserve that is collected by taking a percentage of every transaction processed
+
 ### `FindAccountHolderQuery`
 
 ### `FindAccountHolderQueryVariables`
@@ -16024,6 +17825,108 @@ Flat amount fee charge value.
 ### `FleetCardAccountFeature`
 
 Whether or not the Financial Account supports a Fleet Card.
+
+### `FlexibleCredential`
+
+A `FlexibleCredential` is a single Visa primary account number (PAN) that
+routes transactions to one of several backing `FinancialAccount`s. Each
+backing account can be reached through one or more member `PaymentCard`s
+(one-to-many is required to support reissuance). The credential exposes a
+single primary card with a default `FinancialAccount` for routing, plus any
+number of secondary cards that each route to their own default
+`FinancialAccount`.
+
+### `FlexibleCredentialActivity`
+
+A single `FinancialAccountActivity` within a `FlexibleCredential`'s aggregated
+feed, paired with the member `FinancialAccount` it belongs to.
+
+### `FlexibleCredentialActivityConnection`
+
+A paginated list of `FlexibleCredentialActivity` records.
+
+### `FlexibleCredentialActivityEdge`
+
+An edge in a `FlexibleCredentialActivityConnection`.
+
+### `FlexibleCredentialAttemptEvent`
+
+`FlexibleCredentialAttemptEvent` indicates a single failed credential authorization attempt during a `FlexibleCredential` transaction.
+
+### `FlexibleCredentialAttemptEventSpendRuleResultsArgs`
+
+`FlexibleCredentialAttemptEvent` indicates a single failed credential authorization attempt during a `FlexibleCredential` transaction.
+
+### `FlexibleCredentialCard`
+
+A `FlexibleCredentialCard` is the join record between a `PaymentCard` and
+its default routing `FinancialAccount` within a `FlexibleCredential`. A
+`FlexibleCredential` always has exactly one primary `FlexibleCredentialCard`
+(`isPrimary == true`) plus zero or more secondary `FlexibleCredentialCard`s,
+each pointing to its own default `FinancialAccount`.
+
+### `FlexibleCredentialCardSlotInput`
+
+Per-card configuration for one card issued by `provisionFlexibleCredential`.
+
+### `FlexibleCredentialConnection`
+
+The connection type for `FlexibleCredential`.
+
+### `FlexibleCredentialEdge`
+
+The edge type for a `FlexibleCredential`.
+
+### `FlexibleCredentialFlexibleCredentialActivitiesArgs`
+
+A `FlexibleCredential` is a single Visa primary account number (PAN) that
+routes transactions to one of several backing `FinancialAccount`s. Each
+backing account can be reached through one or more member `PaymentCard`s
+(one-to-many is required to support reissuance). The credential exposes a
+single primary card with a default `FinancialAccount` for routing, plus any
+number of secondary cards that each route to their own default
+`FinancialAccount`.
+
+### `FlexibleCredentialFlexibleCredentialStatementsArgs`
+
+A `FlexibleCredential` is a single Visa primary account number (PAN) that
+routes transactions to one of several backing `FinancialAccount`s. Each
+backing account can be reached through one or more member `PaymentCard`s
+(one-to-many is required to support reissuance). The credential exposes a
+single primary card with a default `FinancialAccount` for routing, plus any
+number of secondary cards that each route to their own default
+`FinancialAccount`.
+
+### `FlexibleCredentialInstantCreditActivation`
+
+The status of an Instant Credit activation, resolved by its `id`.
+
+### `FlexibleCredentialInstantCreditActivationPayload`
+
+The return types for `activateFlexibleCredentialInstantCredit` and
+`flexibleCredentialInstantCreditActivation`.
+
+### `FlexibleCredentialInstantCreditActivationStatusChangedEvent`
+
+An event that occurs when an Instant Credit activation reaches a terminal
+status (`COMPLETE` or `FAILED`).
+
+### `FlexibleCredentialStatement`
+
+A single `FinancialAccountStatement` within a `FlexibleCredential`'s aggregated
+statement feed, paired with the `FinancialAccount` it belongs to.
+
+### `FlexibleCredentialStatementConnection`
+
+A paginated list of `FlexibleCredentialStatement` records.
+
+### `FlexibleCredentialStatementEdge`
+
+An edge in a `FlexibleCredentialStatementConnection`.
+
+### `FlexibleCredentialStrategy`
+
+Common shape for every strategy attached to a `FlexibleCredential`.
 
 ### `ForceCapturePaymentTransactionInput`
 
@@ -16285,9 +18188,33 @@ Input for filtering by sensitive data using Hashing
 
 Inputs for filtering by `IdentityTaskGroupReviewCategory`.
 
+### `IdentityVerification`
+
+Result of the `IDENTITY` `ProductApplicationWorkflow` step.
+
+Holds the identity verification result for each subject associated with the application.
+For a consumer application this contains a single entry (the account holder). For a
+business application it contains one entry for the business entity plus one entry for
+each authorized person on the application.
+
+### `IdentityVerificationCheckResult`
+
+One identity verification check result.
+
 ### `IdentityVerificationDocumentUploadSession`
 
 A document upload session for identity verification documents.
+
+### `IdentityVerificationSubject`
+
+The subject of an identity verification on a `ProductApplicationWorkflow` `IDENTITY`
+step. Members are the live (non-snapshot) party entities so consumers always resolve
+current data.
+
+Note: `USPersonAccountHolder`, `USPersonAuthorizedUser`, and `USBusinessAuthorizedPerson`
+are legacy, jurisdiction-prefixed types that remain in active use. `Business` and
+`BusinessAuthorizedPerson` are the modern, non-jurisdictional shapes. Additional members
+(e.g. a future generic `Person` type) can be added without a breaking change.
 
 ### `IdFilterInput`
 
@@ -16320,6 +18247,22 @@ Input details when initiating an `OriginatedAchTransfer`.
 
 The return types when initiating an `OriginatedAchTransfer`.
 
+### `InitiateAcquiringThreeDSecureAuthenticationInput`
+
+Input for `initiateAcquiringThreeDSecureAuthentication`.
+
+### `InitiateAcquiringThreeDSecureAuthenticationPayload`
+
+The possible return types of `initiateAcquiringThreeDSecureAuthentication`.
+
+### `InitiateAcquiringThreeDSecureDataExchangeInput`
+
+Input for `initiateAcquiringThreeDSecureDataExchange`.
+
+### `InitiateAcquiringThreeDSecureDataExchangePayload`
+
+The possible return types of `initiateAcquiringThreeDSecureDataExchange`.
+
 ### `InitiateAddWiredFundsPayload`
 
 The return types when initiating add funds to a `FinancialAccount` via wire.
@@ -16327,6 +18270,14 @@ The return types when initiating add funds to a `FinancialAccount` via wire.
 ### `InitiateAddWiredFundsToFinancialAccountInput`
 
 Input details when initiating an add wire transfer to `FinancialAccount`.
+
+### `InitiateCardPaymentDisputeEvidenceUploadInput`
+
+Input for opening an evidence upload session on a `CardPaymentDispute`'s active stage.
+
+### `InitiateCardPaymentDisputeEvidenceUploadPayload`
+
+Result of opening an evidence upload session.
 
 ### `InitiateCustomerCardTransactionDisputeInput`
 
@@ -16373,6 +18324,15 @@ The details to withdraw funds from a `FinancialAccount` to an `ExternalFinancial
 
 The return types when the integrator initiates a withdrawal of funds from
 a `FinancialAccount` to an `ExternalFinancialAccount`.
+
+### `InitiateOnDemandPricingChargeInput`
+
+The input details for initiating an on-demand pricing charge to an acquiring entity.
+
+### `InitiateOnDemandPricingChargePayload`
+
+The result of initiating an on-demand pricing charge.
+Returns the charge details or error information.
 
 ### `InitiateOrganizationReportInput`
 
@@ -16561,6 +18521,14 @@ The input type for viewing `InstallmentOffersForTransactionEvent`.
 
 Types which can be returned when querying `InstallmentOffersForTransaction`.
 
+### `InstantCreditDurationInput`
+
+The length of an Instant Credit activation window.
+
+### `InstantCreditFlexibleCredentialStrategy`
+
+The Instant Credit strategy attached to a `FlexibleCredential`.
+
 ### `InstantNetworkTransfer`
 
 Allows for transferring money between a `FinancialAccount` and a `PaymentMethodToken`.
@@ -16600,6 +18568,25 @@ Indicates that this `PaymentInstrument` can be used as the source ID for `Instan
 ### `InstantSettlementTransaction`
 
 ### `InstantSettlementTransactionEvent`
+
+### `InstrumentEligibilityDetail`
+
+The eligibility detail for an instrument, by instrument type, or an error
+when the instrument could not be checked. New instrument types may be added
+over time, so clients should handle unrecognized types.
+
+### `InstrumentEligibilityDetailRequestInput`
+
+A single instrument to check, with an optional reference to identify it in
+the response.
+
+### `InstrumentEligibilityDetailResult`
+
+The result for a single instrument.
+
+### `InstrumentEligibilityDetails`
+
+The eligibility details for the requested instruments.
 
 ### `IntegratorInitiatedAchHoldStatusFilterInput`
 
@@ -16773,6 +18760,69 @@ Data needed to invite a new User.
 
 The possible return types of `inviteUser`.
 
+### `Invoice`
+
+An invoice issued to or from a business, aggregating one or more
+`InvoiceItem` charges over a billing period.
+
+### `InvoiceConnection`
+
+The connection type for `Invoice`.
+
+### `InvoiceEdge`
+
+The edge type for an `Invoice`.
+
+### `InvoiceFilterInput`
+
+Filter criteria for `Invoice` records.
+
+### `InvoiceItem`
+
+A single line item on an `Invoice`, representing a charge with a quantity,
+rate, and computed line total.
+
+### `InvoiceItemCalculationMetadata`
+
+Describes how an `InvoiceItem`'s amount was calculated.
+
+### `InvoiceItemConnection`
+
+The connection type for `InvoiceItem`.
+
+### `InvoiceItemEdge`
+
+The edge type for an `InvoiceItem`.
+
+### `InvoiceItemPercentageCalculation`
+
+Percentage calculation for an `InvoiceItem`.
+
+### `InvoiceItemPerItemCalculation`
+
+Per-item calculation for an `InvoiceItem`.
+
+### `InvoiceItemsArgs`
+
+An invoice issued to or from a business, aggregating one or more
+`InvoiceItem` charges over a billing period.
+
+### `InvoiceItemServiceDate`
+
+A single service date for an `InvoiceItem`.
+
+### `InvoiceItemServicePeriod`
+
+The service period an `InvoiceItem` covers. Exactly one variant is populated.
+
+### `InvoiceItemServicePeriodRange`
+
+A from/through service period range for an `InvoiceItem`.
+
+### `InvoiceParty`
+
+A party on an `Invoice`.
+
 ### `IpAddress`
 
 IP address details.
@@ -16782,6 +18832,11 @@ IP address details.
 Input fields for IP address details.
 
 ### `Iso`
+
+A `Business` operating as an `Iso`, brokering
+merchant onboarding to Payment Facilitators.
+
+### `IsoPayerPricingConfigurationsArgs`
 
 A `Business` operating as an `Iso`, brokering
 merchant onboarding to Payment Facilitators.
@@ -16935,6 +18990,10 @@ Inputs for  filtering ledger entries.
 ledger report parameters.
 these are additional, optional, parameters applicable only to ledger report.
 
+### `LinkVerifiedExternalBankAccountExpiredEvent`
+
+Event generated when a verified external bank account linking journey has expired.
+
 ### `LinkVerifiedExternalBankAccountFailedEvent`
 
 Event generated when an external bank account linking is failed.
@@ -16942,6 +19001,10 @@ Event generated when an external bank account linking is failed.
 ### `LinkVerifiedExternalBankAccountFailureReason`
 
 A reason for the external bank account linking failure.
+
+### `LinkVerifiedExternalBankAccountVerificationRequiredEvent`
+
+Event generated when a verified external bank account linking journey requires verification.
 
 ### `LinkVerifiedExternalBankInput`
 
@@ -17007,9 +19070,49 @@ A manually set amount to be transferred
 
 Details about the fuel location used in a fleet transaction.
 
+### `MastercardAncillaryServiceFee`
+
+Details of a non-ticket related service fee that was applied to a Mastercard transaction.
+
+### `MastercardAncillaryServiceFeeInput`
+
+Details of a non-ticket related service fee to simulate on a Mastercard transaction.
+
+### `MastercardCarRentalData`
+
+Details of a Mastercard car rental transaction.
+
+### `MastercardCarRentalDataInput`
+
+Details to simulate a Mastercard car rental transaction.
+
+### `MastercardCustomIdentifier`
+
+Custom information pertinent to a Mastercard transaction provided by the customer.
+
+### `MastercardCustomIdentifierInput`
+
+Custom information pertinent to a Mastercard transaction to simulate, provided by the customer.
+
 ### `MastercardData`
 
 Mastercard specific transaction data.
+
+### `MastercardDetailTaxAmount`
+
+Details of a tax amount that was applied to a Mastercard travel transaction.
+
+### `MastercardDetailTaxAmountInput`
+
+Details of a tax amount to simulate on a Mastercard travel transaction.
+
+### `MastercardEnhancedTravelData`
+
+Enhanced data provided by the merchant for a Mastercard travel transaction. Only the fields for which the merchant provided data are populated.
+
+### `MastercardEnhancedTravelDataInput`
+
+Details to simulate Mastercard enhanced (industry) data for a transaction.
 
 ### `MastercardFleetAuthorizationData`
 
@@ -17054,6 +19157,70 @@ Mastercard-specific installment payment data.
 ### `MastercardInstallmentDataInput`
 
 Mastercard-specific installment payment input data.
+
+### `MastercardLodgingData`
+
+Details of a Mastercard lodging transaction.
+
+### `MastercardLodgingDataInput`
+
+Details to simulate a Mastercard lodging transaction.
+
+### `MastercardOtherServiceCharge`
+
+Details of an other-service charge that was applied to a Mastercard lodging transaction.
+
+### `MastercardOtherServiceChargeInput`
+
+Details of an other-service charge to simulate on a Mastercard lodging transaction.
+
+### `MastercardPassengerTransportData`
+
+Details of a Mastercard passenger transport transaction.
+
+### `MastercardPassengerTransportDataInput`
+
+Details to simulate a Mastercard passenger transport transaction.
+
+### `MastercardRailData`
+
+Details of one trip leg of a Mastercard rail transaction.
+
+### `MastercardRailDataInput`
+
+Details to simulate one trip leg of a Mastercard rail transaction.
+
+### `MastercardRentalCheckout`
+
+Where and when a Mastercard rental vehicle was collected from the rental agency.
+
+### `MastercardRentalCheckoutInput`
+
+Where and when a simulated Mastercard rental vehicle was collected from the rental agency.
+
+### `MastercardRentalReturn`
+
+Where and when a Mastercard rental vehicle was returned to the rental agency.
+
+### `MastercardRentalReturnInput`
+
+Where and when a simulated Mastercard rental vehicle was returned to the rental agency.
+
+### `MastercardTravelAgencyData`
+
+Details of a Mastercard travel agency transaction.
+
+### `MastercardTravelAgencyDataInput`
+
+Details to simulate a Mastercard travel agency transaction.
+
+### `MastercardTripLegData`
+
+An individual leg within a `MastercardPassengerTransportData` trip.
+
+### `MastercardTripLegDataInput`
+
+An individual leg within a `MastercardPassengerTransportDataInput` trip.
 
 ### `MaximumAmountVarianceOnCreditLimitSpendRule`
 
@@ -17115,17 +19282,33 @@ submerchant of a `Payfac`.
 A merchant acceptor — Identifies how transactions for a merchant are routed and reported
 across processors and card networks.
 
+### `MerchantAcceptorConnection`
+
+A paginated list of `MerchantAcceptor`s.
+
 ### `MerchantAcceptorDetails`
 
 Descriptive details about the merchant accepting payments through a
 `MerchantAcceptor`. These values describe the merchant as it appears to
 cardholders and to card networks.
 
+### `MerchantAcceptorEdge`
+
+A `MerchantAcceptor` and its position within the connection.
+
+### `MerchantAcceptorFilterInput`
+
+The filters used to scope the type of `MerchantAcceptor`s returned.
+
 ### `MerchantAcceptorProcessorConfiguration`
 
 A single processor routing row for a `MerchantAcceptor`. Defines how
 transactions of a given network, card brand, and transaction type are
 processed and where they settle.
+
+### `MerchantBusinessServiceTargetInput`
+
+Reference to a `Merchant`, optionally scoped to a payfac relationship.
 
 ### `MerchantCategoryCodeSankeyDataPointsFilterInput`
 
@@ -17158,6 +19341,10 @@ The result of applying a merchant category spend rule to an event.
 ### `MerchantCategorySpendRuleRevisionsArgs`
 
 A Spend Control rule that allows or blocks certain merchant categories codes (MCC) during authorizations.
+
+### `MerchantCategoryWithCode`
+
+The MCC or merchant category code that will be associated with card transactions along with high-level category
 
 ### `MerchantConnection`
 
@@ -17213,6 +19400,20 @@ The edge type for `Merchant`.
 
 A fee associated for the merchant to process the `PaymentTransaction`.
 
+### `MerchantFundingFinancialAccountFeature`
+
+Whether or not the `FinancialAccount` supports merchant funding.
+
+### `MerchantIdentifier`
+
+The MID and associated attributes, used for acquiring transaction processing
+
+### `MerchantIdentifierDetails`
+
+The MIDs associated with an `ApplicationContract`
+
+### `MerchantIdentifierPayload`
+
 ### `MerchantIdentifierSpendRule`
 
 A Spend Control rule that allows or blocks authorizations based on merchant identifier.
@@ -17237,6 +19438,20 @@ Information about a merchant-managed installment payment plan.
 
 Information about a merchant-managed installment payment plan.
 
+### `MerchantMerchantAcceptorsArgs`
+
+A `Business` enrolled as an acquiring merchant, either directly or as a
+submerchant of a `Payfac`.
+
+### `MerchantOnboardingAttributesInput`
+
+Additional attributes for onboarding a merchant `Business`.
+
+### `MerchantPayerPricingConfigurationsArgs`
+
+A `Business` enrolled as an acquiring merchant, either directly or as a
+submerchant of a `Payfac`.
+
 ### `MerchantPayfacRelationship`
 
 A relationship between a `Merchant` and a `Payfac`, optionally brokered by
@@ -17250,10 +19465,19 @@ The connection type for `MerchantPayfacRelationship`.
 
 The edge type for `MerchantPayfacRelationship`.
 
+### `MerchantPayfacRelationshipQualifierInput`
+
+Identifies a specific merchant-payfac relationship.
+
 ### `MerchantPayfacRelationshipsArgs`
 
 A `Business` enrolled as an acquiring merchant, either directly or as a
 submerchant of a `Payfac`.
+
+### `MerchantProcessingAttributesInput`
+
+The `Business`'s reported operating details and processing attributes for
+merchant onboarding.
 
 ### `MerchantProductApplicationsArgs`
 
@@ -17270,7 +19494,7 @@ The Military Lending Act (MLA) configuration.
 
 ### `MinimalUsAuthorizedPersonInput`
 
-The input for creating a minimal `USAuthorizedPerson`
+The input for creating a minimal `USBusinessAuthorizedPerson`.
 
 ### `MinimalUsBusinessProfileInput`
 
@@ -17278,7 +19502,7 @@ Input fields for creating a `USBusinessProfile` with minimum required details.
 
 ### `MinimalUsUltimateBeneficialOwnerInput`
 
-Input fields for creating a `USUltimateBeneficialOwner` with minimal information.
+Input fields for creating a `USBusinessUltimateBeneficialOwner` with minimal information.
 
 ### `MinimumAmountLimitSpendRule`
 
@@ -17300,1423 +19524,1576 @@ Money value type
 
 Money value range (inclusive)
 
+### `MoneyMovementOnboardingAttributesInput`
+
+Additional attributes for onboarding a money movement `Business`.
+
+### `MoneyMovementProcessingAttributesInput`
+
+The applicant `Business`'s money-movement operating details, license posture,
+and processing volume estimates.
+
 ### `MoneyMovementProductFeature`
 
 ### `Mutation`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAcceptAccountHolderCardProductApplicationOfferArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationAcceptAndFinalizeCardPaymentDisputeArgs`
+
+All Mutations that can be performed.
 
 ### `MutationActivateCardProductCreditPlanArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationActivateCollaborativeAuthorizationEndpointArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationActivateFlexibleCredentialInstantCreditArgs`
+
+All Mutations that can be performed.
 
 ### `MutationActivateInstallmentAgreementForTransactionEventArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationActivateNotificationTargetArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationActivatePaymentCardArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAddCollaborativeAuthorizationEndpointArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAddExternalBankAccountFromTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAddExternalBankAccountVerifiedThroughFinicityArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAddExternalBankAccountVerifiedThroughPlaidArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAddExternalBankAccountVerifiedThroughPlaidUsingThirdPartyProcessorTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAddFundsToPaymentCardArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAddNonVerifiedExternalUsFinancialBankAccountArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAddPaymentCardToApplePayByDevicePushProvisioningArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAddPaymentCardToGooglePayByDevicePushProvisioningArgs`
 
-Root Mutation type extending the main GraphQL schema.
-
-### `MutationAddPricingConfigurationArgs`
-
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAddSubscriptionsToNotificationTargetArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAddUserDefinedFieldDefinitionRelationshipArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAddWebhookNotificationTargetArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationApproveCreditLimitDecreaseArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationApproveCreditLimitIncreaseArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationApproveCreditProductApplicationUnderwritingArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationAssignFinancialBankAccountToBusinessArgs`
+
+All Mutations that can be performed.
 
 ### `MutationAssignPaymentCardToFinancialAccountArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAttachCardProductVelocityRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAttachFeeToCreditPlanArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAttachPaymentCardVelocityRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAttachRealtimeRiskRuleToCardProductArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAttachRealtimeRiskRuleToFinancialAccountArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAttachRealtimeRiskRuleToPaymentCardArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAttachRewardEarnRuleToProductArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAttachRewardRedemptionConfigurationToProductArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAttachSpendRuleToCardProductArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAttachSpendRuleToFinancialAccountArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAttachSpendRuleToPaymentCardArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAttachVelocityRuleToFinancialAccountArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAuthorizeNetworkTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationAuthorizePaymentCardArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationAuthorizePaymentCardForPosArgs`
+
+All Mutations that can be performed.
 
 ### `MutationAuthorizePaymentMethodTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationAuthorizePaymentTransactionArgs`
+
+All Mutations that can be performed.
+
+### `MutationBindCardAuthenticationContactAddressArgs`
+
+All Mutations that can be performed.
+
+### `MutationBindCardAuthenticationContactChannelArgs`
+
+All Mutations that can be performed.
 
 ### `MutationCancelPaymentTransactionArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCancelPhysicalCardGroupOrderArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCancelPhysicalPaymentCardOrderArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCancelRequestedIdentityUpdateArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCancelScheduledTransferArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCapturePaymentTransactionArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationChargeNetworkTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationChargePaymentCardArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationChargePaymentCardForPosArgs`
+
+All Mutations that can be performed.
 
 ### `MutationChargePaymentMethodTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationChargePaymentOrderArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationChargePaymentOrderFromPaymentMethodTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationChargePaymentTransactionArgs`
+
+All Mutations that can be performed.
+
+### `MutationCheckInstrumentEligibilityDetailsArgs`
+
+All Mutations that can be performed.
 
 ### `MutationCloseExternalFinancialBankAccountArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationClosePaymentCardArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCloseTransactionBatchArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationCompleteAcquiringThreeDSecureAuthenticationChallengeArgs`
+
+All Mutations that can be performed.
 
 ### `MutationCompletePhysicalCardGroupOrderArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationConfirmCreditReportUnfrozenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationConfirmPayrollDepositArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationConfirmRequestedIdentityUpdateArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationConfirmVerificationOfCreditProductApplicationForFraudAlertArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateAccountHolderCardProductApplicationArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateAccountSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateAccountTransactionCountSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateAmountLimitSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateAuthorizedUserCardProductApplicationArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationCreateBusinessArgs`
+
+All Mutations that can be performed.
 
 ### `MutationCreateCardDataInputCapabilitySpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationCreateCardPaymentDisputeEvidenceUploadLinkArgs`
+
+All Mutations that can be performed.
 
 ### `MutationCreateCardProductArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateCardProductCreditPlanArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateCardProductInstallmentCreditPlanArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateCardProductWithTemplateArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateCardTransactionProcessingTypeConditionSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateChargeCreditCardProductConfigurationArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateCheckPaymentDocumentUploadSessionArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateConditionalRuleSetSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateCountLimitSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateCreditLimitChangeRequestArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateCreditLimitPercentageSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateCvvSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateDaysWithinAccountCreateDateSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateDaysWithinCardCreateDateSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateDepositAmountLimitSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateDepositCountLimitSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateDepositProcessingNetworkSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateDocumentUploadLinkArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateGlobalNoteArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateMastercardFraudScoreSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateMaximumAmountVarianceOnCreditLimitSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateMaximumAmountVarianceOnPseudoBalanceSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateMaximumPercentVarianceOnCreditLimitSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateMaximumPercentVarianceOnPseudoBalanceSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateMerchantCategorySpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateMerchantCountrySpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateMerchantIdentifierSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateMinimalUsBusinessAccountHolderArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateMinimumAmountLimitSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateOneTimeAchTransferArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreatePanEntryModeSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreatePaymentOrderArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreatePhysicalCardGroupOrderArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreatePhysicalCardGroupOrderWithValidatedAddressArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreatePhysicalCardGroupOrderWithValidatedAddressTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreatePointOfServiceCategorySpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreatePostalCodeVerificationSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreatePricingPlanArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateRecurringAchTransferArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateReusablePaymentMethodTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateRevolvingCreditCardProductConfigurationArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateRewardDefaultEarnRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateRewardMerchantCategoryEarnRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateRewardPointsAdjustmentArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateRewardRedemptionConfigurationArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateSecretApiKeyArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateStreetAddressSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateUnifiedFundsTransferQuoteArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateUsBusinessAccountHolderArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateUsBusinessAccountHolderFromTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateUserDefinedFieldArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateUserDefinedFieldDefinitionArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateUsPersonAccountHolderArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateUsPersonAccountHolderFromTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateUsPersonAuthorizedUserArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateUsPersonAuthorizedUserFromTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateVelocityRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationCreateVisaRiskScoreSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationCreateWalletArgs`
+
+All Mutations that can be performed.
 
 ### `MutationDeactivateCollaborativeAuthorizationEndpointArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationDeactivateNotificationTargetArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationDeleteCustomFieldsArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationDeleteSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationDeleteVelocityRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationDenyCreditLimitDecreaseArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationDenyCreditLimitIncreaseArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationDenyCreditProductApplicationUnderwritingArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationDetachCardProductVelocityRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationDetachPaymentCardVelocityRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationDetachRealtimeRiskRuleFromCardProductArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationDetachRealtimeRiskRuleFromFinancialAccountArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationDetachRealtimeRiskRuleFromPaymentCardArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationDetachSpendRuleFromCardProductArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationDetachSpendRuleFromFinancialAccountArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationDetachSpendRuleFromPaymentCardArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationDetachVelocityRuleFromFinancialAccountArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationDisableAuthorizedUserFeatureArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationEnableAuthorizedUserFeatureArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationEnableCollaborativeApplicationUnderwritingFeatureArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationEnableCollaborativeAuthorizationFeatureArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationEnableCreditCardFeatureArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationEnableOnDemandFundingFeatureArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationEndDocumentUploadSessionArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationForceCapturePaymentTransactionArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationForceStandaloneCapturePaymentArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationGenerateAppleWebPushProvisioningTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationGenerateBusinessAccountHolderClientTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationGenerateCreateScheduledTransferClientTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationGenerateDirectDepositDetailClientTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationGenerateDocumentUploadClientTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationGenerateExternalBankAccountDetailClientTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationGenerateFinancialAccountSingleUseClientTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationGenerateInitiateSecureDepositClientTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationGeneratePaymentCardClientTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationGeneratePaymentMethodTokenizationClientTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationGeneratePersonAccountHolderClientTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationGeneratePersonAuthorizedUserClientTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationGenerateRiskClientTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationGenerateScheduledTransferClientTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationGenerateSecureDepositClientTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationGenerateVerifiedExternalBankAccountLinkTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationIncrementalAuthorizePaymentTransactionArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationInitiateAchTransferArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationInitiateAcquiringThreeDSecureAuthenticationArgs`
+
+All Mutations that can be performed.
+
+### `MutationInitiateAcquiringThreeDSecureDataExchangeArgs`
+
+All Mutations that can be performed.
 
 ### `MutationInitiateAddWiredFundsToFinancialAccountArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationInitiateCardPaymentDisputeEvidenceUploadArgs`
+
+All Mutations that can be performed.
 
 ### `MutationInitiateCustomerCardTransactionDisputeArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationInitiateFinancialAccountCreditLimitUpdateFromProductFundingArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationInitiateFinancialAccountPseudoBalanceUpdateArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationInitiateFundPaymentCardFinancialAccountTransferArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationInitiateFundsDepositAchTransferArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationInitiateFundsWithdrawalAchTransferArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationInitiateOnDemandPricingChargeArgs`
+
+All Mutations that can be performed.
 
 ### `MutationInitiateOrganizationReportArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationInitiatePayrollAdvanceArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationInitiatePhysicalCheckPaymentArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationInitiateSecureDepositAchTransferArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationInitiateTransferBetweenFinancialAccountsArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationInitiateTransferFromFundingFinancialAccountToPaymentCardFinancialAccountArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationInitiateTransferFromPaymentCardFinancialAccountToFundingFinancialAccountArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationInitiateUnifiedFundsTransferArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationInitiateUnloadWiredFundsFromFinancialAccountArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationInitiateUsBusinessAuthorizedPersonRequestedIdentityUpdateArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationInitiateUsBusinessProfileRequestedIdentityUpdateArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationInitiateUsBusinessUltimateBeneficialOwnerRequestedIdentityUpdateArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationInitiateUsPersonAccountHolderRequestedIdentityUpdateArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationInviteUserArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationIssueEmployerFinancialAccountForCardProductArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationIssueFinancialAccountForApplicationArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationIssueFinancialAccountForApplicationWithOnDemandFundingSourceArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationIssueFundingFinancialAccountForApplicationArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationIssuePaymentCardForApplicationArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationIssuePaymentCardForApplicationWithOnDemandFundingSourceArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationIssuePaymentCardForAuthorizedUserApplicationArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationIssuePaymentCardForFinancialAccountArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationIssuePreprintedPaymentCardFinancialAccountForApplicationArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationOnboardBusinessArgs`
+
+All Mutations that can be performed.
 
 ### `MutationOrderPhysicalPaymentCardArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationOrderPhysicalPaymentCardForGroupArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationOrderPhysicalPaymentCardWithValidatedAddressArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationOrderPhysicalPaymentCardWithValidatedAddressTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationProvisionAccountHolderArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationProvisionFlexibleCredentialArgs`
+
+All Mutations that can be performed.
 
 ### `MutationPublishPricingPlanArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationRedeemRewardsForStatementCreditArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationRedeemRewardsToFinancialAccountArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationReevaluateApplicationArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationRefundCaptureStepArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationRefundPaymentTransactionArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationReissueFlexibleCredentialCardsArgs`
+
+All Mutations that can be performed.
 
 ### `MutationReissuePaymentCardArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationRemoveCollaborativeAuthorizationEndpointArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationRemoveEmailFromNotificationTargetArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationRemoveNotificationTargetArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationRemoveSubscriptionsFromNotificationTargetArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationRemoveUserArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationRenameCollaborativeAuthorizationEndpointArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationRenameNotificationTargetArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationReplayNotificationEventArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationResetPseudoBalanceArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationReverseInstallmentAgreementArgs`
+
+All Mutations that can be performed.
+
+### `MutationReversePaymentTransactionArgs`
+
+All Mutations that can be performed.
 
 ### `MutationRevokeApiKeyArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationRevokeCardAuthenticationContactArgs`
+
+All Mutations that can be performed.
 
 ### `MutationRotateNotificationTargetSigningKeyArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSetEmailForNotificationTargetArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSetPinForPaymentCardArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSetPseudoLimitArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateAchTransferProcessingArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateAchTransferReturnArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateAdjustmentArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateApplicationDocumentReviewArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateApplicationStatusChangeArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateApplicationVerificationStatusChangeArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateAuthorizationArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateBackwardShiftAndAgeCurrentFinancialAccountStatementPeriodArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateCardDigitalWalletTokenActivatedArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateCardDigitalWalletTokenActivationArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateCheckbookUserVerificationArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateCheckPaymentEventArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateClearingArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateCloseFinancialAccountArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateCreateAndActivateFeeScheduleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateCreateApplicationDocumentsUploadSessionsArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationSimulateCreateMerchantMatchConfigArgs`
+
+All Mutations that can be performed.
 
 ### `MutationSimulateDepositArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateDigitalWalletTokenAuthorizationArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationSimulateDigitalWalletTokenFlexibleCredentialAuthorizationArgs`
+
+All Mutations that can be performed.
 
 ### `MutationSimulateDigitalWalletTokenMastercardFleetAuthorizationArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateDigitalWalletTokenSingleStepAuthAndClearArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateDigitalWalletTokenVisaFleetAuthorizationArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateExternallyInitiatedAchTransferArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateFinalizeProvisionalCreditForCardTransactionDisputeArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationSimulateFlexibleCredentialAuthorizationArgs`
+
+All Mutations that can be performed.
 
 ### `MutationSimulateInitiateCardTransactionChargebackArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateInitiateCardTransactionDisputeArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateInitiateFinancialAccountClosureArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateIssueCreditForCardTransactionDisputeArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateIssueProvisionalCreditForCardTransactionDisputeArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationSimulateIssuerAcceptsFullCardPaymentDisputeArgs`
+
+All Mutations that can be performed.
+
+### `MutationSimulateIssuerAcceptsPartialCardPaymentDisputeArgs`
+
+All Mutations that can be performed.
+
+### `MutationSimulateIssuerFilesPreArbitrationCardPaymentDisputeArgs`
+
+All Mutations that can be performed.
+
+### `MutationSimulateIssuerFilesPreArbitrationResponseCardPaymentDisputeArgs`
+
+All Mutations that can be performed.
+
+### `MutationSimulateIssuerInitiatesCardPaymentDisputeArgs`
+
+All Mutations that can be performed.
 
 ### `MutationSimulateMastercardFleetAuthorizationAdviceArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateMastercardFleetAuthorizationArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateMastercardFleetClearingArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateMastercardFleetEnhancedDataArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationSimulateMerchantMatchInReviewArgs`
+
+All Mutations that can be performed.
 
 ### `MutationSimulateNonOriginatedAchTransferArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationSimulateNonOriginatedFedNowTransferArgs`
+
+All Mutations that can be performed.
+
+### `MutationSimulateNonOriginatedRtpTransferArgs`
+
+All Mutations that can be performed.
+
+### `MutationSimulateNonOriginatedWireTransferArgs`
+
+All Mutations that can be performed.
 
 ### `MutationSimulatePhysicalCardGroupOrderApprovalArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulatePhysicalCardGroupOrderSendToPrinterArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulatePhysicalCardGroupOrderShipmentFailedArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulatePhysicalCardGroupOrderShippedArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulatePhysicalPaymentCardOrderApprovalArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulatePhysicalPaymentCardOrderSendToPrinterArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulatePhysicalPaymentCardOrderShipmentFailedArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulatePhysicalPaymentCardOrderShippedArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulatePricingPlanArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateProcessedIntegratorInitiatedStatusChangeArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateProcessingExternallyInitiatedStatusChangeArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateProcessingIntegratorInitiatedStatusChangeArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateRefundArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateResolvePaymentCardTransactionChargebackArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateReturnedIntegratorInitiatedStatusChangeArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateReversalArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateRolloverCurrentFinancialAccountStatementPeriodArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateShiftCurrentFinancialAccountStatementPeriodArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateSingleStepAuthAndClearArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateUpdateCardTransactionDisputeArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateUpdatePaymentCardTransactionChargebackArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateVisaFleetAuthorizationAdviceArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateVisaFleetAuthorizationArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateVisaFleetClearingArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSimulateVisaFleetL3EnhancedDataArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationStartDocumentUploadSessionArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
+
+### `MutationSubmitCardPaymentDisputeEvidenceArgs`
+
+All Mutations that can be performed.
 
 ### `MutationSuspendCardDigitalWalletTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSuspendFinancialAccountArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationSuspendPaymentCardArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationTerminateCardDigitalWalletTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationTokenizeCardPaymentMethodArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationTokenizeUsBusinessAccountHolderArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationTokenizeUsPersonAccountHolderArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationTokenizeUsPersonAuthorizedUserArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationTransferFundsArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUnsuspendCardDigitalWalletTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUnsuspendFinancialAccountArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateAccountHolderCardProductApplicationOffersArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateAccountSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateAccountTransactionCountSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateAmountLimitSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateCardDataInputCapabilitySpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateCardProductNameArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateCardTransactionProcessingTypeConditionSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateConditionalRuleSetSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateCountLimitSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateCreditLimitPercentageSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateCustomFieldsArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateCvvSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateDaysWithinAccountCreateDateSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateDaysWithinCardCreateDateSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateDepositAmountLimitSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateDepositCountLimitSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateDepositProcessingNetworkSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateFinancialAccountBillingCycleConfigurationArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateFinancialAccountNameArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateMastercardFraudScoreSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateMaximumAmountVarianceOnCreditLimitSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateMaximumAmountVarianceOnPseudoBalanceSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateMaximumPercentVarianceOnCreditLimitSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateMaximumPercentVarianceOnPseudoBalanceSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateMerchantCategorySpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateMerchantCountrySpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateMerchantIdentifierSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateMinimumAmountLimitSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateOrganizationProfileDisplayNameArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdatePanEntryModeSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdatePointOfServiceCategorySpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdatePostalCodeVerificationSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdatePseudoBalanceArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdatePseudoLimitArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateRewardRedemptionConfigurationAttachmentArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateRewardRuleAttachmentArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateStreetAddressSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateUsAssociatedPersonAccountHolderEmailArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateUsAssociatedPersonAccountHolderHomeAddressArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateUsAssociatedPersonAccountHolderPhoneArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateUsBusinessAccountHolderBillingAddressArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateUsBusinessAccountHolderCreditRiskAttributeArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateUsBusinessAccountHolderPhoneArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateUsBusinessAccountHolderWebsiteArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateUserArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateUserDefinedFieldArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateUserDefinedFieldDefinitionArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateUsPersonAccountHolderBillingAddressArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateUsPersonAccountHolderCreditRiskAttributeArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateUsPersonAccountHolderEmailArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateUsPersonAccountHolderPhoneArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateUsPersonAuthorizedUserBillingAddressArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateUsPersonAuthorizedUserEmailArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateUsPersonAuthorizedUserPhoneArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateVelocityRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationUpdateVisaRiskScoreSpendRuleArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationValidateAddressArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationVerifyNetworkTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationVerifyPaymentCardArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationVerifyPaymentMethodTokenArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationWaiveFeeTransferArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `MutationWaiveInterestAmountForClosedStatementArgs`
 
-Root Mutation type extending the main GraphQL schema.
+All Mutations that can be performed.
 
 ### `Name`
 
@@ -18730,6 +21107,10 @@ Input representing common fields of a person's name.
 
 A country-specific identification document.
 
+### `NationalIdentificationDocumentInput`
+
+The national identification document details.
+
 ### `NegativeBalanceReserveFinancialAccountFeature`
 
 The Negative Reserve is held to cover deficits in the product such as potential over limits, fraud, uncollectible negative balances, and losses due to disputes or network charges. Funds may not be transferred out of the Negative Reserve.
@@ -18737,6 +21118,10 @@ The Negative Reserve is held to cover deficits in the product such as potential 
 ### `NetworkFeePaymentTransactionFee`
 
 A fee associated with network processing the `PaymentTransaction`.
+
+### `NetworkTokenCredentialInput`
+
+The `networkToken` member of `PaymentCredentialInput`.
 
 ### `NetworkTokenInput`
 
@@ -18830,6 +21215,17 @@ A snapshot of a non-originated ACH transfer.
 
 Input for filtering by `AchTransferPurpose`.
 
+### `NonOriginatedFedNowTransfer`
+
+A non-originated instant payment over the FedNow Service.
+
+A `NonOriginatedFedNowTransfer` represents a FedNow payment received by the Highnote partner
+bank from an external bank account.
+
+### `NonOriginatedFedNowTransferEvent`
+
+An event associated with a `NonOriginatedFedNowTransfer`.
+
 ### `NonOriginatedRtpTransfer`
 
 A non-originated RTP (Real-Time Payments) transfer via the TCH network.
@@ -18840,6 +21236,24 @@ from an external bank account.
 ### `NonOriginatedRtpTransferEvent`
 
 An event associated with a `NonOriginatedRtpTransfer`.
+
+### `NonOriginatedWireTransfer`
+
+A wire transfer Highnote received.
+
+An external party is the sending party, so the funds arrive at a Highnote
+`FinancialAccount`.
+
+### `NonOriginatedWireTransferEvent`
+
+An event associated with a `NonOriginatedWireTransfer`.
+
+### `NonOriginatedWireTransferLedgersArgs`
+
+A wire transfer Highnote received.
+
+An external party is the sending party, so the funds arrive at a Highnote
+`FinancialAccount`.
 
 ### `NonVerifiedExternalBankAccount`
 
@@ -18931,6 +21345,34 @@ The format for each `String` field should be in YYYY-MM-DD format.
 
 Example: `2021-11-12`
 
+### `OnboardBusinessForIsoInput`
+
+Input type for onboarding a `Business` as an ISO (Independent Sales Organization)
+or PayFac partner.
+
+### `OnboardBusinessForMerchantInput`
+
+Input type for onboarding a `Business` as a merchant under a PayFac.
+
+### `OnboardBusinessForMoneyMovementInput`
+
+Input type for onboarding a `Business` for money movement capabilities.
+
+### `OnboardBusinessInput`
+
+Input for the `onboardBusiness` mutation. Contains shared fields common to all
+onboarding paths and a nested `@oneOf` discriminator for role-specific
+configuration.
+
+### `OnboardBusinessOnboardingInput`
+
+Selects exactly one onboarding role. Each member maps to a distinct backend RPC;
+exactly one must be provided per `@oneOf` semantics.
+
+### `OnboardBusinessPayload`
+
+Response type for the `onboardBusiness` mutation.
+
 ### `OnboardingApplicantContact`
 
 The person to contract for questions about this application
@@ -18973,6 +21415,10 @@ eSignature and date
 
 The identification documents attached to a Person.
 
+### `OnboardingIdentificationDocumentInput`
+
+The identification documents for verification.
+
 ### `OnboardingPreliminaryBusinessInformation`
 
 The initial business information collected from a potential business customer
@@ -18989,17 +21435,17 @@ Whether or not the Financial Account supports On-Demand Funding.
 
 A successfully created on-demand pricing charge.
 
-### `OnDemandPricingChargeCalculationMetadata`
+### `OnDemandPricingChargeConnection`
 
-Metadata describing how the charge amount was derived. Echoed from the request.
+The connection type for `OnDemandPricingCharge`.
 
-### `OnDemandPricingPercentageCalculation`
+### `OnDemandPricingChargeEdge`
 
-Percentage-of-amount calculation echoed from the request.
+The edge type for an `OnDemandPricingCharge`.
 
-### `OnDemandPricingPerItemCalculation`
+### `OnDemandPricingChargeFilterInput`
 
-Rate-per-item calculation echoed from the request.
+Filter criteria for `OnDemandPricingCharge` records.
 
 ### `OneTimeAchTransfer`
 
@@ -19073,11 +21519,19 @@ An edge in the organization business relationship connection.
 
 Inputs for filtering organization business relationships.
 
+### `OrganizationCardPaymentDisputesArgs`
+
+Organization that controls a set of card programs.
+
 ### `OrganizationCardProductsArgs`
 
 Organization that controls a set of card programs.
 
 ### `OrganizationCollaborativeAuthorizationEndpointsArgs`
+
+Organization that controls a set of card programs.
+
+### `OrganizationFlexibleCredentialsArgs`
 
 Organization that controls a set of card programs.
 
@@ -19236,6 +21690,17 @@ A snapshot of an originated ACH transfer.
 
 Input for filtering by `AchTransferPurpose`.
 
+### `OriginatedFedNowTransfer`
+
+An originated instant payment over the FedNow Service.
+
+An `OriginatedFedNowTransfer` represents a FedNow payment originated by the Highnote partner
+bank to an external bank account.
+
+### `OriginatedFedNowTransferEvent`
+
+An event associated with an `OriginatedFedNowTransfer`.
+
 ### `OriginatedRtpTransfer`
 
 An originated RTP (Real-Time Payments) transfer via the TCH network.
@@ -19281,7 +21746,20 @@ Whether or not the `FinancialAccount` supports partial funding.
 
 A representation of a passport identification document.
 
+### `PassportIdentificationDocumentInput`
+
+An input representing a passport identification document.
+
 ### `Payfac`
+
+A `Business` operating as a Payment Facilitator, onboarding and managing
+submerchants on behalf of the acquirer.
+
+### `PayfacBusinessServiceTargetInput`
+
+Reference to a `Payfac`.
+
+### `PayfacInvoicesArgs`
 
 A `Business` operating as a Payment Facilitator, onboarding and managing
 submerchants on behalf of the acquirer.
@@ -19299,6 +21777,11 @@ The connection type for `PayfacIsoPartnership`.
 The edge type for `PayfacIsoPartnership`.
 
 ### `PayfacIsoPartnershipsArgs`
+
+A `Business` operating as a Payment Facilitator, onboarding and managing
+submerchants on behalf of the acquirer.
+
+### `PayfacOnDemandPricingChargesArgs`
 
 A `Business` operating as a Payment Facilitator, onboarding and managing
 submerchants on behalf of the acquirer.
@@ -19366,6 +21849,10 @@ PaymentCardAuthorizationReversedEvent indicates that a PaymentCard Transaction R
 
 Payment Card Bin Range details.
 
+### `PaymentCardCardAuthenticationContactsArgs`
+
+A Payment Card which can be used for card transactions.
+
 ### `PaymentCardCardDigitalWalletTokensArgs`
 
 A Payment Card which can be used for card transactions.
@@ -19385,6 +21872,10 @@ The PaymentCardClosedEvent is triggered when a Payment Card has been closed.
 ### `PaymentCardConnection`
 
 The connection type for Payment Card.
+
+### `PaymentCardCredentialInput`
+
+The `paymentCard` member of `PaymentCredentialInput`.
 
 ### `PaymentCardDeliveryDetails`
 
@@ -19652,6 +22143,11 @@ PaymentCardVerificationDeclinedEvent indicates that a PaymentCard Transaction Ve
 
 Response codes for a payment card verification.
 
+### `PaymentCredentialInput`
+
+Selects exactly one payment credential. Setting zero or multiple members
+surfaces as a top-level GraphQL validation error.
+
 ### `PaymentCreditTransaction`
 
 A payment transaction for a refund. This is a record of a payment being refunded.
@@ -19716,6 +22212,10 @@ The edge type for a Payment Method.
 ### `PaymentMethodToken`
 
 A token representing a payment method.
+
+### `PaymentMethodTokenCredentialInput`
+
+The `paymentMethodToken` member of `PaymentCredentialInput`.
 
 ### `PaymentMethodTokenTokenArgs`
 
@@ -19927,11 +22427,23 @@ Input representing credit risk attributes for person underwriting.
 
 ### `PersonIdentificationDocument`
 
-`Person` identification document types.
+Person identification document types.
+
+### `PersonIdentificationDocumentInput`
+
+Input for an identification document for a person: a passport (`PassportIdentificationDocumentInput`) or a country-specific national identification document (`NationalIdentificationDocumentInput`).
+
+Exactly one of `nationalIdentificationDocument` or `passport` must be provided. Supplying neither, or both, fails the request with a top-level `BAD_USER_INPUT` error instead of returning a `UserError` in the response payload.
+
+US identifiers are supplied through `nationalIdentificationDocument`. In JSON variables, a Social Security Number is `{ "nationalIdentificationDocument": { "nationalIdentificationNumberType": "SOCIAL_SECURITY_NUMBER", "countryCodeAlpha3": "USA", "number": "123-45-6789" } }`. An Individual Taxpayer Identification Number takes the same shape but its own number range: `{ "nationalIdentificationDocument": { "nationalIdentificationNumberType": "INDIVIDUAL_TAXPAYER_IDENTIFICATION_NUMBER", "countryCodeAlpha3": "USA", "number": "900-70-0001" } }`. An Individual Taxpayer Identification Number begins with 9 and its issuing country must be the United States.
 
 ### `PersonJurisdiction`
 
-Jurisdiction details for a `Person`.
+Jurisdiction details for a person.
+
+### `PersonJurisdictionInput`
+
+Input for jurisdiction details for a person.
 
 ### `PersonNameFilterInput`
 
@@ -20034,6 +22546,16 @@ PhysicalPaymentCardShipFailedEvent indicates when a Physical Payment Card has fa
 
 PhysicalPaymentCardShippedEvent indicates when a Physical Payment Card has shipped successfully
 
+### `PlatformAgent`
+
+Returned in place of a `User` or `Organization` when the identity behind a
+change is not available to you, either because it is not disclosed to you or
+because no individual writer was recorded on the change. It never identifies
+the `User` or `Organization` behind the change, and it does not distinguish
+those two cases. Its `description` is display text that may be reworded, so do
+not branch on its wording. Contact Highnote support for details about a
+specific change.
+
 ### `PointOfServiceCategorySpendRule`
 
 A Spend Control rule that allows or blocks certain point of service categories during authorizations.
@@ -20106,6 +22628,14 @@ Filter input for previous applications
 
 Associates a `PricingPlan` with specific parties and a validity period.
 
+### `PricingConfigurationConnection`
+
+The connection type for `PricingConfiguration`.
+
+### `PricingConfigurationEdge`
+
+The edge type for a `PricingConfiguration`.
+
 ### `PricingPlan`
 
 The pricing plan available for an organization.
@@ -20168,7 +22698,43 @@ Supports either a single value or a list of values.
 
 A single value for a `PricingRuleParameter`.
 
+### `PrimaryAuthorizedPerson`
+
+The primary person authorized to act on behalf of a business account holder.
+
+A person identified by a passport or non-US national identification is
+returned as a `BusinessAuthorizedPerson`; otherwise (a US Social Security
+Number, a US Individual Taxpayer Identification Number, or no distinguishing
+document) the person is returned as a `USBusinessAuthorizedPerson`.
+
+A Social Security Number decides on its own: a person holding one is returned
+as a `USBusinessAuthorizedPerson` even when a passport is also present. An
+Individual Taxpayer Identification Number does not, so a person holding one
+together with a passport is returned as a `BusinessAuthorizedPerson`.
+
 ### `ProcessingCapability`
+
+### `ProcessingCapabilityActivatedEvent`
+
+The event sent when a processing capability on an `ApplicationContract` is activated.
+
+### `ProcessingCapabilityInput`
+
+A processing capability input
+
+### `ProcessingErrorQuestionnaire`
+
+The questionnaire for a processing-error dispute. Every field is optional — an
+unanswered field is `null`, which for boolean fields is distinct from an explicit
+`false`. The fields requested for a stage are listed by that stage's questionnaire
+action (`requestedQuestions`).
+
+### `ProcessingErrorQuestionnaireInput`
+
+Input mirror of `ProcessingErrorQuestionnaire` used to submit answers. Each field
+carries the same meaning as the like-named output field; only the fields being
+answered need be provided, and for boolean fields an omitted value is distinct from
+an explicit `false`.
 
 ### `ProductApplicantBusinessProfileSnapshot`
 
@@ -20190,11 +22756,19 @@ The return types when querying a paginated list of `ProductApplication`;
 
 The edge type for `ProductApplication`.
 
+### `ProductApplicationPayload`
+
+Response type for creating a `ProductApplication`.
+
 ### `ProductApplicationState`
 
 A type representing a state of a `ProductApplication`
 
 ### `ProductApplicationWorkflow`
+
+### `ProductApplicationWorkflowResult`
+
+The result detail for a `ProductApplicationWorkflow` step. The concrete member type corresponds to the workflow's `workflowType`.
 
 ### `ProductFeature`
 
@@ -20251,6 +22825,14 @@ Details for an account holder's application process.
 Input for an account holder's application process.
 
 This input type includes fields for consent to terms and conditions, IP address details, and credit report pull consent.
+
+### `ProvisionFlexibleCredentialInput`
+
+Input for `provisionFlexibleCredential`.
+
+### `ProvisionFlexibleCredentialPayload`
+
+The return types for `provisionFlexibleCredential`.
 
 ### `ProvisionInitiateFinancialAccountCreditLimitUpdateFromProductFundingActionDetail`
 
@@ -20319,6 +22901,10 @@ All Queries that can be performed.
 
 All Queries that can be performed.
 
+### `QueryBusinessRelationshipsArgs`
+
+All Queries that can be performed.
+
 ### `QueryCardProductApplicationBusinessMetricArgs`
 
 All Queries that can be performed.
@@ -20339,11 +22925,19 @@ All Queries that can be performed.
 
 All Queries that can be performed.
 
+### `QueryFlexibleCredentialInstantCreditActivationArgs`
+
+All Queries that can be performed.
+
 ### `QueryInstallmentEligibilityForTransactionEventsArgs`
 
 All Queries that can be performed.
 
 ### `QueryInstallmentOffersForTransactionEventArgs`
+
+All Queries that can be performed.
+
+### `QueryMerchantAcceptorsArgs`
 
 All Queries that can be performed.
 
@@ -20484,6 +23078,29 @@ Input for refunding a payment transaction.
 ### `RefundPaymentTransactionPayload`
 
 Result of refunding a payment transaction.
+
+### `ReissueFlexibleCredentialCardFeaturesInput`
+
+Options for specifying which attributes of an original card are copied to
+its replacement by `reissueFlexibleCredentialCards`.
+
+### `ReissueFlexibleCredentialCardsInput`
+
+Input for `reissueFlexibleCredentialCards`.
+
+### `ReissueFlexibleCredentialCardsOptionsInput`
+
+Options applied to every card reissued by `reissueFlexibleCredentialCards`,
+unless overridden per target.
+
+### `ReissueFlexibleCredentialCardsPayload`
+
+The return types when reissuing the member Payment Cards of a Flexible Credential.
+
+### `ReissueFlexibleCredentialCardTargetInput`
+
+One member card targeted by `reissueFlexibleCredentialCards`, with optional
+overrides of the request-level options for that card.
 
 ### `ReissuePaymentCardFeaturesInput`
 
@@ -20726,6 +23343,22 @@ An ReversalEvent for a transaction.
 
 Reversed fee transfer. Reversing the charged fee transfer.
 
+### `ReverseInstallmentAgreementInput`
+
+Input for reversing an `InstallmentAgreement` before its first statement cuts.
+
+### `ReverseInstallmentAgreementPayload`
+
+Types which can be returned when reversing an `InstallmentAgreement`.
+
+### `ReversePaymentTransactionInput`
+
+Input for `reversePaymentTransaction`.
+
+### `ReversePaymentTransactionPayload`
+
+Result of `reversePaymentTransaction`.
+
 ### `ReviewWorkflowEvent`
 
 An event representing the review process of a transfer. Use the `reviewState`
@@ -20756,6 +23389,14 @@ Data needed to revoke an API Key.
 ### `RevokeApiKeyPayload`
 
 The possible return types of `revokeAPIKey`.
+
+### `RevokeCardAuthenticationContactInput`
+
+The contact to retire.
+
+### `RevokeCardAuthenticationContactPayload`
+
+The return types when calling `revokeCardAuthenticationContact`.
 
 ### `RevolvingCardProductFeature`
 
@@ -21312,6 +23953,10 @@ Replaces the current limit with a new fixed amount.
 
 Monetary amount where the currency is used to express the expectations for the number of decimal places. See [ISO Standard Currency Codes](https://en.wikipedia.org/wiki/ISO_4217#Active_codes) for more information. This type is identical to `Amount`, but can also represent negative values.
 
+### `SignedAmountInput`
+
+Monetary amount where the currency is used to express the expectations for the number of decimal places. See [ISO Standard Currency Codes](https://en.wikipedia.org/wiki/ISO_4217#Active_codes) for more information. This type is identical to `AmountInput`, but can also represent negative values.
+
 ### `SignedMoneyFilterInput`
 
 Money value type the allows for positive or negative values
@@ -21428,6 +24073,10 @@ Input to simulate a card digital wallet token activation.
 
 Simulate card digital wallet token payload.
 
+### `SimulateCardPaymentDisputePayload`
+
+Result of a `simulate*CardPaymentDispute` mutation.
+
 ### `SimulateCheckbookUserVerificationInput`
 
 The input for `simulateCheckbookUserVerification`.
@@ -21482,6 +24131,14 @@ Input for simulate creating application documents upload sessions.
 
 ### `SimulateCreateApplicationDocumentsUploadSessionsMutationVariables`
 
+### `SimulateCreateMerchantMatchConfigInput`
+
+Input for `simulateCreateMerchantMatchConfig`.
+
+### `SimulateCreateMerchantMatchConfigPayload`
+
+Response for `simulateCreateMerchantMatchConfig`.
+
 ### `SimulateDepositInput`
 
 The details to simulate a electronic fund transfer in the test environment.
@@ -21503,6 +24160,10 @@ Fee amount to be charged.
 ### `SimulateDigitalWalletTokenAuthorizationInput`
 
 Details to simulate authorization using a digital wallet token.
+
+### `SimulateDigitalWalletTokenFlexibleCredentialAuthorizationInput`
+
+Input for simulating a Visa Flexible Credential authorization using a digital wallet token.
 
 ### `SimulateDigitalWalletTokenMastercardFleetAuthorizationInput`
 
@@ -21544,6 +24205,10 @@ Types which can be returned for simulating account aging.
 
 Types which can be returned for simulating statement period shift and rollover
 
+### `SimulateFlexibleCredentialAuthorizationInput`
+
+Input for simulating a Visa Flexible Credential authorization.
+
 ### `SimulateInitiateCardTransactionChargebackInput`
 
 Input for `simulateInitiateCardTransactionChargeback`.
@@ -21571,6 +24236,26 @@ Input for `simulateIssueCreditForCardTransactionDispute`.
 ### `SimulateIssueProvisionalCreditForCardTransactionDisputeInput`
 
 Input for `simulateIssueProvisionalCreditForCardTransactionDispute`.
+
+### `SimulateIssuerAcceptsFullCardPaymentDisputeInput`
+
+Input for `simulateIssuerAcceptsFullCardPaymentDispute`.
+
+### `SimulateIssuerAcceptsPartialCardPaymentDisputeInput`
+
+Input for `simulateIssuerAcceptsPartialCardPaymentDispute`.
+
+### `SimulateIssuerFilesPreArbitrationCardPaymentDisputeInput`
+
+Input for `simulateIssuerFilesPreArbitrationCardPaymentDispute`.
+
+### `SimulateIssuerFilesPreArbitrationResponseCardPaymentDisputeInput`
+
+Input for `simulateIssuerFilesPreArbitrationResponseCardPaymentDispute`.
+
+### `SimulateIssuerInitiatesCardPaymentDisputeInput`
+
+Input for `simulateIssuerInitiatesCardPaymentDispute`.
 
 ### `SimulateMastercardAdditionalFuelLocationDetailsInput`
 
@@ -21620,6 +24305,10 @@ An single simulated line item within a `MastercardFleetEnhancedData`
 
 Details of a Mastercard Fleet Prompt. Contains a prompt code and cardholder-entered value
 
+### `SimulateMerchantMatchInReviewInput`
+
+Input for `simulateMerchantMatchInReview`.
+
 ### `SimulateNonOriginatedAchTransferInput`
 
 Input for creating a new simulated `ExternallyInitiatedACHTransfer`.
@@ -21633,6 +24322,54 @@ This is used only for testing.
 ### `SimulateNonOriginatedAchTransferPayload`
 
 The return types when simulating receiving a `NonOriginatedAchTransfer`.
+
+### `SimulateNonOriginatedFedNowTransferCreditorInput`
+
+The Highnote financial account receiving the simulated inbound FedNow credit.
+
+### `SimulateNonOriginatedFedNowTransferDebtorInput`
+
+The external party originating the simulated inbound FedNow credit.
+
+### `SimulateNonOriginatedFedNowTransferInput`
+
+The input for `simulateNonOriginatedFedNowTransfer`.
+
+### `SimulateNonOriginatedFedNowTransferPayload`
+
+The return types when simulating receiving an inbound FedNow credit.
+
+### `SimulateNonOriginatedRtpTransferCreditorInput`
+
+The Highnote financial account receiving the simulated inbound RTP credit.
+
+### `SimulateNonOriginatedRtpTransferDebtorInput`
+
+The external party originating the simulated inbound RTP credit.
+
+### `SimulateNonOriginatedRtpTransferInput`
+
+The input for `simulateNonOriginatedRtpTransfer`.
+
+### `SimulateNonOriginatedRtpTransferPayload`
+
+The return types when simulating receiving a `NonOriginatedRtpTransfer`.
+
+### `SimulateNonOriginatedWireTransferCreditorInput`
+
+The Highnote financial account receiving the simulated inbound wire.
+
+### `SimulateNonOriginatedWireTransferDebtorInput`
+
+The external party sending the simulated inbound wire.
+
+### `SimulateNonOriginatedWireTransferInput`
+
+The input for `simulateNonOriginatedWireTransfer`.
+
+### `SimulateNonOriginatedWireTransferPayload`
+
+The return types when simulating the receipt of an inbound wire.
 
 ### `SimulatePaymentCardTransactionDisputePayload`
 
@@ -21905,6 +24642,24 @@ String value type
 
 String value type to provide matching of the text
 
+### `SubjectIdentityVerification`
+
+Identity verification result for a single subject (the business entity or an individual
+person) on a `ProductApplicationWorkflow` `IDENTITY` step.
+
+Captures the subject's identity verification status, the reason for that status, and the
+individual identity / KYB checks that contributed to it, including any KYC fraud-history
+indicators returned by the identity verification vendor. Excludes risk scores and
+watchlist/sanctions outcomes — those are owned by separate workflow steps.
+
+### `SubmitCardPaymentDisputeEvidenceInput`
+
+Input for submitting the evidence uploaded for a `CardPaymentDispute`'s active stage.
+
+### `SubmitCardPaymentDisputeEvidencePayload`
+
+Result of submitting the evidence uploaded for a `CardPaymentDispute`.
+
 ### `SuspendCardDigitalWalletTokenInput`
 
 The input to suspend a card digital wallet token.
@@ -21952,6 +24707,11 @@ The input to terminate a card digital wallet token.
 ### `TerminateCardDigitalWalletTokenPayload`
 
 The return types when terminating a card digital wallet token.
+
+### `TerminatedMerchantScreeningResult`
+
+Result of the `TERMINATED_MERCHANT_SCREENING` `ProductApplicationWorkflow` step, in which
+the merchant is screened against terminated merchant files (e.g. MATCH).
 
 ### `TimestampFilterInput`
 
@@ -22039,9 +24799,13 @@ The entity that owns a `TransactionBatch` — either a `Merchant` or a `Payfac`.
 
 A processing fee on a `TransactionBatch`.
 
+### `TransactionBatchSignedTotal`
+
+A summary of `PaymentTransaction`s within a `TransactionBatch` where the total can be positive or negative.
+
 ### `TransactionBatchTotal`
 
-A summary of `PaymentTransaction`s within a `TransactionBatch` for a specific transaction type.
+A summary of `PaymentTransaction`s within a `TransactionBatch`.
 
 ### `TransactionBatchTransactionsArgs`
 
@@ -22138,6 +24902,10 @@ A strategy for scheduling the transfer day. Only one of the strategies below sho
 
 Additional details for bank-to-bank transfers (RTP, ACH).
 
+### `TransferFundsCardTransferDetailsInput`
+
+Additional details for card transfers (instant network transfers).
+
 ### `TransferFundsCustomerFeeDestinationInput`
 
 Account reference for a customer fee destination.
@@ -22197,6 +24965,20 @@ A `InterFinancialAccountTransferRule` that will block an inter financial account
 
 ### `TransferredEventNode`
 
+### `UltimateBeneficialOwner`
+
+An ultimate beneficial owner of a business.
+
+An owner identified by a passport or non-US national identification is
+returned as a `BusinessAuthorizedPerson`; otherwise (a US Social Security
+Number, a US Individual Taxpayer Identification Number, or no distinguishing
+document) the owner is returned as a `USBusinessUltimateBeneficialOwner`.
+
+A Social Security Number decides on its own: an owner holding one is returned
+as a `USBusinessUltimateBeneficialOwner` even when a passport is also present.
+An Individual Taxpayer Identification Number does not, so an owner holding one
+together with a passport is returned as a `BusinessAuthorizedPerson`.
+
 ### `UltimateBeneficialOwnerAddressFilterInput`
 
 Input for filtering by `USBusinessUltimateBeneficialOwner`'s `Address`.
@@ -22212,6 +24994,14 @@ The underwriting decision. Can be positive or adverse.
 ### `UnderwriterPositiveDecision`
 
 A type representing a positive underwriting decision.
+
+### `UnderwritingInterestRateInput`
+
+An interest rate assigned to one `CreditPlan` by an underwriting decision. Supply `margin` for a `CreditPlan`
+whose `InterestRateType` is `VARIABLE`; the annual percentage rate (APR) is derived from the plan's index plus
+this margin and is re-derived whenever the index changes. Supply `apr` for a `FIXED` `CreditPlan`. Exactly one
+of the two is required: supplying both, neither, or the one that does not match the plan's rate type is
+rejected.
 
 ### `UndeterminedFeePaymentTransactionFee`
 
@@ -22244,6 +25034,10 @@ The possible destinations of the `UnifiedFundsTransfer`.
 ### `UnifiedFundsTransferDetail`
 
 Detail about the transfer.
+
+### `UnifiedFundsTransferFedNowStep`
+
+A step associated with a `UnifiedFundsTransfer` when a FedNow payment has initiated.
 
 ### `UnifiedFundsTransferInitiateRequestStep`
 
@@ -22766,6 +25560,10 @@ A USBusinessAccountHolder.
 
 A USBusinessAccountHolder.
 
+### `UsBusinessAccountHolderFlexibleCredentialsArgs`
+
+A USBusinessAccountHolder.
+
 ### `UsBusinessAccountHolderGlobalNotesArgs`
 
 A USBusinessAccountHolder.
@@ -22995,6 +25793,10 @@ The edge type for a USPersonAccountHolder.
 A USPersonAccountHolder.
 
 ### `UsPersonAccountHolderFinancialAccountsArgs`
+
+A USPersonAccountHolder.
+
+### `UsPersonAccountHolderFlexibleCredentialsArgs`
 
 A USPersonAccountHolder.
 
@@ -23259,6 +26061,30 @@ The subscriber text for 3DS Verifications for Browsers
 
 Virtual Card Profile attributes
 
+### `VisaAirlineData`
+
+Details of a Visa airline transaction.
+
+### `VisaAirlineDataInput`
+
+Details to simulate a Visa airline transaction.
+
+### `VisaAirlineDataLeg`
+
+An individual leg within a `VisaAirlineData` trip.
+
+### `VisaAirlineDataLegInput`
+
+An individual leg within a `VisaAirlineDataInput` trip.
+
+### `VisaCarRentalData`
+
+Details of a Visa rental car transaction.
+
+### `VisaCarRentalDataInput`
+
+Details to simulate a Visa rental car transaction.
+
 ### `VisaData`
 
 Visa specific transaction data.
@@ -23311,6 +26137,14 @@ Shipping data for this transaction.
 
 Tax data for this transaction.
 
+### `VisaLodgingData`
+
+Details of a Visa lodging transaction.
+
+### `VisaLodgingDataInput`
+
+Details to simulate a Visa lodging transaction.
+
 ### `VisaRiskScoreSpendRule`
 
 A Spend Control rule that blocks transactions if the Visa Risk Score is above a configured threshold.
@@ -23335,9 +26169,44 @@ Input type for waiving interest for a `CreditCardTransferEvent` associated with 
 
 Types which can be returned when waiving full interest for a given `InterestAssessmentEvent` associated with a closed `FinancialAccountStatement`
 
+### `Wallet`
+
+A wallet that spends from a `FinancialAccount` and is charged through a `WalletPaymentMethod`.
+
+### `WalletChargeStepSummary`
+
+The result of charging a `WalletPaymentMethod`.
+
 ### `WalletDetailsInput`
 
 Token provisioning wallet details
+
+### `WalletFinancialAccountFundingSourceInput`
+
+The `financialAccount` member of `WalletFundingSourceInput`.
+
+### `WalletFundingSource`
+
+A source that funds a `Wallet`, and the period it does so.
+
+### `WalletFundingSourceInput`
+
+One funding source for a `Wallet`. Set exactly one member. An entry that sets no member,
+or more than one member, surfaces as a top-level GraphQL validation error.
+
+The number of entries a request may send is described on `CreateWalletInput.fundingSources`.
+
+### `WalletFundingSourceNode`
+
+The possible funding sources of a `Wallet`.
+
+### `WalletPaymentMethod`
+
+A payment method that charges a `Wallet`.
+
+### `WalletPaymentMethodCredentialInput`
+
+The `walletPaymentMethod` member of `PaymentCredentialInput`.
 
 ### `WatchlistInterFinancialAccountTransferRule`
 
@@ -23405,19 +26274,83 @@ A webhook notification target.
 
 A webhook notification target.
 
+### `WireFundsTransfer`
+
+A movement of funds over Fedwire.
+
+Each kind of wire, in each direction of origination, has its own type. Read `__typename` to
+tell them apart.
+
+`status` is on each type rather than here: originated and non-originated wires have different
+statuses.
+
+Origination is who originated the request that starts the movement — the sender for a transfer,
+the asking party for a drawdown or a reversal. It is never read from which way the funds moved.
+
+### `WireFundsTransferLedgersArgs`
+
+A movement of funds over Fedwire.
+
+Each kind of wire, in each direction of origination, has its own type. Read `__typename` to
+tell them apart.
+
+`status` is on each type rather than here: originated and non-originated wires have different
+statuses.
+
+Origination is who originated the request that starts the movement — the sender for a transfer,
+the asking party for a drawdown or a reversal. It is never read from which way the funds moved.
+
+### `WireInstructionInput`
+
+The wire instruction to send with a wire.
+
+### `WireOriginatorToBeneficiaryInformation`
+
+The originator to beneficiary information carried on a wire.
+
+### `WireOriginatorToBeneficiaryInput`
+
+The originator to beneficiary information to carry on a wire.
+
+Supply exactly one field.
+
 ### `WireTransfer`
 
 Represents money being moved via wire.
 
+### `WireTransferBankTransferDetails`
+
+Additional details for a wire transfer.
+
+### `WireTransferDestination`
+
+The destination of the funds for a wire transfer.
+
+### `WireTransferDestinationNode`
+
+The possible destination accounts for a wire transfer.
+
 ### `WireTransferLedgersArgs`
 
 Represents money being moved via wire.
+
+### `WireTransferReferences`
+
+The identifiers that trace a wire through Fedwire and the banks.
 
 ### `WireTransferReview`
 
 The details of an `WireTransferReview` initiated by Highnote.
 
 ### `WireTransferReviewItem`
+
+### `WireTransferSource`
+
+The source of the funds for a wire transfer.
+
+### `WireTransferSourceNode`
+
+The possible source accounts for a wire transfer.
 
 ### `WireTransferStatusDetails`
 

@@ -22,8 +22,33 @@ Returns an AddressValidationResult with an outcome union:
   The validation for the `locality` uses the following regex pattern `^['\p{L}]+(?:[ \p{L},'-:])*$`.
 
   It checks to ensure it begins with a single quote or any letter, followed by whitespace, commas, single quote, any letter, or character in this set '()*+,-./0123456789: .
-- `input.address.postalCode` (string, **required**) — The postal code of the address.  The value can include 5 numbers only or a hyphen - and 4 numbers
-- `input.address.region` (string, **required**) — A region for the address based on the two letter state [IS0 3166 standard](https://en.wikipedia.org/wiki/ISO_3166-2:US), including districts and outlying areas.
+- `input.address.postalCode` (string, **required**) — The postal code of the address, in the postal format of the address's
+  country. A United States ZIP code, for example, is five digits, optionally
+  followed by a hyphen and four more ("94107" or "94107-1234").
+- `input.address.region` (string, optional) — The state, province, or other principal subdivision of the address, given as
+  the subdivision portion of its
+  [ISO 3166-2](https://en.wikipedia.org/wiki/ISO_3166-2) code: the part after
+  the hyphen, without the country prefix. For example, provide "CA" for
+  California (US-CA), "ON" for Ontario (CA-ON), or "NSW" for New South Wales
+  (AU-NSW). For United States addresses this is the
+  [two-letter state code](https://en.wikipedia.org/wiki/ISO_3166-2:US),
+  including districts and outlying areas.
+
+  Required for United States addresses and for most other supported countries.
+  Omit it for those whose addresses are written without a subdivision, such as
+  the United Kingdom and Israel.
+
+  Omitting it where it is required is rejected, and the error names the
+  `region` field: a United States or Canadian address submitted without one is
+  refused. Creating or updating an account holder reports this as a
+  `NON_NULL_INPUT_REQUIRED` error; ordering a physical card reports it as a
+  `NON_EMPTY_INPUT_REQUIRED` error. An empty string counts as omitting it.
+  A value that is present but blank, such as a single space, is rejected with a
+  `NON_EMPTY_INPUT_REQUIRED` error.
+
+  A value that is stated but is not the subdivision code is rejected with an
+  `INVALID_STATE` error, such as "California" in place of "CA" or "Ontario" in
+  place of "ON".
 - `input.address.streetAddress` (string, **required**) — The number and street of the address.
 
   The validation for the `address` uses the following regex pattern `^\s*\S+(?:\s+\S+){1,3}`.

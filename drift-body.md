@@ -1,155 +1,187 @@
 ## Schema Drift Detected
 
-Highest criticality in the last 14 days: **BREAKING** (across 6 deployments).
-
-### ⚠️ Breaking changes detected — triage required
-
-Each path below was removed or modified incompatibly upstream. For each:
-
-1. `rg "<path>" src/resources/` — does any resource code reference it?
-2. **Hit:** patch the affected resource in this PR (rename method, drop resource, etc.) before merging. CI's typecheck will fail otherwise.
-3. **Miss:** schema-level break, no SDK consumer impact — safe to merge as docs-only refresh.
-
-- **`UpdatePricingConfigurationPayload`** — Type 'UpdatePricingConfigurationPayload' was removed
-- **`UpdatePricingConfigurationInput`** — Type 'UpdatePricingConfigurationInput' was removed
-- **`Mutation.updatePricingConfiguration`** — Field 'updatePricingConfiguration' was removed from object type 'Mutation'
-- **`TransactionBatch.merchantAcceptorId`** — Field 'merchantAcceptorId' was removed from object type 'TransactionBatch'
-- **`TransactionBatchStatus.PAYOUT_SENT`** — Enum value 'PAYOUT_SENT' was removed from enum 'TransactionBatchStatus'
+Highest criticality in the last 14 days: **DANGEROUS** (across 7 deployments).
 
 ### Deployments included
 
-<details><summary><strong>2026-06-05</strong> — scl_cf0f677b01434df581a1e0f7cd17649a (7 changes)</summary>
+<details><summary><strong>2026-10-29</strong> — scl_229f0651238d447886dc3463b7badd10 (23 changes)</summary>
+
+**DANGEROUS** (3)
+
+- `INPUT_FIELD_ADDED` `ProcessingCapabilityInput.amexServiceEstablishmentNumber` — Input field 'amexServiceEstablishmentNumber' of type 'String' was added to input object type 'ProcessingCapabilityInput'
+- `INPUT_FIELD_ADDED` `ProcessingCapabilityInput.amexTerminalIdentifier` — Input field 'amexTerminalIdentifier' of type 'String' was added to input object type 'ProcessingCapabilityInput'
+- `INPUT_FIELD_ADDED` `SimulateFeeConfigurationInput.configuredConditions` — Input field 'configuredConditions' of type '[FeeConditionInput!]' was added to input object type 'SimulateFeeConfigurationInput'
+
+**NON_BREAKING** (20)
+
+- `TYPE_ADDED` `FeeScheduleAttachment` — Type 'FeeScheduleAttachment' was added
+- `TYPE_ADDED` `FeeScheduleCardProductAttachment` — Type 'FeeScheduleCardProductAttachment' was added
+- `TYPE_ADDED` `FeeScheduleFinancialAccountAttachment` — Type 'FeeScheduleFinancialAccountAttachment' was added
+- `TYPE_ADDED` `FeeScheduleAttachmentFilterInput` — Type 'FeeScheduleAttachmentFilterInput' was added
+- `TYPE_ADDED` `FinancialAccountFeeScheduleAttachmentFilterInput` — Type 'FinancialAccountFeeScheduleAttachmentFilterInput' was added
+- `TYPE_ADDED` `FeeScheduleAttachmentConnection` — Type 'FeeScheduleAttachmentConnection' was added
+- `TYPE_ADDED` `FeeScheduleAttachmentEdge` — Type 'FeeScheduleAttachmentEdge' was added
+- `TYPE_ADDED` `FeeConditionInput` — Type 'FeeConditionInput' was added
+- `TYPE_ADDED` `FeeCondition` — Type 'FeeCondition' was added
+- `TYPE_ADDED` `FeeConditionField` — Type 'FeeConditionField' was added
+- `TYPE_ADDED` `FeeConditionOperator` — Type 'FeeConditionOperator' was added
+- `TYPE_ADDED` `FeeScheduleAttachmentType` — Type 'FeeScheduleAttachmentType' was added
+- `FIELD_ADDED` `CardProcessingCapability.amexServiceEstablishmentNumber` — Field 'amexServiceEstablishmentNumber' was added to object type 'CardProcessingCapability'
+- `FIELD_ADDED` `CardProcessingCapability.amexTerminalIdentifier` — Field 'amexTerminalIdentifier' was added to object type 'CardProcessingCapability'
+- `FIELD_ADDED` `FinancialAccount.attachedFeeSchedules` — Field 'attachedFeeSchedules' was added to object type 'FinancialAccount'
+- `FIELD_ADDED` `FeeSchedule.attachmentType` — Field 'attachmentType' was added to object type 'FeeSchedule'
+- `FIELD_ADDED` `FeeSchedule.attachments` — Field 'attachments' was added to object type 'FeeSchedule'
+- `FIELD_DEPRECATION_ADDED` `FeeSchedule.feeScheduleAssociatedTo` — Field 'FeeSchedule.feeScheduleAssociatedTo' is deprecated
+- `FIELD_DEPRECATION_REASON_ADDED` `FeeSchedule.feeScheduleAssociatedTo` — Field 'FeeSchedule.feeScheduleAssociatedTo' has deprecation reason 'Use `attachments` instead.'
+- `FIELD_ADDED` `FeeConfiguration.configuredConditions` — Field 'configuredConditions' was added to object type 'FeeConfiguration'
+
+</details>
+
+<details><summary><strong>2026-10-28</strong> — scl_c8180b9223b54c5f8667fd458bd70fff (4 changes)</summary>
+
+**NON_BREAKING** (4)
+
+- `TYPE_ADDED` `RtpTransferReferences` — Type 'RtpTransferReferences' was added
+- `TYPE_ADDED` `FedNowTransferReferences` — Type 'FedNowTransferReferences' was added
+- `FIELD_ADDED` `RtpTransferBankTransferDetails.references` — Field 'references' was added to object type 'RtpTransferBankTransferDetails'
+- `FIELD_ADDED` `FedNowTransferBankTransferDetails.references` — Field 'references' was added to object type 'FedNowTransferBankTransferDetails'
+
+</details>
+
+<details><summary><strong>2026-10-27</strong> — scl_bc32ac20c24c4eef9831ff2ba72d88f7 (12 changes)</summary>
+
+**DANGEROUS** (3)
+
+- `INPUT_FIELD_DEFAULT_VALUE_CHANGED` `UpdateUSPersonAccountHolderBillingAddressInput.updatePaymentCardBillingAddress` — Input field 'UpdateUSPersonAccountHolderBillingAddressInput.updatePaymentCardBillingAddress' default value changed from 'false' to 'true'
+- `INPUT_FIELD_DEFAULT_VALUE_CHANGED` `UpdateUSPersonAuthorizedUserBillingAddressInput.updatePaymentCardBillingAddress` — Input field 'UpdateUSPersonAuthorizedUserBillingAddressInput.updatePaymentCardBillingAddress' default value changed from 'false' to 'true'
+- `INPUT_FIELD_DEFAULT_VALUE_CHANGED` `UpdateUSBusinessAccountHolderBillingAddressInput.updatePaymentCardBillingAddress` — Input field 'UpdateUSBusinessAccountHolderBillingAddressInput.updatePaymentCardBillingAddress' default value changed from 'false' to 'true'
+
+**NON_BREAKING** (9)
+
+- `TYPE_ADDED` `PaymentCardThreeDSecureAuthentication` — Type 'PaymentCardThreeDSecureAuthentication' was added
+- `TYPE_ADDED` `PaymentCardThreeDSecureAuthenticationStatus` — Type 'PaymentCardThreeDSecureAuthenticationStatus' was added
+- `TYPE_ADDED` `PaymentCardThreeDSecureAuthenticationFlow` — Type 'PaymentCardThreeDSecureAuthenticationFlow' was added
+- `TYPE_ADDED` `AttachFeeScheduleToFinancialAccountPayload` — Type 'AttachFeeScheduleToFinancialAccountPayload' was added
+- `TYPE_ADDED` `DetachFeeScheduleFromFinancialAccountPayload` — Type 'DetachFeeScheduleFromFinancialAccountPayload' was added
+- `TYPE_ADDED` `AttachFeeScheduleToFinancialAccountInput` — Type 'AttachFeeScheduleToFinancialAccountInput' was added
+- `TYPE_ADDED` `DetachFeeScheduleFromFinancialAccountInput` — Type 'DetachFeeScheduleFromFinancialAccountInput' was added
+- `FIELD_ADDED` `Mutation.attachFeeScheduleToFinancialAccount` — Field 'attachFeeScheduleToFinancialAccount' was added to object type 'Mutation'
+- `FIELD_ADDED` `Mutation.detachFeeScheduleFromFinancialAccount` — Field 'detachFeeScheduleFromFinancialAccount' was added to object type 'Mutation'
+
+</details>
+
+<details><summary><strong>2026-10-26</strong> — scl_3a3bd85f550840bfa85fd32f262dad8d (30 changes)</summary>
+
+**DANGEROUS** (6)
+
+- `UNION_MEMBER_ADDED` `CapturePaymentTransactionPayload` — Member 'WalletCaptureStepSummary' was added to Union type 'CapturePaymentTransactionPayload'
+- `UNION_MEMBER_ADDED` `RefundPaymentTransactionPayload` — Member 'WalletRefundStepSummary' was added to Union type 'RefundPaymentTransactionPayload'
+- `UNION_MEMBER_ADDED` `RefundCaptureStepPayload` — Member 'WalletRefundStepSummary' was added to Union type 'RefundCaptureStepPayload'
+- `UNION_MEMBER_ADDED` `AuthorizePaymentTransactionPayload` — Member 'WalletAuthorizationStepSummary' was added to Union type 'AuthorizePaymentTransactionPayload'
+- `UNION_MEMBER_ADDED` `ReversePaymentTransactionPayload` — Member 'WalletReversalStepSummary' was added to Union type 'ReversePaymentTransactionPayload'
+- `INPUT_FIELD_ADDED` `AcquiringMastercardEnhancedDataInput.lineItems` — Input field 'lineItems' of type '[AcquiringMastercardEnhancedDataLineItemInput!]' was added to input object type 'AcquiringMastercardEnhancedDataInput'
+
+**NON_BREAKING** (24)
+
+- `TYPE_ADDED` `BusinessAssociatedPersonInput` — Type 'BusinessAssociatedPersonInput' was added
+- `TYPE_ADDED` `AddBeneficialOwnersInput` — Type 'AddBeneficialOwnersInput' was added
+- `TYPE_ADDED` `IncomingPrimaryAuthorizedPersonInput` — Type 'IncomingPrimaryAuthorizedPersonInput' was added
+- `TYPE_ADDED` `ReplacePrimaryAuthorizedPersonInput` — Type 'ReplacePrimaryAuthorizedPersonInput' was added
+- `TYPE_ADDED` `UpdateBeneficialOwnershipInput` — Type 'UpdateBeneficialOwnershipInput' was added
+- `TYPE_ADDED` `AddBeneficialOwnersPayload` — Type 'AddBeneficialOwnersPayload' was added
+- `TYPE_ADDED` `ReplacePrimaryAuthorizedPersonPayload` — Type 'ReplacePrimaryAuthorizedPersonPayload' was added
+- `TYPE_ADDED` `UpdateBeneficialOwnershipPayload` — Type 'UpdateBeneficialOwnershipPayload' was added
+- `TYPE_ADDED` `IncomingPersonConsentInput` — Type 'IncomingPersonConsentInput' was added
+- `TYPE_ADDED` `WalletPaymentMethodStatus` — Type 'WalletPaymentMethodStatus' was added
+- `TYPE_ADDED` `WalletConnection` — Type 'WalletConnection' was added
+- `TYPE_ADDED` `WalletEdge` — Type 'WalletEdge' was added
+- `TYPE_ADDED` `WalletRefundStepSummary` — Type 'WalletRefundStepSummary' was added
+- `TYPE_ADDED` `WalletAuthorizationStepSummary` — Type 'WalletAuthorizationStepSummary' was added
+- `TYPE_ADDED` `WalletCaptureStepSummary` — Type 'WalletCaptureStepSummary' was added
+- `TYPE_ADDED` `WalletReversalStepSummary` — Type 'WalletReversalStepSummary' was added
+- `TYPE_ADDED` `AcquiringMastercardEnhancedDataLineItemInput` — Type 'AcquiringMastercardEnhancedDataLineItemInput' was added
+- `TYPE_ADDED` `AcquiringMastercardDebitCreditIndicator` — Type 'AcquiringMastercardDebitCreditIndicator' was added
+- `FIELD_ADDED` `Mutation.addBeneficialOwners` — Field 'addBeneficialOwners' was added to object type 'Mutation'
+- `FIELD_ADDED` `Mutation.replacePrimaryAuthorizedPerson` — Field 'replacePrimaryAuthorizedPerson' was added to object type 'Mutation'
+- `FIELD_ADDED` `Mutation.updateBeneficialOwnership` — Field 'updateBeneficialOwnership' was added to object type 'Mutation'
+- `FIELD_ADDED` `FinancialAccount.wallets` — Field 'wallets' was added to object type 'FinancialAccount'
+- `FIELD_ADDED` `WalletPaymentMethod.status` — Field 'status' was added to object type 'WalletPaymentMethod'
+- `FIELD_ADDED` `WalletPaymentMethod.createdAt` — Field 'createdAt' was added to object type 'WalletPaymentMethod'
+
+</details>
+
+<details><summary><strong>2026-10-22</strong> — scl_f284548a7713467fa7ed69db98532392 (21 changes)</summary>
 
 **DANGEROUS** (5)
 
-- `ENUM_VALUE_ADDED` `RewardPointsTransferFailureReasonCode.REDEMPTION_CONFIGURATION_ID_NOT_PROVIDED` — Enum value 'REDEMPTION_CONFIGURATION_ID_NOT_PROVIDED' was added to enum 'RewardPointsTransferFailureReasonCode'
-- `ENUM_VALUE_ADDED` `RewardPointsTransferFailureReasonCode.PREPAID_CARD_FEATURE_NOT_ENABLED` — Enum value 'PREPAID_CARD_FEATURE_NOT_ENABLED' was added to enum 'RewardPointsTransferFailureReasonCode'
-- `ENUM_VALUE_ADDED` `RewardPointsTransferFailureReasonCode.ACCOUNTS_DO_NOT_BELONG_TO_SAME_PRODUCT` — Enum value 'ACCOUNTS_DO_NOT_BELONG_TO_SAME_PRODUCT' was added to enum 'RewardPointsTransferFailureReasonCode'
-- `INPUT_FIELD_ADDED` `CreateRewardRedemptionConfigurationInput.type` — Input field 'type' of type 'RedemptionConfigurationType' was added to input object type 'CreateRewardRedemptionConfigurationInput'
-- `ENUM_VALUE_ADDED` `RedemptionConfigurationType.REDEEM_TO_FINANCIAL_ACCOUNT` — Enum value 'REDEEM_TO_FINANCIAL_ACCOUNT' was added to enum 'RedemptionConfigurationType'
-
-**NON_BREAKING** (2)
-
-- `TYPE_ADDED` `RedeemRewardsToFinancialAccountInput` — Type 'RedeemRewardsToFinancialAccountInput' was added
-- `FIELD_ADDED` `Mutation.redeemRewardsToFinancialAccount` — Field 'redeemRewardsToFinancialAccount' was added to object type 'Mutation'
-
-</details>
-
-<details><summary><strong>2026-06-04</strong> — scl_9bdd3ad315a24876abdbd59380168f88 (1 change)</summary>
-
-**DANGEROUS** (1)
-
-- `ENUM_VALUE_ADDED` `FinancialAccountStatus.UNACTIVATED` — Enum value 'UNACTIVATED' was added to enum 'FinancialAccountStatus'
-
-</details>
-
-<details><summary><strong>2026-06-03</strong> — scl_0ee7a928dfe040df94645435f12f63c2 (39 changes)</summary>
-
-**DANGEROUS** (4)
-
-- `ENUM_VALUE_ADDED` `LedgerName.PSEUDO_OUTSTANDING_BALANCE_PAYABLE` — Enum value 'PSEUDO_OUTSTANDING_BALANCE_PAYABLE' was added to enum 'LedgerName'
-- `ENUM_VALUE_ADDED` `LedgerName.PSEUDO_OUTSTANDING_BALANCE_RECEIVABLE` — Enum value 'PSEUDO_OUTSTANDING_BALANCE_RECEIVABLE' was added to enum 'LedgerName'
-- `ENUM_VALUE_ADDED` `LedgerName.DISBURSEMENT_CASH` — Enum value 'DISBURSEMENT_CASH' was added to enum 'LedgerName'
-- `ENUM_VALUE_ADDED` `LedgerName.DISBURSEMENT_AVAILABLE_CASH` — Enum value 'DISBURSEMENT_AVAILABLE_CASH' was added to enum 'LedgerName'
-
-**NON_BREAKING** (35)
-
-- `TYPE_ADDED` `BusinessServiceConnection` — Type 'BusinessServiceConnection' was added
-- `TYPE_ADDED` `BusinessServiceEdge` — Type 'BusinessServiceEdge' was added
-- `TYPE_ADDED` `TransactionBatchFilterInput` — Type 'TransactionBatchFilterInput' was added
-- `TYPE_ADDED` `TransactionBatchConnectionPayload` — Type 'TransactionBatchConnectionPayload' was added
-- `TYPE_ADDED` `PaymentTransactionsConnectionPayload` — Type 'PaymentTransactionsConnectionPayload' was added
-- `TYPE_ADDED` `TransactionBatchConnection` — Type 'TransactionBatchConnection' was added
-- `TYPE_ADDED` `TransactionBatchEdge` — Type 'TransactionBatchEdge' was added
-- `TYPE_ADDED` `CloseTransactionBatchInput` — Type 'CloseTransactionBatchInput' was added
-- `TYPE_ADDED` `CloseTransactionBatchPayload` — Type 'CloseTransactionBatchPayload' was added
-- `TYPE_ADDED` `CloseTransactionBatch` — Type 'CloseTransactionBatch' was added
-- `TYPE_ADDED` `TransactionBatchEntryFilterInput` — Type 'TransactionBatchEntryFilterInput' was added
-- `TYPE_ADDED` `TransactionBatchTotal` — Type 'TransactionBatchTotal' was added
-- `TYPE_ADDED` `BatchHoldConnection` — Type 'BatchHoldConnection' was added
-- `TYPE_ADDED` `BatchHoldEdge` — Type 'BatchHoldEdge' was added
-- `TYPE_ADDED` `BatchAdjustmentConnection` — Type 'BatchAdjustmentConnection' was added
-- `TYPE_ADDED` `BatchAdjustmentEdge` — Type 'BatchAdjustmentEdge' was added
-- `FIELD_ADDED` `Query.transactionBatches` — Field 'transactionBatches' was added to object type 'Query'
-- `FIELD_ADDED` `Mutation.closeTransactionBatch` — Field 'closeTransactionBatch' was added to object type 'Mutation'
-- `FIELD_ADDED` `Business.services` — Field 'services' was added to object type 'Business'
-- `FIELD_ADDED` `MerchantAcceptor.merchant` — Field 'merchant' was added to object type 'MerchantAcceptor'
-- `FIELD_ADDED` `MerchantAcceptorDetails.merchantCategoryCode` — Field 'merchantCategoryCode' was added to object type 'MerchantAcceptorDetails'
-- `FIELD_ADDED` `MerchantAcceptorProcessorConfiguration.merchantCategoryCode` — Field 'merchantCategoryCode' was added to object type 'MerchantAcceptorProcessorConfiguration'
-- `FIELD_ADDED` `MerchantPayfacRelationship.payfac` — Field 'payfac' was added to object type 'MerchantPayfacRelationship'
-- `FIELD_ADDED` `TransactionBatch.debitTotal` — Field 'debitTotal' was added to object type 'TransactionBatch'
-- `FIELD_ADDED` `TransactionBatch.creditTotal` — Field 'creditTotal' was added to object type 'TransactionBatch'
-- `FIELD_ADDED` `TransactionBatch.chargebackTotal` — Field 'chargebackTotal' was added to object type 'TransactionBatch'
-- `FIELD_ADDED` `TransactionBatch.holdsTotalAmount` — Field 'holdsTotalAmount' was added to object type 'TransactionBatch'
-- `FIELD_ADDED` `TransactionBatch.adjustmentsTotalAmount` — Field 'adjustmentsTotalAmount' was added to object type 'TransactionBatch'
-- `FIELD_ADDED` `TransactionBatch.disbursedAmount` — Field 'disbursedAmount' was added to object type 'TransactionBatch'
-- `FIELD_ADDED` `TransactionBatch.transactions` — Field 'transactions' was added to object type 'TransactionBatch'
-- `FIELD_ADDED` `TransactionBatch.holds` — Field 'holds' was added to object type 'TransactionBatch'
-- `FIELD_ADDED` `TransactionBatch.adjustments` — Field 'adjustments' was added to object type 'TransactionBatch'
-- `FIELD_ADDED` `TransactionBatch.currentTotal` — Field 'currentTotal' was added to object type 'TransactionBatch'
-- `FIELD_ADDED` `TransactionBatch.createdAt` — Field 'createdAt' was added to object type 'TransactionBatch'
-- `FIELD_ADDED` `TransactionBatch.closeRequestedAt` — Field 'closeRequestedAt' was added to object type 'TransactionBatch'
-
-</details>
-
-<details><summary><strong>2026-06-02</strong> — scl_b7b41c9383d046589f67ca08a2185953 (17 changes)</summary>
-
-**BREAKING** (5)
-
-- `TYPE_REMOVED` `UpdatePricingConfigurationPayload` — Type 'UpdatePricingConfigurationPayload' was removed
-- `TYPE_REMOVED` `UpdatePricingConfigurationInput` — Type 'UpdatePricingConfigurationInput' was removed
-- `FIELD_REMOVED` `Mutation.updatePricingConfiguration` — Field 'updatePricingConfiguration' was removed from object type 'Mutation'
-- `FIELD_REMOVED` `TransactionBatch.merchantAcceptorId` — Field 'merchantAcceptorId' was removed from object type 'TransactionBatch'
-- `ENUM_VALUE_REMOVED` `TransactionBatchStatus.PAYOUT_SENT` — Enum value 'PAYOUT_SENT' was removed from enum 'TransactionBatchStatus'
-
-**DANGEROUS** (5)
-
-- `ENUM_VALUE_ADDED` `PricingRuleTrigger.RECURRING` — Enum value 'RECURRING' was added to enum 'PricingRuleTrigger'
-- `ENUM_VALUE_ADDED` `PricingRuleFrequency.MONTHLY` — Enum value 'MONTHLY' was added to enum 'PricingRuleFrequency'
-- `ENUM_VALUE_ADDED` `TransactionBatchStatus.PAYOUT_COMPLETE` — Enum value 'PAYOUT_COMPLETE' was added to enum 'TransactionBatchStatus'
-- `ENUM_VALUE_ADDED` `TransactionBatchStatus.PAYOUT_PENDING` — Enum value 'PAYOUT_PENDING' was added to enum 'TransactionBatchStatus'
-- `ENUM_VALUE_ADDED` `TransactionBatchStatus.PAYOUT_FAILED` — Enum value 'PAYOUT_FAILED' was added to enum 'TransactionBatchStatus'
-
-**NON_BREAKING** (7)
-
-- `TYPE_ADDED` `OnDemandPricingCharge` — Type 'OnDemandPricingCharge' was added
-- `TYPE_ADDED` `OnDemandPricingChargeImpact` — Type 'OnDemandPricingChargeImpact' was added
-- `TYPE_ADDED` `OnDemandPricingChargeCalculationMetadata` — Type 'OnDemandPricingChargeCalculationMetadata' was added
-- `TYPE_ADDED` `OnDemandPricingPerItemCalculation` — Type 'OnDemandPricingPerItemCalculation' was added
-- `TYPE_ADDED` `OnDemandPricingPercentageCalculation` — Type 'OnDemandPricingPercentageCalculation' was added
-- `TYPE_ADDED` `TransactionBatchOwner` — Type 'TransactionBatchOwner' was added
-- `FIELD_ADDED` `TransactionBatch.owner` — Field 'owner' was added to object type 'TransactionBatch'
-
-</details>
-
-<details><summary><strong>2026-05-27</strong> — scl_15557885667544dcb79a70b89849831e (16 changes)</summary>
+- `UNION_MEMBER_ADDED` `EndDocumentUploadSessionPayload` — Member 'CheckDepositDocumentUploadSession' was added to Union type 'EndDocumentUploadSessionPayload'
+- `UNION_MEMBER_ADDED` `StartDocumentUploadSessionPayload` — Member 'CheckDepositDocumentUploadSession' was added to Union type 'StartDocumentUploadSessionPayload'
+- `UNION_MEMBER_ADDED` `PaymentInstrument` — Member 'WalletPaymentMethod' was added to Union type 'PaymentInstrument'
+- `INPUT_FIELD_ADDED` `PaymentCredentialInput.walletPaymentMethod` — Input field 'walletPaymentMethod' of type 'WalletPaymentMethodCredentialInput' was added to input object type 'PaymentCredentialInput'
+- `UNION_MEMBER_ADDED` `ChargePaymentTransactionPayload` — Member 'WalletChargeStepSummary' was added to Union type 'ChargePaymentTransactionPayload'
 
 **NON_BREAKING** (16)
 
-- `TYPE_ADDED` `MerchantStatus` — Type 'MerchantStatus' was added
-- `TYPE_ADDED` `AcquiringMerchantType` — Type 'AcquiringMerchantType' was added
-- `TYPE_ADDED` `PayfacStatus` — Type 'PayfacStatus' was added
-- `TYPE_ADDED` `IsoStatus` — Type 'IsoStatus' was added
-- `TYPE_ADDED` `MerchantPayfacRelationship` — Type 'MerchantPayfacRelationship' was added
-- `TYPE_ADDED` `MerchantPayfacRelationshipConnection` — Type 'MerchantPayfacRelationshipConnection' was added
-- `TYPE_ADDED` `MerchantPayfacRelationshipEdge` — Type 'MerchantPayfacRelationshipEdge' was added
-- `TYPE_ADDED` `PayfacIsoPartnership` — Type 'PayfacIsoPartnership' was added
-- `TYPE_ADDED` `PayfacIsoPartnershipConnection` — Type 'PayfacIsoPartnershipConnection' was added
-- `TYPE_ADDED` `PayfacIsoPartnershipEdge` — Type 'PayfacIsoPartnershipEdge' was added
-- `TYPE_ADDED` `Merchant` — Type 'Merchant' was added
-- `TYPE_ADDED` `MerchantConnection` — Type 'MerchantConnection' was added
-- `TYPE_ADDED` `MerchantEdge` — Type 'MerchantEdge' was added
-- `TYPE_ADDED` `Payfac` — Type 'Payfac' was added
-- `TYPE_ADDED` `Iso` — Type 'Iso' was added
-- `TYPE_ADDED` `BusinessService` — Type 'BusinessService' was added
+- `TYPE_ADDED` `CreateWalletInput` — Type 'CreateWalletInput' was added
+- `TYPE_ADDED` `WalletFundingSourceInput` — Type 'WalletFundingSourceInput' was added
+- `TYPE_ADDED` `WalletFinancialAccountFundingSourceInput` — Type 'WalletFinancialAccountFundingSourceInput' was added
+- `TYPE_ADDED` `CreateWalletPayload` — Type 'CreateWalletPayload' was added
+- `TYPE_ADDED` `Wallet` — Type 'Wallet' was added
+- `TYPE_ADDED` `WalletFundingSource` — Type 'WalletFundingSource' was added
+- `TYPE_ADDED` `WalletFundingSourceNode` — Type 'WalletFundingSourceNode' was added
+- `TYPE_ADDED` `WalletPaymentMethod` — Type 'WalletPaymentMethod' was added
+- `TYPE_ADDED` `WalletPaymentMethodCredentialInput` — Type 'WalletPaymentMethodCredentialInput' was added
+- `TYPE_ADDED` `WalletChargeStepSummary` — Type 'WalletChargeStepSummary' was added
+- `TYPE_ADDED` `CheckDepositDocumentType` — Type 'CheckDepositDocumentType' was added
+- `TYPE_ADDED` `CheckDepositDocumentUploadSession` — Type 'CheckDepositDocumentUploadSession' was added
+- `TYPE_ADDED` `CheckDepositStatus` — Type 'CheckDepositStatus' was added
+- `TYPE_ADDED` `CheckDepositFailureReason` — Type 'CheckDepositFailureReason' was added
+- `TYPE_ADDED` `CheckDeposit` — Type 'CheckDeposit' was added
+- `FIELD_ADDED` `Mutation.createWallet` — Field 'createWallet' was added to object type 'Mutation'
 
 </details>
 
-<details><summary><strong>2026-05-27</strong> — scl_ecaa8e7132574ef39e6202790d96c63f (1 change)</summary>
+<details><summary><strong>2026-10-20</strong> — scl_f620e23fd611400db63f2e7edb2cfc7e (4 changes)</summary>
 
-**NON_BREAKING** (1)
+**DANGEROUS** (2)
 
-- `FIELD_ADDED` `BalanceNotificationEvent.accountingDirection` — Field 'accountingDirection' was added to object type 'BalanceNotificationEvent'
+- `ENUM_VALUE_ADDED` `LedgerName.ACCOUNT_HOLDER_FEE_HOLD` — Enum value 'ACCOUNT_HOLDER_FEE_HOLD' was added to enum 'LedgerName'
+- `INPUT_FIELD_ADDED` `ProvisionCreateAccountHolderCardProductApplicationInput.bankProcessingAttributes` — Input field 'bankProcessingAttributes' of type 'BankProcessingAttributesInput' was added to input object type 'ProvisionCreateAccountHolderCardProductApplicationInput'
+
+**NON_BREAKING** (2)
+
+- `FIELD_ADDED` `PaymentCard.cardPersonalization` — Field 'cardPersonalization' was added to object type 'PaymentCard'
+- `FIELD_ADDED` `ProvisionCreateAccountHolderCardProductApplicationActionDetail.bankProcessingAttributes` — Field 'bankProcessingAttributes' was added to object type 'ProvisionCreateAccountHolderCardProductApplicationActionDetail'
+
+</details>
+
+<details><summary><strong>2026-10-19</strong> — scl_c012d63a9b7d4aa78f95ed8babf661a2 (20 changes)</summary>
+
+**DANGEROUS** (1)
+
+- `INPUT_FIELD_ADDED` `CardHolderInput.name` — Input field 'name' of type 'CardHolderNameInput' was added to input object type 'CardHolderInput'
+
+**NON_BREAKING** (19)
+
+- `TYPE_ADDED` `CardHolderNameInput` — Type 'CardHolderNameInput' was added
+- `TYPE_ADDED` `CheckInstrumentEligibilityDetailsInput` — Type 'CheckInstrumentEligibilityDetailsInput' was added
+- `TYPE_ADDED` `InstrumentEligibilityDetailRequestInput` — Type 'InstrumentEligibilityDetailRequestInput' was added
+- `TYPE_ADDED` `EligibilityInstrumentInput` — Type 'EligibilityInstrumentInput' was added
+- `TYPE_ADDED` `EligibilityPaymentCardInput` — Type 'EligibilityPaymentCardInput' was added
+- `TYPE_ADDED` `EligibilityPaymentCardBinInput` — Type 'EligibilityPaymentCardBinInput' was added
+- `TYPE_ADDED` `CheckInstrumentEligibilityDetailsPayload` — Type 'CheckInstrumentEligibilityDetailsPayload' was added
+- `TYPE_ADDED` `InstrumentEligibilityDetails` — Type 'InstrumentEligibilityDetails' was added
+- `TYPE_ADDED` `InstrumentEligibilityDetailResult` — Type 'InstrumentEligibilityDetailResult' was added
+- `TYPE_ADDED` `InstrumentEligibilityDetail` — Type 'InstrumentEligibilityDetail' was added
+- `TYPE_ADDED` `CardEligibilityDetail` — Type 'CardEligibilityDetail' was added
+- `TYPE_ADDED` `CardNetworkMoneyMovementEligibility` — Type 'CardNetworkMoneyMovementEligibility' was added
+- `TYPE_ADDED` `CardNetworkTransferEligibility` — Type 'CardNetworkTransferEligibility' was added
+- `TYPE_ADDED` `NetworkMoneyMovementEligibilityStatus` — Type 'NetworkMoneyMovementEligibilityStatus' was added
+- `TYPE_ADDED` `PaymentCardDesignation` — Type 'PaymentCardDesignation' was added
+- `TYPE_ADDED` `PaymentCardFundingSource` — Type 'PaymentCardFundingSource' was added
+- `FIELD_ADDED` `Mutation.checkInstrumentEligibilityDetails` — Field 'checkInstrumentEligibilityDetails' was added to object type 'Mutation'
+- `FIELD_ADDED` `LinkVerifiedExternalBankAccountVerificationRequiredEvent.externalLinkToken` — Field 'externalLinkToken' was added to object type 'LinkVerifiedExternalBankAccountVerificationRequiredEvent'
+- `FIELD_ADDED` `CardHolder.name` — Field 'name' was added to object type 'CardHolder'
 
 </details>
 

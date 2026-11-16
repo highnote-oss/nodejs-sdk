@@ -10,6 +10,8 @@ Create a card product application for an account holder.
 - `input.accountHolderId` (string, **required**) — The ID of the account holder applicant.
 - `input.applicationConfiguration` (ApplicationConfigurationInput, optional) — Optional application-level configuration provided by the applicant at the start of the application,
   such as billing cycle preferences.
+- `input.bankProcessingAttributes` (BankProcessingAttributesInput, optional) — Sponsor bank details for the application, such as the bank's customer ID for the
+  account holder.
 - `input.cardHolderAgreementConsent.consentIpAddress` (IpAddressInput, optional) — The `IPAddress` of the consenting party when they accepted the agreement.
 - `input.cardHolderAgreementConsent.consentTimestamp` (string, **required**) — The date and time, in ISO 8601 format, marking when the primary authorized person or person card holder accepted card holder agreement.
 

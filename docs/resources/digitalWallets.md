@@ -39,6 +39,9 @@ Add a payment card to Google Pay via device push provisioning.
 - `input.deviceType` (PaymentCardDigitalWalletDeviceType, **required**) — Specifies the type of device which is initiating the provisioning.
 - `input.displayName` (string, optional) — Display Name describes the Payment Card in the user interface. Highnote can return this value in the response which the Subscriber’s mobile app can override before calling pushTokenize on the wallet app. If not provided, Highnote will leverage the name of the product.
 - `input.paymentCardId` (string, **required**) — The ID of the payment card to be push provisioned.
+- `input.serverSessionId` (string, optional) — The server session ID that Google returns when it requests a Google opaque payment card for this provisioning. Send it exactly as Google returns it. When you send it, the response includes `googleOpaquePaymentCard`. Omit it when Google does not request a Google opaque payment card, for example for wearable devices. An empty string counts as omitting it.
+
+  A value that is present but blank, such as a single space, is rejected with a `UserError` with the code `NON_EMPTY_INPUT_REQUIRED` on this field. A value longer than 255 characters is rejected with the code `MAX_LENGTH_REACHED`. If Highnote cannot create the Google opaque payment card, the request fails with an error and returns no provisioning data.
 - `input.walletDetails` (WalletDetailsInput, optional) — Token provisioning wallet details.
 
 **Returns** `PaymentCardDigitalWalletTokenGooglePayPushProvisioning` — fields: `opaquePaymentCard`.
